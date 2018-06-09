@@ -16,3 +16,13 @@ Streams provided:
 
 <ul></ul>
 </ul>
+
+<hr>
+
+<h2>Current Implementation</h2>
+
+Currently, only the transformation stream works as expected, syntax is as follows:
+
+<code> formed = TransformationStream.flow(["scale","normalize","pca","binarize","kmeans"], 
+                        params={"pca__percent_variance":0.75, "binarize__threshold":0.0, "kmeans__n_clusters":3}) 
+</code>
