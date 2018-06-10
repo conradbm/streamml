@@ -28,3 +28,16 @@ Example of a transformation stream:
 <code> formed = TransformationStream.flow(["scale","normalize","pca","binarize","kmeans"], 
                         params={"pca__percent_variance":0.75, "binarize__threshold":0.0, "kmeans__n_clusters":3}) 
 </code>
+
+<code>
+  performances = ModelSelectionStream(X,y).flow(["svr", "lr", "knnr","lasso","abr"],
+                                              params={'svr__C':[1,0.1,0.01,0.001],
+                                                     'lr__fit_intercept':[False, True],
+                                                     'knnr__n_neighbors':[5,10],
+                                                     'lasso__alpha':[1.0,10.0,20.0],
+                                                     'abr__n_estimators':[10,20,50],
+                                                     'abr__learning_rate':[0.1,1,10]},
+                                              verbose=True)
+  </code>
+
+
