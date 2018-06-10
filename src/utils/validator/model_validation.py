@@ -3,7 +3,7 @@ from sklearn.metrics import log_loss, roc_auc_score, confusion_matrix, classific
 from sklearn.metrics import mean_squared_error, r2_score
 from numpy import sqrt, mean
 from pandas import DataFrame, Series
-
+import numpy as np
 
 class ModelValidation:
 
@@ -24,7 +24,7 @@ class ModelValidation:
         """
         assert isinstance(x_data, DataFrame), "x_data must be a pandas DataFrame"
         assert isinstance(y_data, DataFrame) or isinstance(y_data, Series), "y_data must be pandas DataFrame or Series"
-        assert y_data.dtypes == "float", "Expected y_data to be float dtype and received {}".format(y_data.dtypes)
+        #assert y_data.dtypes == float, "Expected y_data to be float dtype and received {}".format(y_data.dtypes)
 
         if add_train_data is not None:
             raise NotImplementedError

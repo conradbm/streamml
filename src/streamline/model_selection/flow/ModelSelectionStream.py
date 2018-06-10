@@ -13,6 +13,28 @@ from KNNRegressorPredictiveModel import KNNRegressorPredictiveModel
 from RandomForestRegressorPredictiveModel import RandomForestRegressorPredictiveModel
 from AdaptiveBoostingRegressorPredictiveModel import AdaptiveBoostingRegressorPredictiveModel
 
+import matplotlib.pyplot as plt
+"""
+Example Usage:
+
+import pandas as pd
+import numpy as np
+from streamml.streamline.transformation.TransformationStream import TransformationStream
+
+X = pd.DataFrame(np.matrix([[np.random.exponential() for j in range(10)] for i in range(200)]))
+y = pd.DataFrame(np.array([np.random.exponential() for i in range(200)]))
+
+#options: lr, ridge, lasso, enet, svr, knnr, abr, rfr
+RES = ModelSelectionStream(Xnew,y).flow(["svr", "lr", "knnr","lasso","abr"],
+                                              params={'svr__C':[1,0.1,0.01,0.001],
+                                                     'lr__fit_intercept':[False, True],
+                                                     'knnr__n_neighbors':[5,10],
+                                                     'lasso__alpha':[1.0,10.0,20.0],
+                                                     'abr__n_estimators':[10,20,50],
+                                                     'abr__learning_rate':[0.1,1,10]},
+                                              verbose=True)
+"""
+
 class ModelSelectionStream:
     #properties
     _X=None
@@ -22,15 +44,34 @@ class ModelSelectionStream:
     _n_jobs=None
     _verbose=None
     
-    #constructor
+    """
+    Constructor:
+    1. Default
+        Paramters: df : pd.DataFrame, dataframe must be accepted to use this class
+    """
     def __init__(self,X,y):
         assert isinstance(X, pd.DataFrame), "X was not a pandas DataFrame"
         assert any([isinstance(y,pd.DataFrame), isinstance(y,pd.Series)]), "y was not a pandas DataFrame or Series"
         self._X = X
         self._y = y
         
-    
-    #methods
+    """
+    Methods:
+    1. flow
+        Parameters: models_to_flow : list(), User specified models to optimize and compare against one another. 
+
+                    MetaParamters:
+                        - lr -> LinearRegression()
+                        - ridge -> Ridge()
+                        - lasso -> Lasso()
+                        - enet -> ElasticNet()
+                        - svr -> SVR()
+                        - knnr -> KNearestRegression()
+                        - abr -> AdaptiveBoostingRegression()
+                        - rfr -> RandomForestRegression()
+                    
+    """
+
     def flow(self, models_to_flow=[], params=None, test_size=0.2, nfolds=3, nrepeats=3, pos_split=1, n_jobs=2, verbose=False):
         
         assert isinstance(nfolds, int), "nfolds must be integer"
@@ -40,12 +81,14 @@ class ModelSelectionStream:
         assert isinstance(pos_split, int), "pos_split must be integer"
         assert isinstance(params, dict), "params must be a dict"
         
+        
         self._nfolds=nfolds
         self._nrepeats=nrepeats
         self._n_jobs=n_jobs
         self._verbose=verbose
         self._pos_split=pos_split
         self._allParams=params
+        self._scoring=None
         
         # Inform the streamline to user.
         stringbuilder=""
@@ -70,8 +113,9 @@ class ModelSelectionStream:
                                                    self._lr_params,
                                                    self._nfolds, 
                                                    self._n_jobs,
+                                                   self._scoring,
                                                    self._verbose)
-            return model.getBestEstimator()
+            return model
             
         def supportVectorRegression():
             self._svr_params={}
@@ -87,8 +131,9 @@ class ModelSelectionStream:
                                                           self._svr_params,
                                                           self._nfolds, 
                                                           self._n_jobs,
+                                                          self._scoring,
                                                           self._verbose)
-            return model.getBestEstimator()
+            return model
             
         
         def randomForestRegression():
@@ -105,8 +150,9 @@ class ModelSelectionStream:
                                                           self._rfr_params,
                                                           self._nfolds, 
                                                           self._n_jobs,
+                                                          self._scoring,
                                                           self._verbose)
-            return model.getBestEstimator()
+            return model
             
         
 
@@ -121,12 +167,13 @@ class ModelSelectionStream:
                 print("Executing Adaptive Boosting Regressor")
                 
             model = AdaptiveBoostingRegressorPredictiveModel(self._X_train, 
-                                                          self._y_train,
-                                                          self._abr_params,
-                                                          self._nfolds, 
-                                                          self._n_jobs,
-                                                          self._verbose)
-            return model.getBestEstimator()
+                                                              self._y_train,
+                                                              self._abr_params,
+                                                              self._nfolds, 
+                                                              self._n_jobs,
+                                                              self._scoring,
+                                                              self._verbose)
+            return model
             
         def knnRegression():
             self._knnr_params={}
@@ -143,9 +190,10 @@ class ModelSelectionStream:
                                                 self._knnr_params,
                                                 self._nfolds, 
                                                 self._n_jobs,
+                                                self._scoring,
                                                 self._verbose)
             
-            return model.getBestEstimator()
+            return model
             
         def ridgeRegression():
             self._ridge_params={}
@@ -161,8 +209,9 @@ class ModelSelectionStream:
                                                           self._ridge_params,
                                                           self._nfolds, 
                                                           self._n_jobs,
+                                                          self._scoring,
                                                           self._verbose)
-            return model.getBestEstimator()
+            return model
             
         
         def lassoRegression():
@@ -179,8 +228,9 @@ class ModelSelectionStream:
                                                           self._lasso_params,
                                                           self._nfolds, 
                                                           self._n_jobs,
+                                                          self._scoring,
                                                           self._verbose)
-            return model.getBestEstimator()
+            return model
             
         
         def elasticNetRegression():
@@ -197,8 +247,9 @@ class ModelSelectionStream:
                                                           self._enet_params,
                                                           self._nfolds, 
                                                           self._n_jobs,
+                                                          self._scoring,
                                                           self._verbose)
-            return model.getBestEstimator()
+            return model
             
         
         #options: lr, ridge, lasso, enet, svr, knnr, abr, rfr
@@ -226,8 +277,24 @@ class ModelSelectionStream:
         for key in models_to_flow:
              models.append(options[key]())
         
+        if self._verbose:
+            print("Your best models:")
         for model in models:
-            pass
+            best_est = model.getBestEstimator()
             
-        pass
+            if self._verbose:
+                print(model.getCode(), best_est.get_params())
+            
+        performers=[]
+        
+        if self._verbose:
+            print ("Model performances")
+        for model in models:
+            model.validate(self._X_test, self._y_test, verbose=self._verbose)
+            performers.append([model.getCode(),model.getValidationResults()["r2"],model.getValidationResults()["rmse"]])
+            if self._verbose:
+                print(model.getCode(),model.getValidationResults()["r2"],model.getValidationResults()["rmse"])
+
+        
+        return performers
         

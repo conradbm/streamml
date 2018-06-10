@@ -63,7 +63,6 @@ class TransformationStream:
         
         # Assert correct formatting
         assert isinstance(self._df, pd.DataFrame), "data must be a pandas DataFrame."
-        assert all(self._df.dtypes == "float"), "data dtypes needed: float, dtypes received {}".format(self._df.dtypes)
         
         # Set verbosity.
         self._verbose=verbose

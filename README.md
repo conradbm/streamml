@@ -21,7 +21,9 @@ Streams provided:
 
 <h2>Current Implementation</h2>
 
-Currently, only the transformation stream works as expected, syntax is as follows:
+Currently we support transformation streams and restricted model selection streams with 5 regression estiminators.
+
+Example of a transformation stream:
 
 <code> formed = TransformationStream.flow(["scale","normalize","pca","binarize","kmeans"], 
                         params={"pca__percent_variance":0.75, "binarize__threshold":0.0, "kmeans__n_clusters":3}) 
