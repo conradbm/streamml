@@ -24,8 +24,12 @@ y = y.loc[-ynakiller]
 X.replace([np.nan, np.inf, -np.inf],0, inplace=True)
 
 print(X.shape)
-
-Xnew = TransformationStream(X).flow(["scale","normalize","pca", "kmeans"], params={"pca__percent_variance":0.75, "kmeans__n_clusters":2})
+#X = pd.DataFrame(np.matrix([[np.random.exponential() for j in range(10)] for i in range(200)]))
+#y = pd.DataFrame(np.array([np.random.exponential() for i in range(200)]))
+Xnew = TransformationStream(X).flow(["scale","normalize","pca", "kmeans"], 
+                                    params={"pca__percent_variance":0.75, 
+                                            "kmeans__n_clusters":2},
+                                   verbose=True)
 
 #preproc options: scale, normalize, boxcox, binarize, pca, kmeans
 #model options: lr, ridge, lasso, enet, svr, knnr, abr, rfr
