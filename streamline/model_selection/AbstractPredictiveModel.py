@@ -40,6 +40,8 @@ class AbstractPredictiveModel:
         return self._code
     
     def getValidationResults(self):
+        if self._verbose:
+            print("Returning "+self._code+" validation results")
         return self._validation_results
     
     def getBestEstimator(self):

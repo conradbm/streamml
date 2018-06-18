@@ -46,9 +46,14 @@ class ModelSelectionStream:
     _n_jobs=None
     _verbose=None
     _scoring=None
+    _metrics=None
     _test_size=None
+    _wrapper_models=None
     _bestEstimators={}
     _bestEstimator=None
+    _regressors_results=None
+    _classifiers_results=None
+    
     """
     Constructor:
     1. Default
@@ -85,7 +90,9 @@ class ModelSelectionStream:
     
     def determineBestEstimators(self, models):
         if self._verbose:
-            print("Finding your best models.")
+            print("**************************************************")
+            print("Determining Best Estimators.")
+            print("**************************************************")
         for model in models:
             self._bestEstimators[model.getCode()]=model.getBestEstimator()
 
@@ -93,48 +100,57 @@ class ModelSelectionStream:
                 print(model.getCode(), model.getBestEstimator().get_params())
         return self._bestEstimators
 
-    def handleRegressors(self, model_scoring):
-        # _options = ['mean_squared_error','r2']
-        if self._verbose:
-            print("Handling regressors")
-        regressors_results=[]
-        for model in self._bestEstimators:
-            regressors_results.append(model.validate(model_scoring))
+    def handleRegressors(self, Xtest, ytest, metrics, wrapper_models):
+        
+
+        self._regressors_results={}
+        for model in wrapper_models:
+            self._regressors_results[model.getCode()]=model.validate(Xtest, ytest, metrics)
         
         # create a pandas dataframe of each metric on each model
         
         if self._verbose:
+            print("**************************************************")
+            print("Regressor Performance Sheet")
+            print("**************************************************")
+            
+            df = pd.DataFrame(self._regressors_results)
+            print(df)
+            df.iloc[0,:].plot(kind='line', title='Generic Errors')
+            plt.show()
             # plot models against one another in charts
-            pass
         
-        return regressors_results
+        
+        return self._regressors_results
     
-    def handleClassifiers(self, model_scoring):
+    def handleClassifiers(self, Xtest, ytest, metrics):
         if self._verbose:
-            print("Handling classifiers")
-            pass
+            print("**************************************************")
+            print("Classifier Performance Sheet")
+            print("**************************************************")
         pass
     
-    def handleModelSelection(self, regressors, model_scoring):
-        best_model=None
+    def handleModelSelection(self, regressors, metrics, Xtest, ytest, wrapper_models):
+        
         if regressors:
-            self._bestEstimator = handleRegressors(model_scoring)
+            self._bestEstimator = self.handleRegressors(Xtest, ytest, metrics, wrapper_models)
         else:
             #classifiers
-            self._bestEstimator = handleClassifiers(model_scoring)
+            self._bestEstimator = self.handleClassifiers(Xtest, ytest, metrics, wrapper_models)
             
         return self._bestEstimator
     
 
     
-    def flow(self, models_to_flow=[], 
+    def flow(self, 
+             models_to_flow=[], 
              params=None, 
              test_size=0.2, 
              nfolds=3, 
              nrepeats=3,
              pos_split=1,
              n_jobs=1, 
-             model_scoring=[], 
+             metrics=[], 
              verbose=False, 
              regressors=True):
       
@@ -145,7 +161,7 @@ class ModelSelectionStream:
         assert isinstance(pos_split, int), "pos_split must be integer"
         assert isinstance(params, dict), "params must be a dict"
         assert isinstance(test_size, float), "test_size must be a float"
-        assert isinstance(model_scoring, list), "model scoring must be a list"
+        assert isinstance(metrics, list), "model scoring must be a list"
         assert isinstance(regressors, bool), "regressor must be bool"
         self._nfolds=nfolds
         self._nrepeats=nrepeats
@@ -153,7 +169,7 @@ class ModelSelectionStream:
         self._verbose=verbose
         self._pos_split=pos_split
         self._allParams=params
-        self._model_scoring=model_scoring
+        self._metrics=metrics
         self._test_size=test_size
         self._regressors=regressors
         
@@ -162,8 +178,11 @@ class ModelSelectionStream:
         for thing in models_to_flow:
             stringbuilder += thing
             stringbuilder += " --> "
-        print("Model Selection Streamline: " + stringbuilder[:-5])
-    
+            
+        if self._verbose:
+            print("**************************************************")
+            print("Model Selection Streamline: " + stringbuilder[:-5])
+            print("**************************************************")
         
         def linearRegression():
             
@@ -171,9 +190,7 @@ class ModelSelectionStream:
             for k,v in self._allParams.items():
                 if "lr" in k:
                     self._lr_params[k]=v
-            
-            if self._verbose:
-                print("Executing Linear Regressor")
+
                 
             model = LinearRegressorPredictiveModel(self._X_train, 
                                                    self._y_train,
@@ -188,9 +205,7 @@ class ModelSelectionStream:
             for k,v in self._allParams.items():
                 if "svr" in k:
                     self._svr_params[k]=v
-            
-            if self._verbose:
-                print("Executing Support Vector Regressor")
+
                 
             model = SupportVectorRegressorPredictiveModel(self._X_train, 
                                                           self._y_train,
@@ -206,9 +221,7 @@ class ModelSelectionStream:
             for k,v in self._allParams.items():
                 if "rfr" in k:
                     self._rfr_params[k]=v
-            
-            if self._verbose:
-                print("Executing Random Forest Regressor")
+
                 
             model = RandomForestRegressorPredictiveModel(self._X_train, 
                                                           self._y_train,
@@ -226,9 +239,7 @@ class ModelSelectionStream:
             for k,v in self._allParams.items():
                 if "abr" in k:
                     self._abr_params[k]=v
-            
-            if self._verbose:
-                print("Executing Adaptive Boosting Regressor")
+
                 
             model = AdaptiveBoostingRegressorPredictiveModel(self._X_train, 
                                                               self._y_train,
@@ -243,9 +254,7 @@ class ModelSelectionStream:
             for k,v in self._allParams.items():
                 if "knnr" in k:
                     self._knnr_params[k]=v
-            
-            if self._verbose:
-                print("Executing K-Nearest Neighbors Regressor")
+
             
             
             model = KNNRegressorPredictiveModel(self._X_train, 
@@ -262,9 +271,7 @@ class ModelSelectionStream:
             for k,v in self._allParams.items():
                 if "ridge" in k:
                     self._ridge_params[k]=v
-            
-            if self._verbose:
-                print("Executing Ridge Regressor")
+
                 
             model = RidgeRegressorPredictiveModel(self._X_train, 
                                                           self._y_train,
@@ -280,9 +287,7 @@ class ModelSelectionStream:
             for k,v in self._allParams.items():
                 if "lasso" in k:
                     self._lasso_params[k]=v
-            
-            if self._verbose:
-                print("Executing Lasso Regressor")
+
                 
             model = LassoRegressorPredictiveModel(self._X_train, 
                                                           self._y_train,
@@ -298,10 +303,7 @@ class ModelSelectionStream:
             for k,v in self._allParams.items():
                 if "enet" in k:
                     self._enet_params[k]=v
-            
-            if self._verbose:
-                print("Executing Elastic Net Regressor")
-                
+
             model = ElasticNetRegressorPredictiveModel(self._X_train, 
                                                           self._y_train,
                                                           self._enet_params,
@@ -332,24 +334,20 @@ class ModelSelectionStream:
         #print(self._y_test.shape)
             
         # Execute commands as provided in the preproc_args list
-        models=[]
+        self._wrapper_models=[]
         for key in models_to_flow:
-             models.append(options[key]())
+             self._wrapper_models.append(options[key]())
         
-        self._bestEstimators = self.determineBestEstimators(models)
-            
-        self._bestEstiminator = handleModelSelection(self._regressors, self._model_scoring)
+        self._bestEstimators = self.determineBestEstimators(self._wrapper_models)
         
-        """
-        performers=[] 
-        if self._verbose:
-            print ("Model performances")
-        for model in models:
-            model.validate(self._X_test, self._y_test, verbose=self._verbose)
-            performers.append([model.getCode(),model.getValidationResults()["r2"],model.getValidationResults()["rmse"]])
-            if self._verbose:
-                print(model.getCode(),model.getValidationResults()["r2"],model.getValidationResults()["rmse"])
-        """
+        
+        if len(self._metrics) > 0:
+            self._bestEstiminator = self.handleModelSelection(self._regressors, 
+                                                              self._metrics, 
+                                                              self._X_test, 
+                                                              self._y_test, 
+                                                              self._wrapper_models)
+
         
         return self._bestEstimators
     
