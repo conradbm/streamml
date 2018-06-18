@@ -12,13 +12,10 @@ from streamline.model_selection.AbstractPredictiveModel import AbstractPredictiv
 class AbstractRegressorPredictiveModel(AbstractPredictiveModel):
 
     #constructor
-    _options = ['explained_variance',
-              'neg_mean_absolute_error',
-              'neg_mean_squared_error',
-              'neg_mean_squared_log_error',
-              'neg_median_absolute_error',
-              'r2']
-
+    _options = ['rmse',
+                'r2']
+    _validation_results=None
+    
     def __init__(self, modelType, X, y, params, nfolds, n_jobs, scoring, verbose):
         
         if self._verbose:
@@ -33,15 +30,23 @@ class AbstractRegressorPredictiveModel(AbstractPredictiveModel):
         AbstractPredictiveModel.__init__(self, X, params, nfolds, n_jobs, verbose)
         
     #methods
-    def validate(self, Xtest, ytest, verbose=False):
-        """
-        scoring_dict = {"r2": [], "rmse": []}
-        ypred = self._model.predict(Xtest)
-        # append scores to logging dictionary
-        scoring_dict["r2"].append(r2_score(ytest, ypred))
-        scoring_dict["rmse"].append(np.sqrt(mean_squared_error(ytest, ypred)))
-        self._validation_results=scoring_dict
-        """
+    def validate(self, Xtest, ytest, metrics, verbose=False):
+        assert any([isinstance(metrics, str), isinstance(metrics, list)]), "Your regressor error metric must be a str or list"
+        assert all([i in self._options for i in metrics]) , "Your regressor error metric must be in valid: " + ' '.join([i for i in self._options])
+
+        
+        
+        self._validation_results={}
+        for m in metrics:
+            if m == 'r2':
+                ypred = self._model.predict(Xtest)
+                self._validation_results["r2"]=r2_score(ytest, ypred)
+            elif m == 'rmse':
+                ypred = self._model.predict(Xtest)
+                self._validation_results["rmse"]=np.sqrt(mean_squared_error(ytest, ypred))
+            else:
+                print("Metric not valid, how did you make it through the assertions?")
+        
         return self._validation_results
     
     def constructRegressor(self, model):
@@ -55,5 +60,5 @@ class AbstractRegressorPredictiveModel(AbstractPredictiveModel):
                                             verbose=False)
         
         
-        best_fit                 = self._grid.fit(self._X,self._y).best_estimator_.named_steps[self._code]
-        return best_fit    
+        self._model                 = self._grid.fit(self._X,self._y).best_estimator_.named_steps[self._code]
+        return self._model    

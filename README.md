@@ -25,19 +25,31 @@ Currently we support transformation streams and restricted model selection strea
 
 Example of a transformation stream:
 
-<code> formed = TransformationStream.flow(["scale","normalize","pca","binarize","kmeans"], 
-                        params={"pca__percent_variance":0.75, "binarize__threshold":0.0, "kmeans__n_clusters":3}) 
+<code>
+X = pd.DataFrame(np.matrix([[np.random.exponential() for j in range(10)] for i in range(200)]))
+y = pd.DataFrame(np.array([np.random.exponential() for i in range(200)]))
+</code>
+
+<code> 
+Xnew = TransformationStream(X).flow(["scale","normalize","pca", "kmeans"], 
+                                    params={"pca__percent_variance":0.75, 
+                                            "kmeans__n_clusters":2},
+                                   verbose=True)
 </code>
 
 <code>
-  performances = ModelSelectionStream(X,y).flow(["svr", "lr", "knnr","lasso","abr"],
+performances = ModelSelectionStream(Xnew,y).flow(["svr", "lr", "knnr","lasso","abr"],
                                               params={'svr__C':[1,0.1,0.01,0.001],
+                                                      'svr__gamma':[0, 0.01, 0.001, 0.0001],
+                                                      'svr__kernel':['poly', 'rbf'],
                                                      'lr__fit_intercept':[False, True],
-                                                     'knnr__n_neighbors':[5,10],
-                                                     'lasso__alpha':[1.0,10.0,20.0],
+                                                     'knnr__n_neighbors':[3, 5,7, 9, 11, 13],
+                                                     'lasso__alpha':[0,0.01,1,10.0,20.0],
                                                      'abr__n_estimators':[10,20,50],
-                                                     'abr__learning_rate':[0.1,1,10]},
-                                              verbose=True)
+                                                     'abr__learning_rate':[0.1,1,10, 100]},
+                                                metrics=['r2','rmse'],
+                                                regressors=True,
+                                                 verbose=True)
   </code>
 
 
