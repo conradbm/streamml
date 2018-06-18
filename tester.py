@@ -4,6 +4,9 @@ import numpy as np
 from streamline.transformation.flow.TransformationStream import TransformationStream
 from streamline.model_selection.flow.ModelSelectionStream import ModelSelectionStream
 
+# git checkout -b modelSelectionUpdates
+# git push -u origin modelSelectionUpdates
+
 # nano ~/.bash_profile
 # export PYTHONPATH="${PYTHONPATH}:/Users/bmc/Desktop/streamml"
 # source ~/.bash_profile
