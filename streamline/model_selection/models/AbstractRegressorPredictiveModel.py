@@ -12,12 +12,8 @@ from streamline.model_selection.AbstractPredictiveModel import AbstractPredictiv
 class AbstractRegressorPredictiveModel(AbstractPredictiveModel):
 
     #constructor
-    _options = ['explained_variance',
-              'neg_mean_absolute_error',
-              'neg_mean_squared_error',
-              'neg_mean_squared_log_error',
-              'neg_median_absolute_error',
-              'r2']
+    _options = ['mean_squared_error',
+                'r2']
 
     def __init__(self, modelType, X, y, params, nfolds, n_jobs, scoring, verbose):
         
@@ -33,7 +29,9 @@ class AbstractRegressorPredictiveModel(AbstractPredictiveModel):
         AbstractPredictiveModel.__init__(self, X, params, nfolds, n_jobs, verbose)
         
     #methods
-    def validate(self, Xtest, ytest, verbose=False):
+    def validate(self, Xtest, ytest, metric, verbose=False):
+        assert isinstance(metric, str), "your regressor error metric must be a str"
+        assert metric in self._options, "your regressor error metric must be in valid: " + self._options
         """
         scoring_dict = {"r2": [], "rmse": []}
         ypred = self._model.predict(Xtest)
@@ -42,6 +40,15 @@ class AbstractRegressorPredictiveModel(AbstractPredictiveModel):
         scoring_dict["rmse"].append(np.sqrt(mean_squared_error(ytest, ypred)))
         self._validation_results=scoring_dict
         """
+        if metric == self._options[0]:
+            if self._verbose:
+                print("Evaluating " + self._)
+            pass
+        elif metric == self._options[1]:
+            pass
+        else:
+            print("Metric not valid, how did you make it through the assertions?")
+        
         return self._validation_results
     
     def constructRegressor(self, model):

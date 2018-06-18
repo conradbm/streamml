@@ -45,8 +45,10 @@ class ModelSelectionStream:
     _nfolds=None
     _n_jobs=None
     _verbose=None
+    _scoring=None
+    _test_size=None
     _bestEstimators={}
-
+    _bestEstimator=None
     """
     Constructor:
     1. Default
@@ -74,24 +76,86 @@ class ModelSelectionStream:
                         - rfr -> RandomForestRegression()
                     
     """
+    
+    def getBestEstimators(self):
+        return self._bestEstimators
 
-    def flow(self, models_to_flow=[], params=None, test_size=0.2, nfolds=3, nrepeats=3, pos_split=1, n_jobs=1, scoring=None, verbose=False):
+    def getBestEstimator(self):
+        return self._bestEstiminator
+    
+    def determineBestEstimators(self, models):
+        if self._verbose:
+            print("Finding your best models.")
+        for model in models:
+            self._bestEstimators[model.getCode()]=model.getBestEstimator()
+
+            if self._verbose:
+                print(model.getCode(), model.getBestEstimator().get_params())
+        return self._bestEstimators
+
+    def handleRegressors(self, model_scoring):
+        # _options = ['mean_squared_error','r2']
+        if self._verbose:
+            print("Handling regressors")
+        regressors_results=[]
+        for model in self._bestEstimators:
+            regressors_results.append(model.validate(model_scoring))
         
+        # create a pandas dataframe of each metric on each model
+        
+        if self._verbose:
+            # plot models against one another in charts
+            pass
+        
+        return regressors_results
+    
+    def handleClassifiers(self, model_scoring):
+        if self._verbose:
+            print("Handling classifiers")
+            pass
+        pass
+    
+    def handleModelSelection(self, regressors, model_scoring):
+        best_model=None
+        if regressors:
+            self._bestEstimator = handleRegressors(model_scoring)
+        else:
+            #classifiers
+            self._bestEstimator = handleClassifiers(model_scoring)
+            
+        return self._bestEstimator
+    
+
+    
+    def flow(self, models_to_flow=[], 
+             params=None, 
+             test_size=0.2, 
+             nfolds=3, 
+             nrepeats=3,
+             pos_split=1,
+             n_jobs=1, 
+             model_scoring=[], 
+             verbose=False, 
+             regressors=True):
+      
         assert isinstance(nfolds, int), "nfolds must be integer"
         assert isinstance(nrepeats, int), "nrepeats must be integer"
         assert isinstance(n_jobs, int), "n_jobs must be integer"
         assert isinstance(verbose, bool), "verbosem ust be bool"
         assert isinstance(pos_split, int), "pos_split must be integer"
         assert isinstance(params, dict), "params must be a dict"
-        
-        
+        assert isinstance(test_size, float), "test_size must be a float"
+        assert isinstance(model_scoring, list), "model scoring must be a list"
+        assert isinstance(regressors, bool), "regressor must be bool"
         self._nfolds=nfolds
         self._nrepeats=nrepeats
         self._n_jobs=n_jobs
         self._verbose=verbose
         self._pos_split=pos_split
         self._allParams=params
-        self._scoring=scoring
+        self._model_scoring=model_scoring
+        self._test_size=test_size
+        self._regressors=regressors
         
         # Inform the streamline to user.
         stringbuilder=""
@@ -116,7 +180,6 @@ class ModelSelectionStream:
                                                    self._lr_params,
                                                    self._nfolds, 
                                                    self._n_jobs,
-                                                   self._scoring,
                                                    self._verbose)
             return model
             
@@ -134,7 +197,6 @@ class ModelSelectionStream:
                                                           self._svr_params,
                                                           self._nfolds, 
                                                           self._n_jobs,
-                                                          self._scoring,
                                                           self._verbose)
             return model
             
@@ -153,7 +215,6 @@ class ModelSelectionStream:
                                                           self._rfr_params,
                                                           self._nfolds, 
                                                           self._n_jobs,
-                                                          self._scoring,
                                                           self._verbose)
             return model
             
@@ -174,7 +235,6 @@ class ModelSelectionStream:
                                                               self._abr_params,
                                                               self._nfolds, 
                                                               self._n_jobs,
-                                                              self._scoring,
                                                               self._verbose)
             return model
             
@@ -193,7 +253,6 @@ class ModelSelectionStream:
                                                 self._knnr_params,
                                                 self._nfolds, 
                                                 self._n_jobs,
-                                                self._scoring,
                                                 self._verbose)
             
             return model
@@ -212,7 +271,6 @@ class ModelSelectionStream:
                                                           self._ridge_params,
                                                           self._nfolds, 
                                                           self._n_jobs,
-                                                          self._scoring,
                                                           self._verbose)
             return model
             
@@ -231,7 +289,6 @@ class ModelSelectionStream:
                                                           self._lasso_params,
                                                           self._nfolds, 
                                                           self._n_jobs,
-                                                          self._scoring,
                                                           self._verbose)
             return model
             
@@ -250,7 +307,6 @@ class ModelSelectionStream:
                                                           self._enet_params,
                                                           self._nfolds, 
                                                           self._n_jobs,
-                                                          self._scoring,
                                                           self._verbose)
             return model
             
@@ -269,7 +325,7 @@ class ModelSelectionStream:
         
         self._X_train, self._X_test, self._y_train, self._y_test = train_test_split(self._X,
                                                                                      self._y,
-                                                                                     test_size=0.2)
+                                                                                     test_size=self._test_size)
         #print(self._X_train.shape)
         #print(self._X_test.shape)
         #print(self._y_train.shape)
@@ -280,16 +336,9 @@ class ModelSelectionStream:
         for key in models_to_flow:
              models.append(options[key]())
         
-        if self._verbose:
-            print("Your best models:")
-        
-        for model in models:
-            self._bestEstimators[model.getCode()]=model.getBestEstimator()
-
-            if self._verbose:
-                print(model.getCode(), model.getBestEstimator().get_params())
+        self._bestEstimators = self.determineBestEstimators(models)
             
-        
+        self._bestEstiminator = handleModelSelection(self._regressors, self._model_scoring)
         
         """
         performers=[] 
@@ -304,5 +353,4 @@ class ModelSelectionStream:
         
         return self._bestEstimators
     
-    def getBestEstimators(self):
-        return self._bestEstimators
+
