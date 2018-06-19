@@ -8,13 +8,12 @@ By building a <code>Stream</code> object, you can specify a list of predefined o
 Streams provided:
 <ul>
 
-<li><code>TransformationStream</code>, meant to flow through preprocessing techniques such as: scaling, normalizing, boxcox, binarization, pca, or kmeans aimed at returning a desired input dataset for model development.</li>
+  <li><code>TransformationStream</code>, meant to flow through preprocessing techniques such as: scaling, normalizing, boxcox, binarization, pca, or kmeans aimed at returning a desired input dataset for model development.</li>
 
-<li><code>ModelSelectionStream</code>, meant to flow through several predictive models to determine which is the best, these include: LinearRegression, SupportVectorRegressor, RandomForestRegressor, KNNRegressor, and others. You must specify whether your steam is a <em>regressor</em> or <em>classifier</em> stream (denoted <code>regressor=True</code> and <code>classifier=True</code> </li>
+  <li><code>ModelSelectionStream</code>, meant to flow through several predictive models to determine which is the best, these include: LinearRegression, SupportVectorRegressor, RandomForestRegressor, KNNRegressor, AdaptiveBoostingRegressor, LassoRegressor, and RidgeRegressor. You must specify whether your steam is a <em>regressor</em> or <em>classifier</em> stream (denoted <code>regressor=True</code></li>
 
-<li><code>FeatureSelectionStream</code>, meant to flow through several predictive models and algorithms to determine which subset of features is most predictive or representative of your dataset, these include: RandomForestFeatureImportance, LassoFeatureImportance, MixedSelection, and a technique to ensemble each named TOPSISFeatureRanking. You must specify whether your wish to ensemble and with what technique (denoted <code>ensemble=True</code> </li>
-
-<ul></ul>
+  <li><code>FeatureSelectionStream</code>, meant to flow through several predictive models and algorithms to determine which subset of features is most predictive or representative of your dataset, these include: RandomForestFeatureImportance, LassoFeatureImportance, MixedSelection, and a technique to ensemble each named TOPSISFeatureRanking. You must specify whether your wish to ensemble and with what technique (denoted <code>ensemble=True)</code> 
+  </li>
 </ul>
 
 <hr>
@@ -25,17 +24,32 @@ Currently we support transformation streams and restricted model selection strea
 
 Example of a transformation stream:
 
+<strong>Simple data set</strong>
+
 <code>
 X = pd.DataFrame(np.matrix([[np.random.exponential() for j in range(10)] for i in range(200)]))
+
 y = pd.DataFrame(np.array([np.random.exponential() for i in range(200)]))
 </code>
+
+
+<strong>Supported stream operators</strong>: scale, normalize, boxcox, binarize, pca, and kmeans.
+
+<strong>Supported Args</strong>: binarize, pca, and kmeans.
 
 <code> 
 Xnew = TransformationStream(X).flow(["scale","normalize","pca", "kmeans"], 
                                     params={"pca__percent_variance":0.75, 
                                             "kmeans__n_clusters":2},
                                    verbose=True)
+                                   
 </code>
+
+
+  
+<strong>Supported stream operators</strong>: lr, ridge, lasso, svr, knnr, and abr
+
+<strong>Supported Args</strong>: metrics -> r2 or rmse, verbose, regressors, and params. Params is build into the GridSearchCV function within sklearn, so each specified parameter will be automatically plugged into this method and hypertuned for you.
 
 <code>
 performances = ModelSelectionStream(Xnew,y).flow(["svr", "lr", "knnr","lasso","abr"],
@@ -50,6 +64,7 @@ performances = ModelSelectionStream(Xnew,y).flow(["svr", "lr", "knnr","lasso","a
                                                 metrics=['r2','rmse'],
                                                 regressors=True,
                                                  verbose=True)
-  </code>
+                                                 
+</code>
 
 
