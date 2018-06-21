@@ -102,8 +102,8 @@ class TransformationStream:
         for thing in preproc_args:
             stringbuilder += thing
             stringbuilder += "--> "
-		
-		if verbose:
+		    
+		    if verbose:
             print("**************************************************")
             print("Transformation Streamline: " + stringbuilder[:-4])
             print("**************************************************")
