@@ -64,30 +64,25 @@ class ModelSelectionStream:
         assert any([isinstance(y,pd.DataFrame), isinstance(y,pd.Series)]), "y was not a pandas DataFrame or Series"
         self._X = X
         self._y = y
-        
+       
     """
-    Methods:
-    1. flow
-        Parameters: models_to_flow : list(), User specified models to optimize and compare against one another. 
-
-                    MetaParamters:
-                        - lr -> LinearRegression()
-                        - ridge -> Ridge()
-                        - lasso -> Lasso()
-                        - enet -> ElasticNet()
-                        - svr -> SVR()
-                        - knnr -> KNearestRegression()
-                        - abr -> AdaptiveBoostingRegression()
-                        - rfr -> RandomForestRegression()
-                    
-    """
-    
+	Methods:
+	getBestEstimators
+	"""
     def getBestEstimators(self):
         return self._bestEstimators
 
+    """
+	Methods:
+	getBestEstimator
+	"""
     def getBestEstimator(self):
         return self._bestEstiminator
-    
+
+	"""
+	Methods:
+	determineBestEstimators
+	"""
     def determineBestEstimators(self, models):
         if self._verbose:
             print("**************************************************")
@@ -100,6 +95,10 @@ class ModelSelectionStream:
                 print(model.getCode(), model.getBestEstimator().get_params())
         return self._bestEstimators
 
+	"""
+	Methods:
+	handleRegressors
+	"""
     def handleRegressors(self, Xtest, ytest, metrics, wrapper_models):
         
 
@@ -123,6 +122,10 @@ class ModelSelectionStream:
         
         return self._regressors_results
     
+	"""
+	Methods:
+	handleClassifiers
+	"""
     def handleClassifiers(self, Xtest, ytest, metrics):
         if self._verbose:
             print("**************************************************")
@@ -130,6 +133,10 @@ class ModelSelectionStream:
             print("**************************************************")
         pass
     
+	"""
+	Methods:
+	handleModelSelection
+	"""
     def handleModelSelection(self, regressors, metrics, Xtest, ytest, wrapper_models):
         
         if regressors:
@@ -141,7 +148,22 @@ class ModelSelectionStream:
         return self._bestEstimator
     
 
-    
+    """
+    Methods:
+    1. flow
+        Parameters: models_to_flow : list(), User specified models to optimize and compare against one another. 
+
+                    MetaParamters:
+                        - lr -> LinearRegression()
+                        - ridge -> Ridge()
+                        - lasso -> Lasso()
+                        - enet -> ElasticNet()
+                        - svr -> SVR()
+                        - knnr -> KNearestRegression()
+                        - abr -> AdaptiveBoostingRegression()
+                        - rfr -> RandomForestRegression()
+                    
+    """
     def flow(self, 
              models_to_flow=[], 
              params=None, 
@@ -163,6 +185,7 @@ class ModelSelectionStream:
         assert isinstance(test_size, float), "test_size must be a float"
         assert isinstance(metrics, list), "model scoring must be a list"
         assert isinstance(regressors, bool), "regressor must be bool"
+
         self._nfolds=nfolds
         self._nrepeats=nrepeats
         self._n_jobs=n_jobs
@@ -314,7 +337,7 @@ class ModelSelectionStream:
             
         
         #options: lr, ridge, lasso, enet, svr, knnr, abr, rfr
-        # map the inputs to the function blocks
+        # Define our model selection options
         options = {"lr" : linearRegression,
                    "svr" : supportVectorRegression,
                    "rfr":randomForestRegression,
@@ -325,22 +348,26 @@ class ModelSelectionStream:
                    "enet":elasticNetRegression}
         
         
+		# Define our training and test sets
         self._X_train, self._X_test, self._y_train, self._y_test = train_test_split(self._X,
                                                                                      self._y,
                                                                                      test_size=self._test_size)
-        #print(self._X_train.shape)
+        # Confirm training test splits worked
+		#print(self._X_train.shape)
         #print(self._X_test.shape)
         #print(self._y_train.shape)
         #print(self._y_test.shape)
             
-        # Execute commands as provided in the preproc_args list
+        # Accumulate each wrapper model the user wants to execute on
         self._wrapper_models=[]
         for key in models_to_flow:
              self._wrapper_models.append(options[key]())
         
+		# Execute the users request on wrapper models
         self._bestEstimators = self.determineBestEstimators(self._wrapper_models)
         
         
+		# If metrics defined, tell the user which model did best with a visualization
         if len(self._metrics) > 0:
             self._bestEstiminator = self.handleModelSelection(self._regressors, 
                                                               self._metrics, 
@@ -349,6 +376,7 @@ class ModelSelectionStream:
                                                               self._wrapper_models)
 
         
+		# Return each best estimator the user is interested in
         return self._bestEstimators
     
 
