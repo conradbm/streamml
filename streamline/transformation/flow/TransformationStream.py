@@ -102,11 +102,12 @@ class TransformationStream:
         for thing in preproc_args:
             stringbuilder += thing
             stringbuilder += "--> "
-		    
-		    if verbose:
+
+	if verbose:
             print("**************************************************")
             print("Transformation Streamline: " + stringbuilder[:-4])
             print("**************************************************")
+        
         
         # Define helper functions to execute our transformation streamline
         
@@ -151,9 +152,9 @@ class TransformationStream:
                 
             self._lambdas = lambdas
 
-			if verbose:
-				print("Optimized BoxCox-Lambdas For Each Column: ")
-				print(self._lambdas)
+	    if verbose:
+		print("Optimized BoxCox-Lambdas For Each Column: ")
+		print(self._lambdas)
 
             return X_boxcoxed
         
