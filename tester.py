@@ -1,6 +1,8 @@
 
 import pandas as pd
 import numpy as np
+import sys
+sys.path.insert(2, 'C:\\Users\\1517766115.CIV\\Desktop\\streamml')
 from streamline.transformation.flow.TransformationStream import TransformationStream
 from streamline.model_selection.flow.ModelSelectionStream import ModelSelectionStream
 
@@ -14,9 +16,9 @@ from streamline.model_selection.flow.ModelSelectionStream import ModelSelectionS
 #X = pd.DataFrame(np.matrix([[np.random.exponential() for j in range(10)] for i in range(200)]))
 #y = pd.DataFrame(np.array([np.random.exponential() for i in range(200)]))
 
-D = pd.read_csv("Series3_6.15.17_padel.csv")
-X = D.iloc[:,2:]
-y = D.iloc[:,1]
+#D = pd.read_csv("Series3_6.15.17_padel.csv")
+#X = D.iloc[:,2:]
+#y = D.iloc[:,1]
 
 ynakiller = y.isna()
 X = X.loc[-ynakiller,:]
@@ -46,6 +48,6 @@ performances = ModelSelectionStream(Xnew,y).flow(["svr", "lr", "knnr","lasso","a
                                                      'abr__n_estimators':[10,20,50],
                                                      'abr__learning_rate':[0.1,1,10, 100]},
                                                 metrics=['r2','rmse'],
-                                                 verbose=True,
+                                                verbose=True,
                                                 regressors=True)
 print(performances)
