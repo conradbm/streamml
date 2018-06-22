@@ -20,7 +20,7 @@ Streams provided:
 
 <h2>Current Implementation</h2>
 
-Currently we support transformation streams and restricted model selection streams with 5 regression estiminators.
+Currently we support transformation streams and restricted model selection streams with 8 regression estiminators.
 
 Example of a transformation stream:
 
@@ -68,6 +68,7 @@ performances = ModelSelectionStream(Xnew,y).flow(["svr", "lr", "knnr","lasso","a
                                                      'abr__learning_rate':[0.1,1,10, 100],
                                                         'rfr__criterion':['mse', 'mae'],
                                                  'rfr__n_estimators':[10,100,1000]}, # any any other sklearn parameter you want!
+  
                                                  metrics=['r2','rmse', 'mse',
                                                           'explained_variance','mean_absolute_error',
                                                          'median_absolute_error'],
