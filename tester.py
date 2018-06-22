@@ -62,7 +62,7 @@ Xnew = TransformationStream(X).flow(["scale", "normalize", "pca"],
 
 """
 Supported Models:
-["lr", "ridge", "lasso", "enet", "svr", "knnr", "abr", "rfr"]
+["lr", "ridge", "lasso", "enet", "svr", "knnr", "abr", "rfr", "mlpr"]
 http://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LinearRegression.html
 http://scikit-learn.org/stable/modules/generated/sklearn.linear_model.Ridge.html
 http://scikit-learn.org/stable/modules/generated/sklearn.linear_model.Lasso.html
@@ -71,17 +71,19 @@ http://scikit-learn.org/stable/modules/generated/sklearn.svm.SVR.html
 http://scikit-learn.org/stable/modules/generated/sklearn.neighbors.KNeighborsRegressor.html
 http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.AdaBoostRegressor.html
 http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestRegressor.html
-
+http://scikit-learn.org/stable/modules/generated/sklearn.neural_network.MLPRegressor.html
 To be implemented
-["mlpr", "dtr"]
-http://scikit-learn.org/stable/modules/generated/sklearn.neural_network.MLPRegressor.html#sklearn.neural_network.MLPRegressor
+
+["dtr", "br"]
 http://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeRegressor.html#sklearn.tree.DecisionTreeRegressor
+http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.BaggingRegressor.html
 
 Supported Metrics:
 ['rmse','mse', 'r2','explained_variance','mean_absolute_error','median_absolute_error']
 """
 
-performances = ModelSelectionStream(Xnew,y).flow(["svr", "lr", "knnr","lasso","abr", "ridge","enet", "rfr"],
+# Complex Example 
+performances = ModelSelectionStream(Xnew,y).flow(["svr", "lr", "knnr","lasso","abr", "ridge","enet", "rfr", "mlpr"],
                                               params={'svr__C':[1,0.1,0.01,0.001],
                                                       'svr__gamma':[0, 0.01, 0.001, 0.0001],
                                                       'svr__kernel':['poly', 'rbf'],
@@ -96,12 +98,23 @@ performances = ModelSelectionStream(Xnew,y).flow(["svr", "lr", "knnr","lasso","a
                                                      'abr__n_estimators':[10,20,50],
                                                      'abr__learning_rate':[0.1,1,10, 100],
                                                         'rfr__criterion':['mse', 'mae'],
-                                                 'rfr__n_estimators':[10,100,1000]}, # any any other sklearn parameter you want!
+                                                 'rfr__n_estimators':[10,100,1000],
+                                                 'mlpr__hidden_layer_sizes':[(Xnew.shape[1], Xnew.shape[1]/2, Xnew.shape[1]/4),
+                                                                                                    (100,10,2),
+                                                                                                    (1000,100,10,1)]}, # any any other sklearn parameter you want!
                                                  metrics=['r2','rmse', 'mse',
                                                           'explained_variance','mean_absolute_error',
                                                          'median_absolute_error'],
                                                 verbose=True,
                                                 regressors=True,
                                                 cut=2) # cut is only required for regressors
-                                                
+
+
+""" Fairly simple example 
+
+performances = ModelSelectionStream(Xnew, y).flow(['lr', 'mlpr'], params={'lr__fit_intercept':[True,False],
+                                                                         'mlpr__hidden_layer_sizes':[(Xnew.shape[1], Xnew.shape[1]/2, Xnew.shape[1]/4),
+                                                                                                    (100,10,2),
+                                                                                                    (1000,100,10,1)]})
+"""
 print(performances)
