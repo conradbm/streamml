@@ -4,6 +4,11 @@ from sklearn.pipeline import Pipeline
 from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import r2_score
 from sklearn.metrics import mean_squared_error
+from sklearn.metrics import explained_variance_score
+from sklearn.metrics import mean_absolute_error
+from sklearn.metrics import mean_squared_error
+from sklearn.metrics import mean_squared_log_error
+from sklearn.metrics import median_absolute_error
 import numpy as np
 #sys.path.append(os.path.abspath(sys.path[0]+"/src/streamline/model_selection/"))
 from streamline.model_selection.AbstractPredictiveModel import AbstractPredictiveModel
@@ -13,7 +18,15 @@ class AbstractRegressorPredictiveModel(AbstractPredictiveModel):
 
     #constructor
     _options = ['rmse',
-                'r2']
+                'mse',
+                'r2',
+                'explained_variance',
+                'mean_absolute_error',
+                'mean_squared_log_error',
+                'median_absolute_error'
+                ]
+    
+    
     _validation_results=None
     
     def __init__(self, modelType, X, y, params, nfolds, n_jobs, scoring, verbose):
@@ -44,6 +57,18 @@ class AbstractRegressorPredictiveModel(AbstractPredictiveModel):
             elif m == 'rmse':
                 ypred = self._model.predict(Xtest)
                 self._validation_results["rmse"]=np.sqrt(mean_squared_error(ytest, ypred))
+            elif m == 'mse':
+                ypred = self._model.predict(Xtest)
+                self._validation_results["mse"]=mean_squared_error(ytest, ypred)
+            elif m == 'explained_variance':
+                ypred = self._model.predict(Xtest)
+                self._validation_results["explained_variance"]=explained_variance_score(ytest, ypred)
+            elif m == 'mean_absolute_error':
+                ypred = self._model.predict(Xtest)
+                self._validation_results["mean_absolute_error"]=mean_absolute_error(ytest, ypred)
+            elif m == 'median_absolute_error':
+                ypred = self._model.predict(Xtest)
+                self._validation_results["median_absolute_error"]=median_absolute_error(ytest,ypred)
             else:
                 print("Metric not valid, how did you make it through the assertions?")
         

@@ -28,28 +28,30 @@ X = X.loc[-ynakiller,:]
 y = y.loc[-ynakiller]
 X.replace([np.nan, np.inf, -np.inf],0, inplace=True)
 
-print(X.shape)
-print (y.shape)
+#print(X.shape)
+#print (y.shape)
 
 """
 Supported Transformations:
-["scale","normalize","boxcox","binarize","pca","kmeans"]
+["scale","normalize","boxcox","binarize","pca","kmeans", "brbm]
 http://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.StandardScaler.html
 http://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.Normalizer.html
 https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.boxcox.html
 http://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.Binarizer.html
 http://scikit-learn.org/stable/modules/generated/sklearn.decomposition.PCA.html
 http://scikit-learn.org/stable/modules/generated/sklearn.cluster.KMeans.html
-
-To be implemented:
-["brbm"] --> Latent representations of the data
 http://scikit-learn.org/stable/modules/generated/sklearn.neural_network.BernoulliRBM.html#sklearn.neural_network.BernoulliRBM
-"""
-Xnew = TransformationStream(X).flow(["scale","normalize","pca", "kmeans"], 
-                                    params={"pca__percent_variance":0.75, 
-                                            "kmeans__n_clusters":2},
-                                   verbose=True)
 
+["brbm"] --> Latent representations of the data
+
+"""
+Xnew = TransformationStream(X).flow(["scale", "normalize", "pca", "kmeans"], 
+                                    params={"pca__percent_variance":0.75, 
+                                            "kmeans__n_clusters":2,
+                                           "brbm__learning_rate":0.001,
+                                           "brbm__n_components":X.shape[0]},
+                                   verbose=True)
+print (Xnew)
 #preproc options: scale, normalize, boxcox, binarize, pca, kmeans
 #model options: 
 #error options: 'mean_squared_error','r2'
@@ -72,6 +74,9 @@ To be implemented
 ["mlpr", "dtr"]
 http://scikit-learn.org/stable/modules/generated/sklearn.neural_network.MLPRegressor.html#sklearn.neural_network.MLPRegressor
 http://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeRegressor.html#sklearn.tree.DecisionTreeRegressor
+
+Supported Metrics:
+['rmse','mse', 'r2','explained_variance','mean_absolute_error','median_absolute_error']
 """
 
 performances = ModelSelectionStream(Xnew,y).flow(["svr", "lr", "knnr","lasso","abr"],
@@ -83,7 +88,9 @@ performances = ModelSelectionStream(Xnew,y).flow(["svr", "lr", "knnr","lasso","a
                                                      'lasso__alpha':[0,0.01,1,10.0,20.0],
                                                      'abr__n_estimators':[10,20,50],
                                                      'abr__learning_rate':[0.1,1,10, 100]},
-                                                metrics=['r2','rmse'],
+                                                 metrics=['r2','rmse', 'mse',
+                                                          'explained_variance','mean_absolute_error',
+                                                         'median_absolute_error'],
                                                 verbose=True,
                                                 regressors=True)
                                                 

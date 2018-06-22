@@ -5,6 +5,7 @@ from sklearn import preprocessing
 from sklearn.decomposition import PCA
 from sklearn.cluster import KMeans
 from scipy import stats
+from sklearn.neural_network import BernoulliRBM
 import matplotlib.pyplot as plt
 
 """
@@ -56,6 +57,7 @@ class TransformationStream:
                         - binarize -> threshold : float, will binarize 1 if >= threshold, 0 else
                         - pca -> percent_variance : float, will only return the number of components needed for this.
                         - kmeans -> n_clusters : integer, will cluster with this number.
+                        - brbm -> None
                     
                     
     """
@@ -97,6 +99,14 @@ class TransformationStream:
                 self._threshold=0.0
                 print ("default: binarize__threshold="+str(self._threshold))
 
+        if "brbm" in preproc_args:
+            if "brbm__n_components" in params.keys():
+                assert isinstance(params["brbm__n_components"], int), "n_components must be integer."
+                self._n_components = params["brbm__n_components"]
+            elif "brbm__learning_rate" in params.keys():
+                assert isinstance(params["brbm__learning_rate"], float), "learning_rate must be a float"
+                self._learning_rate = params["brbm__learning_rate"]
+        
         # Inform the streamline to user.
         stringbuilder=""
         for thing in preproc_args:
@@ -192,7 +202,7 @@ class TransformationStream:
             
             return pca_df.iloc[:, :idx]
         
-        # success | NOTE: should be done at the end of the pipe.
+        # Implemented
         def runKmeans(X, verbose=False):
             if verbose:
                 print ("Executing Kmeans with " + str(self._n_clusters) + " clusters\n")
@@ -203,6 +213,14 @@ class TransformationStream:
             X['cluster'] = pd.DataFrame(kmeans.labels_, columns=['cluster'], dtype='category')
             return X
         
+        def runBRBM(X, verbose=False):
+            if verbose:
+                print ("Executing Bernoulli Restricted Boltzman Machine\n")
+            
+            brbm = BernoulliRBM(n_components=256, learning_rate=0.1, batch_size=10, n_iter=10, verbose=0, random_state=None)
+            Xnew = pd.DataFrame(brbm.fit_transform(X))
+            
+            return Xnew
         # Unimplemented
         def runItemset(X, verbose=False):
             if verbose:
@@ -216,7 +234,8 @@ class TransformationStream:
                    "itemset": runItemset,
                    "boxcox" : runBoxcox,
                    "pca" : runPCA,
-                   "kmeans" : runKmeans}
+                   "kmeans" : runKmeans,
+                  "brbm": runBRBM}
         
         # Execute commands as provided in the preproc_args list
         self._df_transformed = self._df
