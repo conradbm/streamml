@@ -115,7 +115,7 @@ class ModelSelectionStream:
             
             df = pd.DataFrame(self._regressors_results)
             print(df)
-            df.iloc[0,:].plot(kind='line', title='Generic Errors')
+            df.plot(kind='line', title='Errors by Model')
             plt.show()
             # plot models against one another in charts
         
@@ -126,7 +126,7 @@ class ModelSelectionStream:
 	Methods:
 	handleClassifiers
 	"""
-    def handleClassifiers(self, Xtest, ytest, metrics):
+    def handleClassifiers(self, Xtest, ytest, metrics, wrapper_models):
         if self._verbose:
             print("**************************************************")
             print("Classifier Performance Sheet")
@@ -143,6 +143,7 @@ class ModelSelectionStream:
             self._bestEstimator = self.handleRegressors(Xtest, ytest, metrics, wrapper_models)
         else:
             #classifiers
+            assert 1 == 2, "Handling Classification is not yet supported."
             self._bestEstimator = self.handleClassifiers(Xtest, ytest, metrics, wrapper_models)
             
         return self._bestEstimator
@@ -363,6 +364,8 @@ class ModelSelectionStream:
         for key in models_to_flow:
              self._wrapper_models.append(options[key]())
         
+        if self._verbose:
+            print
 		# Execute the users request on wrapper models
         self._bestEstimators = self.determineBestEstimators(self._wrapper_models)
         
