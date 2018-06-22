@@ -1,6 +1,7 @@
 
 import pandas as pd
 import numpy as np
+
 # FOR ANY SYSTEM: INCLUDE STREAMML
 #import sys
 #sys.path.insert(2, 'C:\\Users\\1517766115.CIV\\Desktop\\streamml')
@@ -45,13 +46,14 @@ http://scikit-learn.org/stable/modules/generated/sklearn.neural_network.Bernoull
 ["brbm"] --> Latent representations of the data
 
 """
-Xnew = TransformationStream(X).flow(["scale", "normalize", "pca", "kmeans"], 
+Xnew = TransformationStream(X).flow(["scale", "normalize", "pca"], 
                                     params={"pca__percent_variance":0.75, 
                                             "kmeans__n_clusters":2,
+                                            "binarize__threshold":0.2,
                                            "brbm__learning_rate":0.001,
                                            "brbm__n_components":X.shape[0]},
                                    verbose=True)
-print (Xnew)
+
 #preproc options: scale, normalize, boxcox, binarize, pca, kmeans
 #model options: 
 #error options: 'mean_squared_error','r2'
@@ -79,19 +81,27 @@ Supported Metrics:
 ['rmse','mse', 'r2','explained_variance','mean_absolute_error','median_absolute_error']
 """
 
-performances = ModelSelectionStream(Xnew,y).flow(["svr", "lr", "knnr","lasso","abr"],
+performances = ModelSelectionStream(Xnew,y).flow(["svr", "lr", "knnr","lasso","abr", "ridge","enet", "rfr"],
                                               params={'svr__C':[1,0.1,0.01,0.001],
                                                       'svr__gamma':[0, 0.01, 0.001, 0.0001],
                                                       'svr__kernel':['poly', 'rbf'],
+                                                      'svr__epsilon':[0,0.1,0.01,0.001],
+                                                      'svr__degree':[1,2,3,4,5,6,7],
                                                      'lr__fit_intercept':[False, True],
                                                      'knnr__n_neighbors':[3, 5,7, 9, 11, 13],
-                                                     'lasso__alpha':[0,0.01,1,10.0,20.0],
+                                                     'lasso__alpha':[0, 0.1, 0.01,1,10.0,20.0],
+                                                      'ridge__alpha':[0, 0.1, 0.01,1,10.0,20.0],
+                                                      'enet__alpha':[0, 0.1, 0.01,1,10,20],
+                                                      'enet__l1_ratio':[.25,.5,.75],
                                                      'abr__n_estimators':[10,20,50],
-                                                     'abr__learning_rate':[0.1,1,10, 100]},
+                                                     'abr__learning_rate':[0.1,1,10, 100],
+                                                        'rfr__criterion':['mse', 'mae'],
+                                                 'rfr__n_estimators':[10,100,1000]}, # any any other sklearn parameter you want!
                                                  metrics=['r2','rmse', 'mse',
                                                           'explained_variance','mean_absolute_error',
                                                          'median_absolute_error'],
                                                 verbose=True,
-                                                regressors=True)
+                                                regressors=True,
+                                                cut=2) # cut is only required for regressors
                                                 
 print(performances)
