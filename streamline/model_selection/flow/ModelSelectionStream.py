@@ -1,9 +1,12 @@
 import pandas as pd
+import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.model_selection import RepeatedStratifiedKFold
+
 import matplotlib.pyplot as plt
 import sys
 import os
+from collections import defaultdict
 #sys.path.append(os.path.abspath(sys.path[0]+"/src/streamline/model_selection/models/regressors/"))
 
 from streamml.streamline.model_selection.models.regressors.LinearRegressorPredictiveModel import LinearRegressorPredictiveModel
@@ -99,13 +102,36 @@ class ModelSelectionStream:
 	Methods:
 	handleRegressors
 	"""
-    def handleRegressors(self, Xtest, ytest, metrics, wrapper_models):
+    def handleRegressors(self, Xtest, ytest, metrics, wrapper_models, cut):
         
 
-        self._regressors_results={}
-        for model in wrapper_models:
-            self._regressors_results[model.getCode()]=model.validate(Xtest, ytest, metrics)
+        self._regressors_results=defaultdict(list)
         
+        rskf = RepeatedStratifiedKFold(n_splits=10, n_repeats=10,random_state=36851234)
+        
+        butch = self._y.copy()
+        butch[butch < cut] = 1
+        butch[butch >= cut] = 0
+        
+        averages=defaultdict(list)
+        
+        for train_index, test_index in rskf.split(self._X, butch):
+            if self._verbose:
+                print("TRAIN:", train_index, "TEST:", test_index)
+
+            self._X_train, self._X_test = self._X.iloc[train_index,:], self._X.iloc[test_index,:]
+            self._y_train, self._y_test = self._y.iloc[train_index], self._y.iloc[test_index]
+            for model in wrapper_models:
+                self._regressors_results[model.getCode()].append(model.validate(self._X_test, self._y_test, metrics))
+
+        # Convert our repeated stratified K folds into an average dataframe
+        for k,v in  self._regressors_results.items():
+            example_df = pd.DataFrame(self._regressors_results[k])
+            mean = example_df.mean()
+            self._regressors_results[k]=mean
+        
+
+
         # create a pandas dataframe of each metric on each model
         
         if self._verbose:
@@ -113,9 +139,9 @@ class ModelSelectionStream:
             print("Regressor Performance Sheet")
             print("**************************************************")
             
-            df = pd.DataFrame(self._regressors_results)
-            print(df)
-            df.plot(kind='line', title='Errors by Model')
+            df_results = pd.DataFrame(self._regressors_results)
+            print(df_results)
+            df_results.plot(title='Errors by Model')
             plt.show()
             # plot models against one another in charts
         
@@ -137,10 +163,11 @@ class ModelSelectionStream:
 	Methods:
 	handleModelSelection
 	"""
-    def handleModelSelection(self, regressors, metrics, Xtest, ytest, wrapper_models):
+    def handleModelSelection(self, regressors, metrics, Xtest, ytest, wrapper_models, cut=None):
         
         if regressors:
-            self._bestEstimator = self.handleRegressors(Xtest, ytest, metrics, wrapper_models)
+            assert cut != None , "you must select a cut point for your stratified folds to equally distribute your critical points"
+            self._bestEstimator = self.handleRegressors(Xtest, ytest, metrics, wrapper_models, cut)
         else:
             #classifiers
             assert 1 == 2, "Handling Classification is not yet supported."
@@ -175,7 +202,8 @@ class ModelSelectionStream:
              n_jobs=1, 
              metrics=[], 
              verbose=False, 
-             regressors=True):
+             regressors=True,
+             cut=None):
       
         assert isinstance(nfolds, int), "nfolds must be integer"
         assert isinstance(nrepeats, int), "nrepeats must be integer"
@@ -186,7 +214,7 @@ class ModelSelectionStream:
         assert isinstance(test_size, float), "test_size must be a float"
         assert isinstance(metrics, list), "model scoring must be a list"
         assert isinstance(regressors, bool), "regressor must be bool"
-
+        
         self._nfolds=nfolds
         self._nrepeats=nrepeats
         self._n_jobs=n_jobs
@@ -196,6 +224,7 @@ class ModelSelectionStream:
         self._metrics=metrics
         self._test_size=test_size
         self._regressors=regressors
+        self._cut = cut
         
         # Inform the streamline to user.
         stringbuilder=""
@@ -376,7 +405,8 @@ class ModelSelectionStream:
                                                               self._metrics, 
                                                               self._X_test, 
                                                               self._y_test, 
-                                                              self._wrapper_models)
+                                                              self._wrapper_models,
+                                                             self._cut)
 
         
 		# Return each best estimator the user is interested in
