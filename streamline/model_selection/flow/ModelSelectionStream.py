@@ -17,7 +17,7 @@ from streamml.streamline.model_selection.models.regressors.ElasticNetRegressorPr
 from streamml.streamline.model_selection.models.regressors.KNNRegressorPredictiveModel import KNNRegressorPredictiveModel
 from streamml.streamline.model_selection.models.regressors.RandomForestRegressorPredictiveModel import RandomForestRegressorPredictiveModel
 from streamml.streamline.model_selection.models.regressors.AdaptiveBoostingRegressorPredictiveModel import AdaptiveBoostingRegressorPredictiveModel
-
+from streamml.streamline.model_selection.models.regressors.MultilayerPerceptronRegressorPredictiveModel import MultilayerPerceptronRegressorPredictiveModel
 
 """
 Example Usage:
@@ -365,7 +365,20 @@ class ModelSelectionStream:
                                                           self._verbose)
             return model
             
-        
+        def multilayerPerceptronRegression():
+            self._mlpr_params={}
+            for k,v in self._allParams.items():
+                if "mlpr" in k:
+                    self._mlpr_params[k]=v
+
+            model = MultilayerPerceptronRegressorPredictiveModel(self._X_train, 
+                                                          self._y_train,
+                                                          self._mlpr_params,
+                                                          self._nfolds, 
+                                                          self._n_jobs,
+                                                          self._verbose)
+            
+            return model
         #options: lr, ridge, lasso, enet, svr, knnr, abr, rfr
         # Define our model selection options
         options = {"lr" : linearRegression,
@@ -375,7 +388,8 @@ class ModelSelectionStream:
                    "knnr":knnRegression,
                    "ridge":ridgeRegression,
                    "lasso":lassoRegression,
-                   "enet":elasticNetRegression}
+                   "enet":elasticNetRegression,
+                   "mlpr":multilayerPerceptronRegression}
         
         
 		# Define our training and test sets
