@@ -7,7 +7,6 @@ import matplotlib.pyplot as plt
 import sys
 import os
 from collections import defaultdict
-#sys.path.append(os.path.abspath(sys.path[0]+"/src/streamline/model_selection/models/regressors/"))
 
 from streamml.streamline.model_selection.models.regressors.LinearRegressorPredictiveModel import LinearRegressorPredictiveModel
 from streamml.streamline.model_selection.models.regressors.SupportVectorRegressorPredictiveModel import SupportVectorRegressorPredictiveModel
@@ -19,6 +18,8 @@ from streamml.streamline.model_selection.models.regressors.RandomForestRegressor
 from streamml.streamline.model_selection.models.regressors.AdaptiveBoostingRegressorPredictiveModel import AdaptiveBoostingRegressorPredictiveModel
 from streamml.streamline.model_selection.models.regressors.MultilayerPerceptronRegressorPredictiveModel import MultilayerPerceptronRegressorPredictiveModel
 
+import warnings
+warnings.filterwarnings("ignore")
 """
 Example Usage:
 
@@ -81,24 +82,21 @@ class ModelSelectionStream:
 	"""
     def getBestEstimator(self):
         return self._bestEstiminator
-
-	"""
+        
+    """
 	Methods:
 	determineBestEstimators
 	"""
     def determineBestEstimators(self, models):
-        if self._verbose:
-            print("**************************************************")
-            print("Determining Best Estimators.")
-            print("**************************************************")
+        print("**************************************************")
+        print("Determining Best Estimators.")
+        print("**************************************************")
         for model in models:
             self._bestEstimators[model.getCode()]=model.getBestEstimator()
 
-            if self._verbose:
-                print(model.getCode(), model.getBestEstimator().get_params())
         return self._bestEstimators
-
-	"""
+        
+    """
 	Methods:
 	handleRegressors
 	"""
@@ -113,12 +111,8 @@ class ModelSelectionStream:
         butch[butch < cut] = 1
         butch[butch >= cut] = 0
         
-        averages=defaultdict(list)
         
         for train_index, test_index in rskf.split(self._X, butch):
-            if self._verbose:
-                print("TRAIN:", train_index, "TEST:", test_index)
-
             self._X_train, self._X_test = self._X.iloc[train_index,:], self._X.iloc[test_index,:]
             self._y_train, self._y_test = self._y.iloc[train_index], self._y.iloc[test_index]
             for model in wrapper_models:
@@ -147,8 +141,8 @@ class ModelSelectionStream:
         
         
         return self._regressors_results
-    
-	"""
+        
+    """
 	Methods:
 	handleClassifiers
 	"""
@@ -158,8 +152,8 @@ class ModelSelectionStream:
             print("Classifier Performance Sheet")
             print("**************************************************")
         pass
-    
-	"""
+        
+    """
 	Methods:
 	handleModelSelection
 	"""
@@ -174,8 +168,7 @@ class ModelSelectionStream:
             self._bestEstimator = self.handleClassifiers(Xtest, ytest, metrics, wrapper_models)
             
         return self._bestEstimator
-    
-
+        
     """
     Methods:
     1. flow

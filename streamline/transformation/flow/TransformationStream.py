@@ -7,7 +7,8 @@ from sklearn.cluster import KMeans
 from scipy import stats
 from sklearn.neural_network import BernoulliRBM
 import matplotlib.pyplot as plt
-
+import warnings
+warnings.filterwarnings("ignore")
 """
 Example Usage:
 
@@ -112,8 +113,8 @@ class TransformationStream:
         for thing in preproc_args:
             stringbuilder += thing
             stringbuilder += "--> "
-
-	if verbose:
+        
+        if verbose:
             print("**************************************************")
             print("Transformation Streamline: " + stringbuilder[:-4])
             print("**************************************************")
@@ -161,10 +162,10 @@ class TransformationStream:
                 lambdas.append(l)
                 
             self._lambdas = lambdas
-
-	    if verbose:
-		print("Optimized BoxCox-Lambdas For Each Column: ")
-		print(self._lambdas)
+            
+            if verbose:
+                print("Optimized BoxCox-Lambdas For Each Column: ")
+                print(self._lambdas)
 
             return X_boxcoxed
         
@@ -189,16 +190,15 @@ class TransformationStream:
                     idx=i+1
                     break
             if verbose:
-                print "Percent of Variance Explained By Components:\n"
-                print str(self._percentVarianceExplained), "\n"
-                print str(self._percent_variance*100), "% variance is explained in the first ", str(idx), " components\n"
+                print ("Percent of Variance Explained By Components:\n")
+                print (str(self._percentVarianceExplained), "\n")
+                print (str(self._percent_variance*100), "% variance is explained in the first ", str(idx), " components\n")
                 pca_df=pd.DataFrame({'explained_variance':pca_output.explained_variance_}, index=components_nums)
                 pca_df.plot(title='Components vs. Variance')
                 plt.show()
             
             pca_output = pca.fit_transform(X)
-            pca_df = pd.DataFrame(pca_output, 
-                                          columns=["PC_"+str(i) for i in components_nums])
+            pca_df = pd.DataFrame(pca_output, columns=["PC_"+str(i) for i in components_nums])
             
             return pca_df.iloc[:, :idx]
         
