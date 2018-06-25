@@ -5,8 +5,8 @@ import numpy as np
 # FOR ANY SYSTEM: INCLUDE STREAMML
 #import sys
 #sys.path.insert(2, 'C:\\Users\\1517766115.CIV\\Desktop\\streamml')
-from streamline.transformation.flow.TransformationStream import TransformationStream
-from streamline.model_selection.flow.ModelSelectionStream import ModelSelectionStream
+from streamml.streamline.transformation.flow.TransformationStream import TransformationStream
+from streamml.streamline.model_selection.flow.ModelSelectionStream import ModelSelectionStream
 
 # git checkout -b modelSelectionUpdates
 # git push -u origin modelSelectionUpdates
@@ -20,7 +20,7 @@ from streamline.model_selection.flow.ModelSelectionStream import ModelSelectionS
 #X = pd.DataFrame(np.matrix([[np.random.exponential() for j in range(10)] for i in range(200)]))
 #y = pd.DataFrame(np.array([np.random.exponential() for i in range(200)]))
 
-D = pd.read_csv("Series3_6.15.17_padel.csv")
+D = pd.read_csv("KSU-Malaria-Research/src/data/source_data/Series3_6.15.17_padel.csv")
 X = D.iloc[:,2:]
 y = D.iloc[:,1]
 
@@ -46,8 +46,8 @@ http://scikit-learn.org/stable/modules/generated/sklearn.neural_network.Bernoull
 ["brbm"] --> Latent representations of the data
 
 """
-Xnew = TransformationStream(X).flow(["scale", "normalize", "pca"], 
-                                    params={"pca__percent_variance":0.75, 
+Xnew = TransformationStream(X).flow(["scale", "normalize", "pca"],
+                                    params={"pca__percent_variance":0.75,
                                             "kmeans__n_clusters":2,
                                             "binarize__threshold":0.2,
                                            "brbm__learning_rate":0.001,
@@ -55,7 +55,7 @@ Xnew = TransformationStream(X).flow(["scale", "normalize", "pca"],
                                    verbose=True)
 
 #preproc options: scale, normalize, boxcox, binarize, pca, kmeans
-#model options: 
+#model options:
 #error options: 'mean_squared_error','r2'
 
 #scoring option not working right, be okay with default scorers.
@@ -82,7 +82,7 @@ Supported Metrics:
 ['rmse','mse', 'r2','explained_variance','mean_absolute_error','median_absolute_error']
 """
 
-# Complex Example 
+# Complex Example
 performances = ModelSelectionStream(Xnew,y).flow(["svr", "lr", "knnr","lasso","abr", "ridge","enet", "rfr", "mlpr"],
                                               params={'svr__C':[1,0.1,0.01,0.001],
                                                       'svr__gamma':[0, 0.01, 0.001, 0.0001],
@@ -110,7 +110,7 @@ performances = ModelSelectionStream(Xnew,y).flow(["svr", "lr", "knnr","lasso","a
                                                 cut=2) # cut is only required for regressors
 
 
-""" Fairly simple example 
+""" Fairly simple example
 
 performances = ModelSelectionStream(Xnew, y).flow(['lr', 'mlpr'], params={'lr__fit_intercept':[True,False],
                                                                          'mlpr__hidden_layer_sizes':[(Xnew.shape[1], Xnew.shape[1]/2, Xnew.shape[1]/4),
