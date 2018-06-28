@@ -38,6 +38,7 @@ y = pd.DataFrame(np.array([np.random.exponential() for i in range(200)]))
 
 <code> 
 Xnew = TransformationStream(X).flow(
+  
                                     #required: list of transformations to pipe through
                                     ["scale","normalize","pca", "binarize", "boxcox", "kmeans", "brbm"], 
                                     
@@ -57,7 +58,7 @@ Xnew = TransformationStream(X).flow(
   
 <strong>Supported stream operators</strong>: lr, ridge, lasso, enet, svr, knnr, abr, mlpr
 
-<strong>Supported Args</strong>: metrics -> ['rmse','mse', 'r2','explained_variance','mean_absolute_error','median_absolute_error'], verbose, regressors, and params. Params is build into the GridSearchCV function within sklearn, so each specified parameter will be automatically plugged into this method and hypertuned for you.
+<strong>Supported Args</strong>: metrics -> [rmse, mse, r2, explained_variance, mean_absolute_error, median_absolute_error], verbose, regressors, and params. Params is build into the GridSearchCV function within sklearn, so each specified parameter will be automatically plugged into this method and hypertuned for you.
 
 <code>
 performances = ModelSelectionStream(Xnew,y).flow(
