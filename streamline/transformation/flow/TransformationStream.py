@@ -6,6 +6,7 @@ from sklearn.decomposition import PCA
 from sklearn.cluster import KMeans
 from scipy import stats
 from sklearn.neural_network import BernoulliRBM
+from sklearn.manifold import TSNE
 import matplotlib.pyplot as plt
 import warnings
 warnings.filterwarnings("ignore")
@@ -47,7 +48,7 @@ class TransformationStream:
     1. flow
         Parameters: preproc_args : list(), User specified preprocessing techniques. 
                     These can include any of the following:
-                    ["scale","normalize","boxcox","binarize","pca","kmeans"]. 
+                    ["scale","normalize","boxcox","binarize","pca","tnse","kmeans"]. 
                     Restrictions: 1. All dtyles must be float. 
                                   2. boxcox demands a positive matrix. 
                                   3. kmeans must be executed last.
@@ -59,6 +60,7 @@ class TransformationStream:
                         - pca -> percent_variance : float, will only return the number of components needed for this.
                         - kmeans -> n_clusters : integer, will cluster with this number.
                         - brbm -> None
+                        - tnse -> n_components : integer, how many dimensions to keep
                     
                     
     """
@@ -79,6 +81,16 @@ class TransformationStream:
             else:
                 self._percent_variance=0.90
                 print ("default: pca__percent_variance="+str(self._percent_variance) )
+            
+        # Enforce TSNE parameters
+        if "tsne" in preproc_args:
+            if "tsne__n_components" in params.keys():
+                assert isinstance(params["tsne__n_components"], int), "n_components must be integer."
+                self._tsne_n_components=params["tsne__n_components"]
+                print ("custom: tsne__n_components="+str(self._tsne_n_components) )
+            else:
+                self._tsne_n_components=3
+                print ("default: _tsne_n_components="+str(self._tsne_n_components) )
             
         # Enforce Kmeans parameters
         if "kmeans" in preproc_args:
@@ -108,6 +120,8 @@ class TransformationStream:
                 assert isinstance(params["brbm__learning_rate"], float), "learning_rate must be a float"
                 self._learning_rate = params["brbm__learning_rate"]
         
+
+
         # Inform the streamline to user.
         stringbuilder=""
         for thing in preproc_args:
@@ -221,6 +235,14 @@ class TransformationStream:
             Xnew = pd.DataFrame(brbm.fit_transform(X))
             
             return Xnew
+
+        def runTSNE(X, verbose=False):
+            if verbose:
+                print("Executing TNSE with" + str(self._tsne_n_components) + " components\n")
+            
+            X_embedded = TSNE(n_components=self._tsne_n_components).fit_transform(X)
+            return pd.DataFrame(X_embedded)
+
         # Unimplemented
         def runItemset(X, verbose=False):
             if verbose:
@@ -235,7 +257,8 @@ class TransformationStream:
                    "boxcox" : runBoxcox,
                    "pca" : runPCA,
                    "kmeans" : runKmeans,
-                  "brbm": runBRBM}
+                  "brbm": runBRBM,
+                  "tsne":runTSNE}
         
         # Execute commands as provided in the preproc_args list
         self._df_transformed = self._df
