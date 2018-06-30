@@ -3,8 +3,8 @@ import pandas as pd
 import numpy as np
 
 # FOR ANY SYSTEM: INCLUDE STREAMML
-#import sys
-#sys.path.insert(2, 'C:\\Users\\1517766115.CIV\\Desktop\\streamml')
+import sys
+sys.path.append('/Users/laurensuarez/Desktop/streamml')
 from streamline.transformation.flow.TransformationStream import TransformationStream
 from streamline.model_selection.flow.ModelSelectionStream import ModelSelectionStream
 
@@ -17,17 +17,17 @@ from streamline.model_selection.flow.ModelSelectionStream import ModelSelectionS
 # source ~/.bash_profile
 # python -W ignore tester.py
 
-#X = pd.DataFrame(np.matrix([[np.random.exponential() for j in range(10)] for i in range(200)]))
-#y = pd.DataFrame(np.array([np.random.exponential() for i in range(200)]))
+X = pd.DataFrame(np.matrix([[np.random.exponential() for j in range(10)] for i in range(200)]))
+y = pd.DataFrame(np.array([np.random.exponential() for i in range(200)]))
 
-D = pd.read_csv("Series3_6.15.17_padel.csv")
-X = D.iloc[:,2:]
-y = D.iloc[:,1]
+#D = pd.read_csv("Series3_6.15.17_padel.csv")
+#X = D.iloc[:,2:]
+#y = D.iloc[:,1]
 
-ynakiller = y.isna()
-X = X.loc[-ynakiller,:]
-y = y.loc[-ynakiller]
-X.replace([np.nan, np.inf, -np.inf],0, inplace=True)
+#ynakiller = y.isna()
+#X = X.loc[-ynakiller,:]
+#y = y.loc[-ynakiller]
+#X.replace([np.nan, np.inf, -np.inf],0, inplace=True)
 
 #print(X.shape)
 #print (y.shape)
@@ -46,14 +46,12 @@ http://scikit-learn.org/stable/modules/generated/sklearn.neural_network.Bernoull
 ["brbm"] --> Latent representations of the data
 
 """
-Xnew = TransformationStream(X).flow(["scale", "normalize", "pca"], 
-                                    params={"pca__percent_variance":0.75, 
-                                            "kmeans__n_clusters":2,
-                                            "binarize__threshold":0.2,
-                                           "brbm__learning_rate":0.001,
-                                           "brbm__n_components":X.shape[0]},
-                                   verbose=True)
-
+Xnew = TransformationStream(X).flow(["tsne"], 
+                                    params={"tnse_n_components":4,
+                                            "pca__percent_variance":0.75, 
+                                            "kmeans__n_clusters":2},
+                                   verbose=False)
+print(Xnew)
 #preproc options: scale, normalize, boxcox, binarize, pca, kmeans
 #model options: 
 #error options: 'mean_squared_error','r2'
@@ -83,6 +81,7 @@ Supported Metrics:
 """
 
 # Complex Example 
+""" 
 performances = ModelSelectionStream(Xnew,y).flow(["svr", "lr", "knnr","lasso","abr", "ridge","enet", "rfr", "mlpr"],
                                               params={'svr__C':[1,0.1,0.01,0.001],
                                                       'svr__gamma':[0, 0.01, 0.001, 0.0001],
@@ -109,6 +108,7 @@ performances = ModelSelectionStream(Xnew,y).flow(["svr", "lr", "knnr","lasso","a
                                                 regressors=True,
                                                 cut=2) # cut is only required for regressors
 
+"""
 
 """ Fairly simple example 
 
@@ -117,4 +117,4 @@ performances = ModelSelectionStream(Xnew, y).flow(['lr', 'mlpr'], params={'lr__f
                                                                                                     (100,10,2),
                                                                                                     (1000,100,10,1)]})
 """
-print(performances)
+#print(performances)
