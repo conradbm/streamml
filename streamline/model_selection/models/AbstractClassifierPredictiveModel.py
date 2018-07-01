@@ -1,4 +1,6 @@
 
+from streamml.streamline.model_selection.AbstractPredictiveModel import AbstractPredictiveModel
+
 class AbstractClassifierPredictiveModel(AbstractPredictiveModel):
 
     #constructor
