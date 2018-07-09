@@ -10,6 +10,11 @@ from sklearn.manifold import TSNE
 import matplotlib.pyplot as plt
 import warnings
 warnings.filterwarnings("ignore")
+
+from streamml.streamline.transformation.transformers.ScaleTransformer import ScaleTransformer
+#TODO ^ Copy the above example of creating indepedent transformers, abstracting their implementation from this class.
+
+
 """
 Example Usage:
 
@@ -140,10 +145,8 @@ class TransformationStream:
         def runScale(X, verbose=False):
             if verbose:
                 print ("Executing Scaling")
-            # More parameters can be found here: 
-            # http://scikit-learn.org/stable/modules/preprocessing.html
-            X_scaled = preprocessing.scale(X)
-            return pd.DataFrame(X_scaled)
+                       
+            return ScaleTransformer().transform(X)
 
         # Implemented
         def runNormalize(X, verbose=False):
