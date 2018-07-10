@@ -4,9 +4,9 @@ import numpy as np
 
 # FOR ANY SYSTEM: INCLUDE STREAMML
 import sys
-sys.path.append('/Users/laurensuarez/Desktop/streamml')
-from streamline.transformation.flow.TransformationStream import TransformationStream
-from streamline.model_selection.flow.ModelSelectionStream import ModelSelectionStream
+sys.path.append('/Users/bmc/Desktop/')
+from streamml.streamline.transformation.flow.TransformationStream import TransformationStream
+from streamml.streamline.model_selection.flow.ModelSelectionStream import ModelSelectionStream
 
 # git checkout -b modelSelectionUpdates
 # git push -u origin modelSelectionUpdates
@@ -46,7 +46,7 @@ http://scikit-learn.org/stable/modules/generated/sklearn.neural_network.Bernoull
 ["brbm"] --> Latent representations of the data
 
 """
-Xnew = TransformationStream(X).flow(["tsne"], 
+Xnew = TransformationStream(X).flow(["scale","tsne"], 
                                     params={"tnse_n_components":4,
                                             "pca__percent_variance":0.75, 
                                             "kmeans__n_clusters":2},
