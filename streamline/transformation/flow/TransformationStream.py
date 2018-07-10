@@ -1,18 +1,18 @@
 from __future__ import division
 import pandas as pd
 import numpy as np
-from sklearn import preprocessing
-from sklearn.decomposition import PCA
-from sklearn.cluster import KMeans
-from scipy import stats
-from sklearn.neural_network import BernoulliRBM
-from sklearn.manifold import TSNE
 import matplotlib.pyplot as plt
 import warnings
 warnings.filterwarnings("ignore")
 
+
 from streamml.streamline.transformation.transformers.ScaleTransformer import ScaleTransformer
-#TODO ^ Copy the above example of creating indepedent transformers, abstracting their implementation from this class.
+from streamml.streamline.transformation.transformers.BernoulliRBMTransformer import BernoulliRBMTransformer
+from streamml.streamline.transformation.transformers.BinarizeTransformer import BinarizeTransformer
+from streamml.streamline.transformation.transformers.KMeansTransformer import KMeansTransformer
+from streamml.streamline.transformation.transformers.TSNETransformer import TSNETransformer
+from streamml.streamline.transformation.transformers.NormalizeTransformer import NormalizeTransformer
+from streamml.streamline.transformation.transformers.PCATransformer import PCATransformer
 
 
 """
@@ -154,8 +154,12 @@ class TransformationStream:
                 print ("Executing Normalize")
             # More parameters can be found here: 
             # http://scikit-learn.org/stable/modules/preprocessing.html
-            X_normalized = preprocessing.normalize(X, norm='l2')
-            return pd.DataFrame(X_normalized)
+            
+            
+            
+            #X_normalized = preprocessing.normalize(X, norm='l2')
+            #return pd.DataFrame(X_normalized)
+            return NormalizeTransformer().transform(X)
         
         # Implemented
         def runBinarize(X, verbose=False):
@@ -163,8 +167,10 @@ class TransformationStream:
                 print ("Executing Binarization")
             # More parameters can be found here: 
             # http://scikit-learn.org/stable/modules/preprocessing.html
-            X_binarized = preprocessing.Binarizer(threshold=self._threshold).fit(X).transform(X)
-            return pd.DataFrame(X_binarized)
+            
+            #X_binarized = preprocessing.Binarizer(threshold=self._threshold).fit(X).transform(X)
+            #return pd.DataFrame(X_binarized)
+            return BinarizeTransformer(self._threshold).transform(X)
         
         # Implemented | NOTE: Only works on positive data
         def runBoxcox(X, verbose=False):
@@ -172,6 +178,7 @@ class TransformationStream:
                 print ("Executing Boxcox")
             # More parameters can be found here: 
             # https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.boxcox.html
+            """
             X_boxcoxed = X
             lambdas=[]
             for col in X:
@@ -185,6 +192,11 @@ class TransformationStream:
                 print(self._lambdas)
 
             return X_boxcoxed
+            """
+            bct = BoxcoxTransformer()
+            X_boxcoxed = bct.transform(X)
+            self._lambdas = cbt._lambdas
+            return X_boxcoxed
         
         # Implemented
         def runPCA(X, verbose=False):
@@ -193,6 +205,7 @@ class TransformationStream:
                
 			# More parameters can be found here: 
             # http://scikit-learn.org/stable/modules/preprocessing.html
+            """
             pca = PCA()
             
             pca_output = pca.fit(X)
@@ -218,6 +231,8 @@ class TransformationStream:
             pca_df = pd.DataFrame(pca_output, columns=["PC_"+str(i) for i in components_nums])
             
             return pca_df.iloc[:, :idx]
+            """
+            return PCATransformer(self._percent_variance, self._verbose).transform(X)
         
         # Implemented
         def runKmeans(X, verbose=False):
@@ -226,26 +241,30 @@ class TransformationStream:
             
 			# More parameters can be found here: 
             # http://scikit-learn.org/stable/modules/generated/sklearn.cluster.KMeans.html
-            kmeans = KMeans(n_clusters=self._n_clusters).fit(X)
-            X['cluster'] = pd.DataFrame(kmeans.labels_, columns=['cluster'], dtype='category')
-            return X
+            #kmeans = KMeans(n_clusters=self._n_clusters).fit(X)
+            #X['cluster'] = pd.DataFrame(kmeans.labels_, columns=['cluster'], dtype='category')
+            #return X
+            return KMeansTransformer(self._n_clusters).transform(X)
         
         def runBRBM(X, verbose=False):
             if verbose:
                 print ("Executing Bernoulli Restricted Boltzman Machine\n")
             
-            brbm = BernoulliRBM(n_components=256, learning_rate=0.1, batch_size=10, n_iter=10, verbose=0, random_state=None)
-            Xnew = pd.DataFrame(brbm.fit_transform(X))
             
-            return Xnew
+            #brbm = BernoulliRBM(n_components=256, learning_rate=0.1, batch_size=10, n_iter=10, verbose=0, random_state=None)
+            #Xnew = pd.DataFrame(brbm.fit_transform(X))
+            
+            #return Xnew
+            return BernoulliRBMTransformer().transform(X)
 
         def runTSNE(X, verbose=False):
             if verbose:
                 print("Executing TNSE with" + str(self._tsne_n_components) + " components\n")
             
-            X_embedded = TSNE(n_components=self._tsne_n_components).fit_transform(X)
-            return pd.DataFrame(X_embedded)
-
+            #X_embedded = TSNE(n_components=self._tsne_n_components).fit_transform(X)
+            #return pd.DataFrame(X_embedded)
+            return TSNETransformer(self._tsne_n_components).transform(X)
+        
         # Unimplemented
         def runItemset(X, verbose=False):
             if verbose:
