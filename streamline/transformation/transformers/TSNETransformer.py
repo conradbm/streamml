@@ -11,4 +11,4 @@ class TSNETransformer(AbstractTransformer):
     # http://scikit-learn.org/stable/modules/preprocessing.html
     def transform(self, X):
         X_embedded = TSNE(n_components=self._tsne_n_components).fit_transform(X)
-        return pd.DataFrame(scale(X))
+        return pd.DataFrame(X_embedded)
