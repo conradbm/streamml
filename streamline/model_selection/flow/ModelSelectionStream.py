@@ -1,13 +1,23 @@
+# Data manipulation
 import pandas as pd
 import numpy as np
+
+# Data Splitting
 from sklearn.model_selection import train_test_split
 from sklearn.model_selection import RepeatedStratifiedKFold
 
+# Plotting
 import matplotlib.pyplot as plt
+import seaborn as sns
+
+# System
 import sys
 import os
+
+# Data storage
 from collections import defaultdict
 
+# Supported streamml Regressors
 from streamml.streamline.model_selection.models.regressors.LinearRegressorPredictiveModel import LinearRegressorPredictiveModel
 from streamml.streamline.model_selection.models.regressors.SupportVectorRegressorPredictiveModel import SupportVectorRegressorPredictiveModel
 from streamml.streamline.model_selection.models.regressors.RidgeRegressorPredictiveModel import RidgeRegressorPredictiveModel
@@ -17,30 +27,30 @@ from streamml.streamline.model_selection.models.regressors.KNNRegressorPredictiv
 from streamml.streamline.model_selection.models.regressors.RandomForestRegressorPredictiveModel import RandomForestRegressorPredictiveModel
 from streamml.streamline.model_selection.models.regressors.AdaptiveBoostingRegressorPredictiveModel import AdaptiveBoostingRegressorPredictiveModel
 from streamml.streamline.model_selection.models.regressors.MultilayerPerceptronRegressorPredictiveModel import MultilayerPerceptronRegressorPredictiveModel
+from streamml.streamline.model_selection.models.regressors.LassoLeastAngleRegressorPredictiveModel import LassoLeastAngleRegressorPredictiveModel
+from streamml.streamline.model_selection.models.regressors.LeastAngleRegressorPredictiveModel import LeastAngleRegressorPredictiveModel
+from streamml.streamline.model_selection.models.regressors.BayesianRidgeRegressorPredictiveModel import BayesianRidgeRegressorPredictiveModel
+from streamml.streamline.model_selection.models.regressors.ARDRegressorPredictiveModel import ARDRegressorPredictiveModel
+from streamml.streamline.model_selection.models.regressors.PassiveAggressiveRegressorPredictiveModel import PassiveAggressiveRegressorPredictiveModel
+from streamml.streamline.model_selection.models.regressors.TheilSenRegressorPredictiveModel import TheilSenRegressorPredictiveModel
+from streamml.streamline.model_selection.models.regressors.HuberRegressorPredictiveModel import HuberRegressorPredictiveModel
+from streamml.streamline.model_selection.models.regressors.GaussianProcessRegressorPredictiveModel import GaussianProcessRegressorPredictiveModel
+from streamml.streamline.model_selection.models.regressors.GradientBoostingRegressorPredictiveModel import GradientBoostingRegressorPredictiveModel
+from streamml.streamline.model_selection.models.regressors.BaggingRegressorPredictiveModel import BaggingRegressorPredictiveModel
+from streamml.streamline.model_selection.models.regressors.DecisionTreeRegressorPredictiveModel import DecisionTreeRegressorPredictiveModel
 
+# Print Settings
 import warnings
 warnings.filterwarnings("ignore")
+
+
 """
-Example Usage:
+Class Purpose: Flow through several models, gridsearching and returning a hypertuned version of each. Enabled with competition to see quickly who performed best and on what metrics.
 
-import pandas as pd
-import numpy as np
-from streamml.streamline.transformation.TransformationStream import TransformationStream
+Core Methods:
 
-X = pd.DataFrame(np.matrix([[np.random.exponential() for j in range(10)] for i in range(200)]))
-y = pd.DataFrame(np.array([np.random.exponential() for i in range(200)]))
-
-#options: lr, ridge, lasso, enet, svr, knnr, abr, rfr
-RES = ModelSelectionStream(Xnew,y).flow(["svr", "lr", "knnr","lasso","abr"],
-                                              params={'svr__C':[1,0.1,0.01,0.001],
-                                                     'lr__fit_intercept':[False, True],
-                                                     'knnr__n_neighbors':[5,10],
-                                                     'lasso__alpha':[1.0,10.0,20.0],
-                                                     'abr__n_estimators':[10,20,50],
-                                                     'abr__learning_rate':[0.1,1,10]},
-                                              verbose=True)
+1. flow - 
 """
-
 class ModelSelectionStream:
     #properties
     _X=None
@@ -53,15 +63,16 @@ class ModelSelectionStream:
     _metrics=None
     _test_size=None
     _wrapper_models=None
-    _bestEstimators={}
+    _bestEstimators=None
     _bestEstimator=None
     _regressors_results=None
     _classifiers_results=None
     
     """
-    Constructor:
-    1. Default
-        Paramters: df : pd.DataFrame, dataframe must be accepted to use this class
+    Constructor: __init__:
+    
+    @param: X : pd.DataFrame, dataframe representing core dataset.
+    @param: y : pd.DataFrame, dataframe representing response variable, either numeric or categorical.
     """
     def __init__(self,X,y):
         assert isinstance(X, pd.DataFrame), "X was not a pandas DataFrame"
@@ -70,24 +81,34 @@ class ModelSelectionStream:
         self._y = y
        
     """
-	Methods:
-	getBestEstimators
+	Method: getBestEstimators:
+    
+    @usage: Called after the models have been hypertuned, will return the dictionary containing each model object.
+    
+    @return dict or None
 	"""
     def getBestEstimators(self):
         return self._bestEstimators
 
     """
-	Methods:
-	getBestEstimator
+	Methods: getBestEstimator
+    
+    @usage: Called after hypertuning and competition are complete, will return the best estimator in each error metric specified
+    @return: dict or None
 	"""
     def getBestEstimator(self):
         return self._bestEstiminator
         
     """
-	Methods:
-	determineBestEstimators
+	Methods: determineBestEstimators
+	
+    @usage updates best estiminators dictioanry based on provided models
+    
+    @param: models, list; each model object in competition
+    @return dict
 	"""
     def determineBestEstimators(self, models):
+        self._bestEstimators={}
         print("**************************************************")
         print("Determining Best Estimators.")
         print("**************************************************")
@@ -97,8 +118,18 @@ class ModelSelectionStream:
         return self._bestEstimators
         
     """
-	Methods:
-	handleRegressors
+	Methods: handleRegressors
+	
+    @usage called when regressor=True and len(metrics)>0. hence will compete regressors and let you know who did the best on your data.
+    
+    @param Xtest, pd.DataFrame
+    @param ytest, pd.Dataframe
+    @param metrics, list; specified metrics from sklearn
+    @param wrapper_models, list; specified streamml models wrapping sklearn regressors or classifiers
+    @param cut, int; point which stratified kfold should keep points beneath spread evenly
+
+    
+    @return pd.DataFrame
 	"""
     def handleRegressors(self, Xtest, ytest, metrics, wrapper_models, cut):
         
@@ -143,8 +174,8 @@ class ModelSelectionStream:
         return self._regressors_results
         
     """
-	Methods:
-	handleClassifiers
+	Methods: handleClassifiers
+	
 	"""
     def handleClassifiers(self, Xtest, ytest, metrics, wrapper_models):
         if self._verbose:
@@ -154,8 +185,17 @@ class ModelSelectionStream:
         pass
         
     """
-	Methods:
-	handleModelSelection
+	Methods: handleModelSelection
+
+    @usage
+    
+    @param regressors, bool.
+    @param metrics, list.
+    @param Xtest, pd.DataFrame.
+    @param ytest, pd.DataFrame.
+    @param wrapper_models, list.
+    
+    @return model object
 	"""
     def handleModelSelection(self, regressors, metrics, Xtest, ytest, wrapper_models, cut=None):
         
@@ -170,20 +210,13 @@ class ModelSelectionStream:
         return self._bestEstimator
         
     """
-    Methods:
-    1. flow
-        Parameters: models_to_flow : list(), User specified models to optimize and compare against one another. 
-
-                    MetaParamters:
-                        - lr -> LinearRegression()
-                        - ridge -> Ridge()
-                        - lasso -> Lasso()
-                        - enet -> ElasticNet()
-                        - svr -> SVR()
-                        - knnr -> KNearestRegression()
-                        - abr -> AdaptiveBoostingRegression()
-                        - rfr -> RandomForestRegression()
-                    
+    Methods: flow
+    
+    @usage meant to make models flow
+    
+    @param models_to_flow, list.
+    @param params, dict.
+                  
     """
     def flow(self, 
              models_to_flow=[], 
@@ -372,7 +405,177 @@ class ModelSelectionStream:
                                                           self._verbose)
             
             return model
-        #options: lr, ridge, lasso, enet, svr, knnr, abr, rfr
+        
+        
+        def leastAngleRegression():
+            self._lar_params={}
+            for k,v in self._allParams.items():
+                if "lar" in k:
+                    self._lar_params[k]=v
+
+            model = LeastAngleRegressorPredictiveModel(self._X_train, 
+                                                          self._y_train,
+                                                          self._lar_params,
+                                                          self._nfolds, 
+                                                          self._n_jobs,
+                                                          self._verbose)
+            
+            return model
+        
+        
+        def lassoLeastAngleRegression():
+            self._lasso_lar_params={}
+            for k,v in self._allParams.items():
+                if "lasso_lar" in k:
+                    self._lasso_lar_params[k]=v
+
+            model = LassoLeastAngleRegressorPredictiveModel(self._X_train, 
+                                                          self._y_train,
+                                                          self._lasso_lar_params,
+                                                          self._nfolds, 
+                                                          self._n_jobs,
+                                                          self._verbose)
+            
+            return model
+        
+       
+        def bayesianRidgeRegression():
+            self._bays_ridge={}
+            for k,v in self._allParams.items():
+                if "bays_ridge" in k:
+                    self._bays_ridge[k]=v
+
+            model = BayesianRidgeRegressorPredictiveModel(self._X_train, 
+                                                          self._y_train,
+                                                          self._bays_ridge,
+                                                          self._nfolds, 
+                                                          self._n_jobs,
+                                                          self._verbose)
+            
+            return model
+        
+        def ardRegression():
+            self._ardr_params={}
+            for k,v in self._allParams.items():
+                if "ardr" in k:
+                    self._ardr_params[k]=v
+
+            model = ARDRegressorPredictiveModel(self._X_train, 
+                                                self._y_train,
+                                                self._ardr_params,
+                                                self._nfolds, 
+                                                self._n_jobs,
+                                                self._verbose)
+            
+            return model
+        
+        def passiveAggressiveRegression():
+            self._par_params={}
+            for k,v in self._allParams.items():
+                if "par" in k:
+                    self._par_params[k]=v
+
+            model = PassiveAggressiveRegressorPredictiveModel(self._X_train, 
+                                                          self._y_train,
+                                                          self._par_params,
+                                                          self._nfolds, 
+                                                          self._n_jobs,
+                                                          self._verbose)
+            
+            return model
+        
+        def theilSenRegression():
+            self._tsr_params={}
+            for k,v in self._allParams.items():
+                if "tsr" in k:
+                    self._tsr_params[k]=v
+
+            model = TheilSenRegressorPredictiveModel(self._X_train, 
+                                                          self._y_train,
+                                                          self._tsr_params,
+                                                          self._nfolds, 
+                                                          self._n_jobs,
+                                                          self._verbose)
+            
+            return model
+        
+        def huberRegression():
+            self._hr_params={}
+            for k,v in self._allParams.items():
+                if "hr" in k:
+                    self._hr_params[k]=v
+
+            model = HuberRegressorPredictiveModel(self._X_train, 
+                                                          self._y_train,
+                                                          self._hr_params,
+                                                          self._nfolds, 
+                                                          self._n_jobs,
+                                                          self._verbose)
+            
+            return model
+        
+        def gaussianProcessRegression():
+            self._gpr_params={}
+            for k,v in self._allParams.items():
+                if "gpr" in k:
+                    self._gpr_params[k]=v
+
+            model = GaussianProcessRegressorPredictiveModel(self._X_train, 
+                                                          self._y_train,
+                                                          self._gpr_params,
+                                                          self._nfolds, 
+                                                          self._n_jobs,
+                                                          self._verbose)
+            
+            return model
+        
+        def gradientBoostingRegression():
+            self._gbr_params={}
+            for k,v in self._allParams.items():
+                if "gbr" in k:
+                    self._gbr_params[k]=v
+
+            model = GradientBoostingRegressorPredictiveModel(self._X_train, 
+                                                          self._y_train,
+                                                          self._gbr_params,
+                                                          self._nfolds, 
+                                                          self._n_jobs,
+                                                          self._verbose)
+            
+            return model
+        
+        def baggingRegression():
+            self._br_params={}
+            for k,v in self._allParams.items():
+                if "br" in k:
+                    self._br_params[k]=v
+
+            model = BaggingRegressorPredictiveModel(self._X_train, 
+                                                          self._y_train,
+                                                          self._br_params,
+                                                          self._nfolds, 
+                                                          self._n_jobs,
+                                                          self._verbose)
+            
+            return model
+        
+        def decisionTreeRegression():
+            self._dtr_params={}
+            for k,v in self._allParams.items():
+                if "dtr" in k:
+                    self._dtr_params[k]=v
+
+            model = BaggingRegressorPredictiveModel(self._X_train, 
+                                                          self._y_train,
+                                                          self._dtr_params,
+                                                          self._nfolds, 
+                                                          self._n_jobs,
+                                                          self._verbose)
+            
+            return model
+
+
+        
         # Define our model selection options
         options = {"lr" : linearRegression,
                    "svr" : supportVectorRegression,
@@ -382,8 +585,19 @@ class ModelSelectionStream:
                    "ridge":ridgeRegression,
                    "lasso":lassoRegression,
                    "enet":elasticNetRegression,
-                   "mlpr":multilayerPerceptronRegression}
-        
+                   "mlpr":multilayerPerceptronRegression,
+                   "br":baggingRegression,
+                   "dtr":decisionTreeRegression,
+                   "gbr":gradientBoostingRegression,
+                   "gpr":gaussianProcessRegression,
+                   "hr":huberRegression,
+                   "tsr":theilSenRegression,
+                   "par":passiveAggressiveRegression,
+                   "ard":ardRegression,
+                   "bays_ridge":bayesianRidgeRegression,
+                   "lasso_lar":lassoLeastAngleRegression,
+                   "lar":leastAngleRegression}
+
         
 		# Define our training and test sets
         self._X_train, self._X_test, self._y_train, self._y_test = train_test_split(self._X,
