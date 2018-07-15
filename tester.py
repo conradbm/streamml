@@ -123,7 +123,7 @@ performances = ModelSelectionStream(Xnew,y).flow(["svr", "lr", "knnr","lasso","a
                                                       #'abr__learning_rate':[0.1,1,10, 100],
                                                       'rfr__criterion':['mse', 'mae'],
                                                       #'rfr__n_estimators':[10,100,1000],
-                                                      'mlpr__hidden_layer_sizes':[(Xnew.shape[1], Xnew.shape[1]/2, Xnew.shape[1]/4),
+                                                      'mlpr__hidden_layer_sizes':[(Xnew.shape[1], int(Xnew.shape[1]/2), int(Xnew.shape[1]/2) ),
                                                                                   (100,10,2),
                                                                                   (1000,100,10,1)]},
                                                  metrics=['r2','rmse', 'mse',
