@@ -74,7 +74,6 @@ class ModelSelectionStream:
     _nfolds=None
     _n_jobs=None
     _verbose=None
-    _scoring=None
     _metrics=None
     _test_size=None
     _wrapper_models=None

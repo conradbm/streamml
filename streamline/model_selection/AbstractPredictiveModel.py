@@ -3,8 +3,6 @@ import sys
 import os
 import numpy as np
 
-#sys.path.append(os.path.abspath(sys.path[0]+"/src/utils/validator/"))
-from streamml.utils.validator.model_validation import ModelValidation
 
 class AbstractPredictiveModel:
     #properties
@@ -31,7 +29,7 @@ class AbstractPredictiveModel:
         self._nfolds=nfolds
         self._n_jobs=n_jobs
         self._verbose=verbose
-        self._validator = ModelValidation()
+    
     #methods
     def validate(self):
         pass

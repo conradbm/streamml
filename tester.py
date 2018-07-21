@@ -8,6 +8,7 @@ sys.path.append('/Users/bmc/Desktop/') #I.e., make it a path variable
 
 from streamml.streamline.transformation.flow.TransformationStream import TransformationStream
 from streamml.streamline.model_selection.flow.ModelSelectionStream import ModelSelectionStream
+from streamml.streamline.feature_selection.flow.FeatureSelectionStream import FeatureSelectionStream
 
 # git checkout -b modelSelectionUpdates
 # git push -u origin modelSelectionUpdates
@@ -27,6 +28,21 @@ y2 = pd.DataFrame(np.random.binomial(1,0.25,200))
 #X = D.iloc[:,2:]
 #y = D.iloc[:,1]
 
+
+feature_dict = FeatureSelectionStream(X,y).flow(["mixed_selection", "pls", "lasso", "rfr", "abr"],
+                                                params={},
+                                                metrics=["r2", "rmse"],
+                                                verbose=True,
+                                               regressors=True,
+                                               ensemble=True)
+
+print(feature_dict)
+feature_dict = FeatureSelectionStream(X2,y2).flow(["rfc", "abc"],
+                                                   params={},
+                                                  verbose=True,
+                                               regressors=False,
+                                               ensemble=True)
+print(feature_dict)
 #ynakiller = y.isna()
 #X = X.loc[-ynakiller,:]
 #y = y.loc[-ynakiller]
@@ -214,6 +230,7 @@ performances = ModelSelectionStream(X,y).flow(["svr","abr", "enet", "mlpr"],
                                                 cut=2) # evenly splits folds with points beneath cut.
 """
 
+"""
 # Classification
 performances = ModelSelectionStream(X2,y2).flow(["abc","logr","mlpc","svc"],
                                               params={'abc__n_estimators':[10,100,1000],
@@ -235,4 +252,6 @@ performances = ModelSelectionStream(X2,y2).flow(["abc","logr","mlpc","svc"],
                                                 modelSelection=True,
                                                 regressors=False
                                                 )
+            
 print(performances)
+"""
