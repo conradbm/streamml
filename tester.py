@@ -21,6 +21,9 @@ from streamml.streamline.model_selection.flow.ModelSelectionStream import ModelS
 X = pd.DataFrame(np.matrix([[np.random.exponential() for j in range(10)] for i in range(200)]))
 y = pd.DataFrame(np.array([np.random.exponential() for i in range(200)]))
 
+X2 = pd.DataFrame(np.matrix([[np.random.exponential() for j in range(10)] for i in range(200)]))
+y2 = pd.DataFrame(np.random.binomial(1,0.25,200))
+
 #D = pd.read_csv("Series3_6.15.17_padel.csv")
 #X = D.iloc[:,2:]
 #y = D.iloc[:,1]
@@ -46,38 +49,40 @@ tsne: n_components
 # sklearn.linear_model.OrthogonalMatchingPursuit
 
 """
-Xnew = TransformationStream(X).flow(["scale","tsne"], 
-                                    params={"tnse_n_components":4,
-                                            "pca__percent_variance":0.75, 
-                                            "kmeans__n_clusters":2},
-                                   verbose=True)
-print(Xnew)
+
+
+#Xnew = TransformationStream(X).flow(["scale","tsne"], 
+#                                    params={"tnse_n_components":4,
+#                                            "pca__percent_variance":0.75, 
+#                                            "kmeans__n_clusters":2},
+#                                   verbose=True)
+#print(Xnew)
 
 
 
 
 """
 Model Selection Options (Regression):
-        options = {"lr" : linearRegression,
-                   "svr" : supportVectorRegression,
-                   "rfr":randomForestRegression,
-                   "abr":adaptiveBoostingRegression,
-                   "knnr":knnRegression,
-                   "ridge":ridgeRegression,
-                   "lasso":lassoRegression,
-                   "enet":elasticNetRegression,
-                   "mlpr":multilayerPerceptronRegression,
-                   "br":baggingRegression,
-                   "dtr":decisionTreeRegression,
-                   "gbr":gradientBoostingRegression,
-                   "gpr":gaussianProcessRegression,
-                   "hr":huberRegression,
-                   "tsr":theilSenRegression,
-                   "par":passiveAggressiveRegression,
-                   "ard":ardRegression,
-                   "bays_ridge":bayesianRidgeRegression,
-                   "lasso_lar":lassoLeastAngleRegression,
-                   "lar":leastAngleRegression}
+        regression_options = {"lr" : linearRegression,
+                               "svr" : supportVectorRegression,
+                               "rfr":randomForestRegression,
+                               "abr":adaptiveBoostingRegression,
+                               "knnr":knnRegression,
+                               "ridge":ridgeRegression,
+                               "lasso":lassoRegression,
+                               "enet":elasticNetRegression,
+                               "mlpr":multilayerPerceptronRegression,
+                               "br":baggingRegression,
+                               "dtr":decisionTreeRegression,
+                               "gbr":gradientBoostingRegression,
+                               "gpr":gaussianProcessRegression,
+                               "hr":huberRegression,
+                               "tsr":theilSenRegression,
+                               "par":passiveAggressiveRegression,
+                               "ard":ardRegression,
+                               "bays_ridge":bayesianRidgeRegression,
+                               "lasso_lar":lassoLeastAngleRegression,
+                               "lar":leastAngleRegression}
 
 Model parameter options can all be found here in the following links for the model you wish to flow on:
 http://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LinearRegression.html
@@ -107,32 +112,39 @@ Metric Options:
 
 Model Selection Options (Classification) {Coming Soon}
 
-http://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html#sklearn.linear_model.LogisticRegression
-http://scikit-learn.org/stable/modules/generated/sklearn.linear_model.SGDClassifier.html#sklearn.linear_model.SGDClassifier
-http://scikit-learn.org/stable/modules/generated/sklearn.neural_network.MLPClassifier.html
-http://scikit-learn.org/stable/modules/generated/sklearn.svm.SVC.html#sklearn.svm.SVC
-http://scikit-learn.org/stable/modules/generated/sklearn.neighbors.KNeighborsClassifier.html#sklearn.neighbors.KNeighborsClassifier
-http://scikit-learn.org/stable/modules/generated/sklearn.gaussian_process.GaussianProcessClassifier.html#sklearn.gaussian_process.GaussianProcessClassifier
-http://scikit-learn.org/stable/modules/naive_bayes.html
-http://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeClassifier.html#sklearn.tree.DecisionTreeClassifier
-http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.AdaBoostClassifier.html#sklearn.ensemble.AdaBoostClassifier
-http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.GradientBoostingClassifier.html#sklearn.ensemble.GradientBoostingClassifier
-http://scikit-learn.org/stable/modules/generated/sklearn.neural_network.MLPClassifier.html#sklearn.neural_network.MLPClassifier
+classification_options = {'abc':adaptiveBoostingClassifier,
+                            'dtc':decisionTreeClassifier,
+                            'gbc':gradientBoostingXlassifier,
+                            'gpc':guassianProcessClassifier,
+                            'knnc':knnClassifier,
+                            'logr':logisticRegressionClassifier,
+                            'mlpc':multilayerPerceptronClassifier,
+                            'nbc':naiveBayesClassifier,
+                            'rfc':randomForestClassifier,
+                            'sgd':stochasticGradientDescentClassifier,
+                            'svc':supportVectorClassifier}
 
 
 Metric Options: {Coming Soon}
-["auc","prec","recall","f1","accuracy","confusion_matrix", "kappa", "jaccard_similarity","log_loss", "report"]
+["auc","prec","recall","f1","accuracy", "kappa","log_loss"]
 
-http://scikit-learn.org/stable/modules/generated/sklearn.metrics.auc.html#sklearn.metrics.auc
+
 http://scikit-learn.org/stable/modules/generated/sklearn.metrics.classification_report.html#sklearn.metrics.classification_report
 http://scikit-learn.org/stable/modules/generated/sklearn.metrics.cohen_kappa_score.html#sklearn.metrics.cohen_kappa_score
-http://scikit-learn.org/stable/modules/generated/sklearn.metrics.jaccard_similarity_score.html#sklearn.metrics.jaccard_similarity_score
+http://scikit-learn.org/stable/modules/generated/sklearn.metrics.auc.html#sklearn.metrics.auc
 http://scikit-learn.org/stable/modules/generated/sklearn.metrics.log_loss.html#sklearn.metrics.log_loss
-http://scikit-learn.org/stable/modules/generated/sklearn.metrics.confusion_matrix.html#sklearn.metrics.confusion_matrix
-http://scikit-learn.org/stable/modules/generated/sklearn.metrics.f1_score.html#sklearn.metrics.f1_score
+http://scikithttp://scikit-learn.org/stable/modules/generated/sklearn.metrics.f1_score.html#sklearn.metrics.f1_score
 http://scikit-learn.org/stable/modules/generated/sklearn.metrics.precision_score.html#sklearn.metrics.precision_score
 http://scikit-learn.org/stable/modules/generated/sklearn.metrics.recall_score.html#sklearn.metrics.recall_score
 http://scikit-learn.org/stable/modules/generated/sklearn.metrics.accuracy_score.html#sklearn.metrics.accuracy_score
+
+-learn.org/stable/modules/generated/sklearn.metrics.jaccard_similarity_score.html#sklearn.metrics.jaccard_similarity_score
+
+http://scikit-learn.org/stable/modules/generated/sklearn.metrics.confusion_matrix.html#sklearn.metrics.confusion_matrix
+
+
+
+
 
 Feature Selection Options: {Coming Soon}
 
@@ -172,31 +184,57 @@ Transformation Options: {Coming Soon}
 
 # Complex Example 
 
-performances = ModelSelectionStream(Xnew,y).flow(["svr", "lr", "knnr","lasso","abr", "ridge","enet", "rfr", "mlpr"],
+#Regression
+"""
+performances = ModelSelectionStream(X,y).flow(["svr","abr", "enet", "mlpr"],
                                               params={'svr__C':[1,0.1,0.01,0.001],
-                                                      #'svr__gamma':[0, 0.01, 0.001, 0.0001],
-                                                      #'svr__kernel':['poly', 'rbf'],
-                                                      #'svr__epsilon':[0,0.1,0.01,0.001],
-                                                      #'svr__degree':[1,2,3,4,5,6,7],
-                                                      'lr__fit_intercept':[False, True],
-                                                      'knnr__n_neighbors':[3, 5,7, 9, 11, 13],
-                                                      'lasso__alpha':[0, 0.1, 0.01,1,10.0,20.0],
-                                                      'ridge__alpha':[0, 0.1, 0.01,1,10.0,20.0],
+                                                      'svr__gamma':[0, 0.01, 0.001, 0.0001],
+                                                      'svr__kernel':['poly', 'rbf'],
+                                                      'svr__epsilon':[0,0.1,0.01,0.001],
+                                                      'svr__degree':[1,2,3,4,5,6,7],
+                                                      
                                                       'enet__alpha':[0, 0.1, 0.01,1,10,20],
-                                                      #'enet__l1_ratio':[.25,.5,.75],
+                                                      'enet__l1_ratio':[.25,.5,.75],
+                                                      
                                                       'abr__n_estimators':[10,20,50],
-                                                      #'abr__learning_rate':[0.1,1,10, 100],
+                                                      'abr__learning_rate':[0.1,1,10, 100],
                                                       'rfr__criterion':['mse', 'mae'],
-                                                      #'rfr__n_estimators':[10,100,1000],
-                                                      'mlpr__hidden_layer_sizes':[(Xnew.shape[1], int(Xnew.shape[1]/2), int(Xnew.shape[1]/2) ),
+                                                      
+                                                      'mlpr__hidden_layer_sizes':[(X.shape[1], 
+                                                                                   int(X.shape[1]/2),
+                                                                                   int(X.shape[1]/2)),
                                                                                   (100,10,2),
-                                                                                  (1000,100,10,1)]},
+                                                                                  (1000,100,10,1),
+                                                                                 (5,5,5,5,5,1)]},
                                                  metrics=['r2','rmse', 'mse',
                                                           'explained_variance','mean_absolute_error',
                                                          'median_absolute_error'],
                                                 verbose=True,
+                                                modelSelection=True,
                                                 regressors=True,
                                                 cut=2) # evenly splits folds with points beneath cut.
+"""
 
-
-performances
+# Classification
+performances = ModelSelectionStream(X2,y2).flow(["abc", "mlpc"],
+                                              params={'abc__n_estimators':[10,100,1000],
+                                                      'abc__learning_rate':[0.001,0.01,0.1,1,10,100],
+                                                      'mlpc__hidden_layer_sizes':[(X.shape[1], 
+                                                                                   int(X.shape[1]/2),
+                                                                                   int(X.shape[1]/2)),
+                                                                                  (100,10,2),
+                                                                                  (1000,100,10,1),
+                                                                                  (5,5,5,5,5,1),
+                                                                                  (2,2,2,2,2,2,2,2,2,2)]},
+                                                 metrics=["auc",
+                                                          "prec",
+                                                          "recall",
+                                                          "f1",
+                                                          "accuracy",
+                                                          "kappa",
+                                                          "log_loss"],
+                                                verbose=True,
+                                                modelSelection=True,
+                                                regressors=False
+                                                )
+print(performances)

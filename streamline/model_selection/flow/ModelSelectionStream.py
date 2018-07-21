@@ -14,10 +14,10 @@ import seaborn as sns
 import sys
 import os
 
-# Data storage
+# Data containers
 from collections import defaultdict
 
-# Supported streamml Regressors
+# Regressors
 from streamml.streamline.model_selection.models.regressors.LinearRegressorPredictiveModel import LinearRegressorPredictiveModel
 from streamml.streamline.model_selection.models.regressors.SupportVectorRegressorPredictiveModel import SupportVectorRegressorPredictiveModel
 from streamml.streamline.model_selection.models.regressors.RidgeRegressorPredictiveModel import RidgeRegressorPredictiveModel
@@ -38,6 +38,21 @@ from streamml.streamline.model_selection.models.regressors.GaussianProcessRegres
 from streamml.streamline.model_selection.models.regressors.GradientBoostingRegressorPredictiveModel import GradientBoostingRegressorPredictiveModel
 from streamml.streamline.model_selection.models.regressors.BaggingRegressorPredictiveModel import BaggingRegressorPredictiveModel
 from streamml.streamline.model_selection.models.regressors.DecisionTreeRegressorPredictiveModel import DecisionTreeRegressorPredictiveModel
+
+# Classifiers
+from streamml.streamline.model_selection.models.classifiers.AdaptiveBoostingClassifierPredictiveModel import AdaptiveBoostingClassifierPredictiveModel
+from streamml.streamline.model_selection.models.classifiers.DecisionTreeClassifierPredictiveModel import DecisionTreeClassifierPredictiveModel
+from streamml.streamline.model_selection.models.classifiers.GradientBoostingClassifierPredictiveModel import GradientBoostingClassifierPredictiveModel
+from streamml.streamline.model_selection.models.classifiers.GuassianProcessClassifierPredictiveModel import GuassianProcessClassifierPredictiveModel
+from streamml.streamline.model_selection.models.classifiers.KNNClassifierPredictiveModel import KNNClassifierPredictiveModel
+from streamml.streamline.model_selection.models.classifiers.LogisticRegressionClassifierPredictiveModel import LogisticRegressionClassifierPredictiveModel
+from streamml.streamline.model_selection.models.classifiers.MultilayerPerceptronClassifierPredictiveModel import MultilayerPerceptronClassifierPredictiveModel
+from streamml.streamline.model_selection.models.classifiers.NaiveBayesClassifierPredictiveModel import NaiveBayesClassifierPredictiveModel
+from streamml.streamline.model_selection.models.classifiers.RandomForestClassifierPredictiveModel import RandomForestClassifierPredictiveModel
+from streamml.streamline.model_selection.models.classifiers.StochasticGradientDescentClassifierPredictiveModel import StochasticGradientDescentClassifierPredictiveModel
+from streamml.streamline.model_selection.models.classifiers.SupportVectorClassifierPredictiveModel  import SupportVectorClassifierPredictiveModel 
+
+
 
 # Print Settings
 import warnings
@@ -64,9 +79,9 @@ class ModelSelectionStream:
     _test_size=None
     _wrapper_models=None
     _bestEstimators=None
-    _bestEstimator=None
     _regressors_results=None
     _classifiers_results=None
+    _modelSelection=None
     
     """
     Constructor: __init__:
@@ -90,14 +105,6 @@ class ModelSelectionStream:
     def getBestEstimators(self):
         return self._bestEstimators
 
-    """
-	Methods: getBestEstimator
-    
-    @usage: Called after hypertuning and competition are complete, will return the best estimator in each error metric specified
-    @return: dict or None
-	"""
-    def getBestEstimator(self):
-        return self._bestEstiminator
         
     """
 	Methods: determineBestEstimators
@@ -120,7 +127,7 @@ class ModelSelectionStream:
     """
 	Methods: handleRegressors
 	
-    @usage called when regressor=True and len(metrics)>0. hence will compete regressors and let you know who did the best on your data.
+    @usage called when regressor=True and len(metrics)>0. hence will compete regressors and let you know who did the best on your data and on what metrics.
     
     @param Xtest, pd.DataFrame
     @param ytest, pd.Dataframe
@@ -160,13 +167,16 @@ class ModelSelectionStream:
         # create a pandas dataframe of each metric on each model
         
         if self._verbose:
-            print("**************************************************")
-            print("Regressor Performance Sheet")
-            print("**************************************************")
+            print("*******************")
+            print("** => (Regressor) => Performance Sheet **")
+            print("*******************")
             
             df_results = pd.DataFrame(self._regressors_results)
             print(df_results)
             df_results.plot(title='Errors by Model')
+            plt.xticks(range(len(df_results.index.tolist())), df_results.index.tolist())
+            locs, labels = plt.xticks()
+            plt.setp(labels, rotation=45)
             plt.show()
             # plot models against one another in charts
         
@@ -176,38 +186,51 @@ class ModelSelectionStream:
     """
 	Methods: handleClassifiers
 	
+    @usage called when regressor=False and len(metrics)>0. hence will compete classifiers and let you know who did the best on your data and on which metrics.
+    
+    @param Xtest, pd.DataFrame
+    @param ytest, pd.Dataframe
+    @param metrics, list; specified metrics from sklearn
+    @param wrapper_models, list; specified streamml models wrapping sklearn regressors or classifiers
+    
+    @return pd.DataFrame
 	"""
     def handleClassifiers(self, Xtest, ytest, metrics, wrapper_models):
-        if self._verbose:
-            print("**************************************************")
-            print("Classifier Performance Sheet")
-            print("**************************************************")
-        pass
         
-    """
-	Methods: handleModelSelection
+        self._classifier_results=defaultdict(list)
+        
+        rskf = RepeatedStratifiedKFold(n_splits=10, n_repeats=10,random_state=36851234)
+        
+        for train_index, test_index in rskf.split(self._X, self._y):
+            self._X_train, self._X_test = self._X.iloc[train_index,:], self._X.iloc[test_index,:]
+            self._y_train, self._y_test = self._y.iloc[train_index], self._y.iloc[test_index]
+            for model in wrapper_models:
+                self._classifier_results[model.getCode()].append(model.validate(self._X_test, self._y_test, metrics))
 
-    @usage
-    
-    @param regressors, bool.
-    @param metrics, list.
-    @param Xtest, pd.DataFrame.
-    @param ytest, pd.DataFrame.
-    @param wrapper_models, list.
-    
-    @return model object
-	"""
-    def handleModelSelection(self, regressors, metrics, Xtest, ytest, wrapper_models, cut=None):
+        # Convert our repeated stratified K folds into an average dataframe
+        for k,v in  self._classifier_results.items():
+            example_df = pd.DataFrame(self._classifier_results[k])
+            mean = example_df.mean()
+            self._classifier_results[k]=mean
         
-        if regressors:
-            assert cut != None , "you must select a cut point for your stratified folds to equally distribute your critical points"
-            self._bestEstimator = self.handleRegressors(Xtest, ytest, metrics, wrapper_models, cut)
-        else:
-            #classifiers
-            assert 1 == 2, "Handling Classification is not yet supported."
-            self._bestEstimator = self.handleClassifiers(Xtest, ytest, metrics, wrapper_models)
+        # create a pandas dataframe of each metric on each model
+        
+        if self._verbose:
+            print("*******************")
+            print("** => (Classifier) => Performance Sheet **")
+            print("*******************")
             
-        return self._bestEstimator
+            df_results = pd.DataFrame(self._classifier_results)
+            print(df_results)
+            df_results.plot(title='Errors by Model')
+            plt.xticks(range(len(df_results.index.tolist())), df_results.index.tolist())
+            locs, labels = plt.xticks()
+            plt.setp(labels, rotation=45)
+            plt.show()
+            # plot models against one another in charts
+        
+        return self._classifier_results
+        
         
     """
     Methods: flow
@@ -229,6 +252,7 @@ class ModelSelectionStream:
              metrics=[], 
              verbose=False, 
              regressors=True,
+             modelSelection=False,
              cut=None):
       
         assert isinstance(nfolds, int), "nfolds must be integer"
@@ -240,6 +264,7 @@ class ModelSelectionStream:
         assert isinstance(test_size, float), "test_size must be a float"
         assert isinstance(metrics, list), "model scoring must be a list"
         assert isinstance(regressors, bool), "regressor must be bool"
+        assert isinstance(modelSelection, bool), "modelSelection must be bool"
         
         self._nfolds=nfolds
         self._nrepeats=nrepeats
@@ -250,18 +275,33 @@ class ModelSelectionStream:
         self._metrics=metrics
         self._test_size=test_size
         self._regressors=regressors
+        self._modelSelection=modelSelection
         self._cut = cut
         
         # Inform the streamline to user.
         stringbuilder=""
         for thing in models_to_flow:
             stringbuilder += thing
-            stringbuilder += " --> "
+            stringbuilder += " => "
             
         if self._verbose:
-            print("**************************************************")
-            print("Model Selection Streamline: " + stringbuilder[:-5])
-            print("**************************************************")
+            
+            if self._regressors:
+                print("*******************")
+                print("** => (Regressor) "+"=> Model Selection Streamline: " + stringbuilder[:-5])
+                print("*******************")
+            elif self._regressors == False:
+                print("*******************")
+                print("** => (Classifier) "+"=> Model Selection Streamline: " + stringbuilder[:-5])
+                print("*******************")
+            else:
+                print("Invalid model selected. Please set regressors=True or regressors=False.")
+                print
+        
+        
+        ###########################################
+        ########## Regressors Start Here ##########
+        ###########################################
         
         def linearRegression():
             
@@ -327,7 +367,7 @@ class ModelSelectionStream:
                                                               self._n_jobs,
                                                               self._verbose)
             return model
-            
+        
         def knnRegression():
             self._knnr_params={}
             for k,v in self._allParams.items():
@@ -559,6 +599,7 @@ class ModelSelectionStream:
             
             return model
         
+        
         def decisionTreeRegression():
             self._dtr_params={}
             for k,v in self._allParams.items():
@@ -574,63 +615,273 @@ class ModelSelectionStream:
             
             return model
 
-
+        ############################################
+        ########## Classifiers Start Here ##########
+        ############################################
         
-        # Define our model selection options
-        options = {"lr" : linearRegression,
-                   "svr" : supportVectorRegression,
-                   "rfr":randomForestRegression,
-                   "abr":adaptiveBoostingRegression,
-                   "knnr":knnRegression,
-                   "ridge":ridgeRegression,
-                   "lasso":lassoRegression,
-                   "enet":elasticNetRegression,
-                   "mlpr":multilayerPerceptronRegression,
-                   "br":baggingRegression,
-                   "dtr":decisionTreeRegression,
-                   "gbr":gradientBoostingRegression,
-                   "gpr":gaussianProcessRegression,
-                   "hr":huberRegression,
-                   "tsr":theilSenRegression,
-                   "par":passiveAggressiveRegression,
-                   "ard":ardRegression,
-                   "bays_ridge":bayesianRidgeRegression,
-                   "lasso_lar":lassoLeastAngleRegression,
-                   "lar":leastAngleRegression}
+        def adaptiveBoostingClassifier():
+            self._abc_params={}
+            for k,v in self._allParams.items():
+                if "abc" in k:
+                    self._abc_params[k]=v
 
+                
+            model = AdaptiveBoostingClassifierPredictiveModel(self._X_train, 
+                                                              self._y_train,
+                                                              self._abc_params,
+                                                              self._nfolds, 
+                                                              self._n_jobs,
+                                                              self._verbose)
+            return model
         
-		# Define our training and test sets
+        def decisionTreeClassifier():
+            self._dtc_params={}
+            for k,v in self._allParams.items():
+                if "dtc" in k:
+                    self._dtc_params[k]=v
+
+                
+            model = DecisionTreeClassifierPredictiveModel(self._X_train, 
+                                                              self._y_train,
+                                                              self._dtc_params,
+                                                              self._nfolds, 
+                                                              self._n_jobs,
+                                                              self._verbose)
+            return model
+        
+        
+        def gradientBoostingClassifier():
+            self._gbc_params={}
+            for k,v in self._allParams.items():
+                if "gbc" in k:
+                    self._gbc_params[k]=v
+
+                
+            model = GradientBoostingClassifierPredictiveModel(self._X_train, 
+                                                              self._y_train,
+                                                              self._gbc_params,
+                                                              self._nfolds, 
+                                                              self._n_jobs,
+                                                              self._verbose)
+            return model
+        
+        def guassianProcessClassifier():
+            self._gpc_params={}
+            for k,v in self._allParams.items():
+                if "gpc" in k:
+                    self._gpc_params[k]=v
+
+                
+            model = GuassianProcessClassifierPredictiveModel(self._X_train, 
+                                                              self._y_train,
+                                                              self._gpc_params,
+                                                              self._nfolds, 
+                                                              self._n_jobs,
+                                                              self._verbose)
+            return model
+        
+        def knnClassifier():
+            self._knnc_params={}
+            for k,v in self._allParams.items():
+                if "knnc" in k:
+                    self._knnc_params[k]=v
+
+                
+            model = KNNClassifierPredictiveModel(self._X_train, 
+                                                              self._y_train,
+                                                              self._knnc_params,
+                                                              self._nfolds, 
+                                                              self._n_jobs,
+                                                              self._verbose)
+            return model
+        
+        def logisticRegressionClassifier():
+            self._logr_params={}
+            for k,v in self._allParams.items():
+                if "logr" in k:
+                    self._logr_params[k]=v
+
+                
+            model = LogisticRegressionClassifierPredictiveModel(self._X_train, 
+                                                              self._y_train,
+                                                              self._logr_params,
+                                                              self._nfolds, 
+                                                              self._n_jobs,
+                                                              self._verbose)
+            return model
+        
+        def multilayerPerceptronClassifier():
+            self._mlpc_params={}
+            for k,v in self._allParams.items():
+                if "mlpc" in k:
+                    self._mlpc_params[k]=v
+
+                
+            model = MultilayerPerceptronClassifierPredictiveModel(self._X_train, 
+                                                              self._y_train,
+                                                              self._mlpc_params,
+                                                              self._nfolds, 
+                                                              self._n_jobs,
+                                                              self._verbose)
+            return model
+        
+        def naiveBayesClassifier():
+            self._nbc_params={}
+            for k,v in self._allParams.items():
+                if "nbc" in k:
+                    self._nbc_params[k]=v
+
+                
+            model = NaiveBayesClassifierPredictiveModel(self._X_train, 
+                                                              self._y_train,
+                                                              self._nbc_params,
+                                                              self._nfolds, 
+                                                              self._n_jobs,
+                                                              self._verbose)
+            return model
+        
+        def randomForestClassifier():
+            self._rfc_params={}
+            for k,v in self._allParams.items():
+                if "rfc" in k:
+                    self._rfc_params[k]=v
+
+                
+            model = RandomForestClassifierPredictiveModel(self._X_train, 
+                                                              self._y_train,
+                                                              self._rfc_params,
+                                                              self._nfolds, 
+                                                              self._n_jobs,
+                                                              self._verbose)
+            return model
+        
+        def stochasticGradientDescentClassifier():
+            self._sgdc_params={}
+            for k,v in self._allParams.items():
+                if "sgdc" in k:
+                    self._sgdc_params[k]=v
+
+                
+            model = StochasticGradientDescentClassifierPredictiveModel(self._X_train, 
+                                                                      self._y_train,
+                                                                      self._sgdc_params,
+                                                                      self._nfolds, 
+                                                                      self._n_jobs,
+                                                                      self._verbose)
+            return model
+        
+        def supportVectorClassifier():
+            self._svc_params={}
+            for k,v in self._allParams.items():
+                if "svc" in k:
+                    self._svc_params[k]=v
+
+                
+            model = SupportVectorClassifierPredictiveModel(self._X_train, 
+                                                                      self._y_train,
+                                                                      self._svc_params,
+                                                                      self._nfolds, 
+                                                                      self._n_jobs,
+                                                                      self._verbose)
+            return model
+        
+        # Valid regressors
+        regression_options = {"lr" : linearRegression,
+                               "svr" : supportVectorRegression,
+                               "rfr":randomForestRegression,
+                               "abr":adaptiveBoostingRegression,
+                               "knnr":knnRegression,
+                               "ridge":ridgeRegression,
+                               "lasso":lassoRegression,
+                               "enet":elasticNetRegression,
+                               "mlpr":multilayerPerceptronRegression,
+                               "br":baggingRegression,
+                               "dtr":decisionTreeRegression,
+                               "gbr":gradientBoostingRegression,
+                               "gpr":gaussianProcessRegression,
+                               "hr":huberRegression,
+                               "tsr":theilSenRegression,
+                               "par":passiveAggressiveRegression,
+                               "ard":ardRegression,
+                               "bays_ridge":bayesianRidgeRegression,
+                               "lasso_lar":lassoLeastAngleRegression,
+                               "lar":leastAngleRegression}
+
+
+
+        # Valid classifiers
+        classification_options = {'abc':adaptiveBoostingClassifier,
+                                  'dtc':decisionTreeClassifier,
+                                  'gbc':gradientBoostingClassifier,
+                                    'gpc':guassianProcessClassifier,
+                                    'knnc':knnClassifier,
+                                    'logr':logisticRegressionClassifier,
+                                    'mlpc':multilayerPerceptronClassifier,
+                                    'nbc':naiveBayesClassifier,
+                                    'rfc':randomForestClassifier,
+                                    'sgd':stochasticGradientDescentClassifier,
+                                    'svc':supportVectorClassifier}
+        
+		# Train test split
         self._X_train, self._X_test, self._y_train, self._y_test = train_test_split(self._X,
                                                                                      self._y,
                                                                                      test_size=self._test_size)
-        # Confirm training test splits worked
-		#print(self._X_train.shape)
-        #print(self._X_test.shape)
-        #print(self._y_train.shape)
-        #print(self._y_test.shape)
-            
-        # Accumulate each wrapper model the user wants to execute on
-        self._wrapper_models=[]
-        for key in models_to_flow:
-             self._wrapper_models.append(options[key]())
+
         
+    
+        # Wrapper models    
+        self._wrapper_models=[]
+        
+        # Wrapper Regressors
+        if self._regressors:
+            for key in models_to_flow:
+                 self._wrapper_models.append(regression_options[key]())
+                    
+        # Wrapper Classifiers
+        elif self._regressors == False:
+            for key in models_to_flow:
+                 self._wrapper_models.append(classification_options[key]())
+                    
+        # Error catch
+        else:
+            print("Invalid model type. Please set regressors=True or regressors=False.")
+            print
         if self._verbose:
             print
-		# Execute the users request on wrapper models
+		
+        # Hyper-tune models
         self._bestEstimators = self.determineBestEstimators(self._wrapper_models)
         
         
-		# If metrics defined, tell the user which model did best with a visualization
-        if len(self._metrics) > 0:
-            self._bestEstiminator = self.handleModelSelection(self._regressors, 
-                                                              self._metrics, 
-                                                              self._X_test, 
-                                                              self._y_test, 
-                                                              self._wrapper_models,
-                                                             self._cut)
+		
+        # Host Competition
+        if self._modelSelection:
+            
+            # Metrics Specified
+            if len(self._metrics) > 0:
+                
+                # Regression on Metrics
+                if self._regressors:
+                    assert self._cut != None , "you must select a cut point for your stratified folds to equally distribute your critical points"
+                    self._scoring_results = self.handleRegressors(self._X_test, 
+                                                                  self._y_test, 
+                                                                  self._metrics,
+                                                                  self._wrapper_models,
+                                                                  self._cut)
+                    
+                # Classification on Metrics
+                elif self._regressors == False: #classifiers
+                    self._scoring_results = self.handleClassifiers (self._X_test,
+                                                                   self._y_test,
+                                                                   self._metrics,
+                                                                   self._wrapper_models)
+                    
+                # Error
+                else:
+                    print("You selected an invalid type of model.")
+                    print
 
-        
 		# Return each best estimator the user is interested in
-        return self._bestEstimators
+        return (self._bestEstimators, self._scoring_results)
     
 
