@@ -57,7 +57,7 @@ print(Xnew)
 
 
 """
-Model Selection Options:
+Model Selection Options (Regression):
         options = {"lr" : linearRegression,
                    "svr" : supportVectorRegression,
                    "rfr":randomForestRegression,
@@ -103,6 +103,71 @@ http://scikit-learn.org/stable/modules/linear_model.html#least-angle-regression
 
 Metric Options:
 ['rmse','mse', 'r2','explained_variance','mean_absolute_error','median_absolute_error']
+
+
+Model Selection Options (Classification) {Coming Soon}
+
+http://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html#sklearn.linear_model.LogisticRegression
+http://scikit-learn.org/stable/modules/generated/sklearn.linear_model.SGDClassifier.html#sklearn.linear_model.SGDClassifier
+http://scikit-learn.org/stable/modules/generated/sklearn.neural_network.MLPClassifier.html
+http://scikit-learn.org/stable/modules/generated/sklearn.svm.SVC.html#sklearn.svm.SVC
+http://scikit-learn.org/stable/modules/generated/sklearn.neighbors.KNeighborsClassifier.html#sklearn.neighbors.KNeighborsClassifier
+http://scikit-learn.org/stable/modules/generated/sklearn.gaussian_process.GaussianProcessClassifier.html#sklearn.gaussian_process.GaussianProcessClassifier
+http://scikit-learn.org/stable/modules/naive_bayes.html
+http://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeClassifier.html#sklearn.tree.DecisionTreeClassifier
+http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.AdaBoostClassifier.html#sklearn.ensemble.AdaBoostClassifier
+http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.GradientBoostingClassifier.html#sklearn.ensemble.GradientBoostingClassifier
+http://scikit-learn.org/stable/modules/generated/sklearn.neural_network.MLPClassifier.html#sklearn.neural_network.MLPClassifier
+
+
+Metric Options: {Coming Soon}
+["auc","prec","recall","f1","accuracy","confusion_matrix", "kappa", "jaccard_similarity","log_loss", "report"]
+
+http://scikit-learn.org/stable/modules/generated/sklearn.metrics.auc.html#sklearn.metrics.auc
+http://scikit-learn.org/stable/modules/generated/sklearn.metrics.classification_report.html#sklearn.metrics.classification_report
+http://scikit-learn.org/stable/modules/generated/sklearn.metrics.cohen_kappa_score.html#sklearn.metrics.cohen_kappa_score
+http://scikit-learn.org/stable/modules/generated/sklearn.metrics.jaccard_similarity_score.html#sklearn.metrics.jaccard_similarity_score
+http://scikit-learn.org/stable/modules/generated/sklearn.metrics.log_loss.html#sklearn.metrics.log_loss
+http://scikit-learn.org/stable/modules/generated/sklearn.metrics.confusion_matrix.html#sklearn.metrics.confusion_matrix
+http://scikit-learn.org/stable/modules/generated/sklearn.metrics.f1_score.html#sklearn.metrics.f1_score
+http://scikit-learn.org/stable/modules/generated/sklearn.metrics.precision_score.html#sklearn.metrics.precision_score
+http://scikit-learn.org/stable/modules/generated/sklearn.metrics.recall_score.html#sklearn.metrics.recall_score
+http://scikit-learn.org/stable/modules/generated/sklearn.metrics.accuracy_score.html#sklearn.metrics.accuracy_score
+
+Feature Selection Options: {Coming Soon}
+
+Statistical: p-values
+(reg)http://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.mutual_info_regression.html#sklearn.feature_selection.mutual_info_regression
+(classif)http://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.chi2.html#sklearn.feature_selection.chi2
+(classif)http://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.f_classif.html#sklearn.feature_selection.f_classif
+(classif)http://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.mutual_info_classif.html#sklearn.feature_selection.mutual_info_classif
+(reg)http://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.f_regression.html#sklearn.feature_selection.f_regression
+
+Tests to work off
+http://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.VarianceThreshold.html#sklearn.feature_selection.VarianceThreshold
+http://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.SelectKBest.html#sklearn.feature_selection.SelectKBest
+http://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.SelectPercentile.html#sklearn.feature_selection.SelectPercentile
+http://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.RFECV.html#sklearn.feature_selection.RFECV
+http://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.SelectFromModel.html#sklearn.feature_selection.SelectFromModel
+   
+Trees: _feature_importance_
+(classif)http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.AdaBoostRegressor.html#sklearn.ensemble.AdaBoostRegressor
+(reg)http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.AdaBoostClassifier.html#sklearn.ensemble.AdaBoostClassifier
+(classif)http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html
+(reg)http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestRegressor.html
+
+Kernels (linear): _coef_
+(classif)http://scikit-learn.org/stable/modules/generated/sklearn.svm.SVC.html
+(reg)http://scikit-learn.org/stable/modules/generated/sklearn.svm.SVR.html
+
+Regression: _coef_
+(reg)http://scikit-learn.org/stable/modules/generated/sklearn.linear_model.Lasso.html
+(reg)http://scikit-learn.org/stable/modules/generated/sklearn.linear_model.ElasticNet.html
+Preprocessing options
+
+
+Transformation Options: {Coming Soon}
+
 """
 
 # Complex Example 
