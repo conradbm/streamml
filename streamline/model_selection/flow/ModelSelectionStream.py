@@ -167,9 +167,9 @@ class ModelSelectionStream:
         # create a pandas dataframe of each metric on each model
         
         if self._verbose:
-            print("**************************************************")
-            print("Regressor Performance Sheet")
-            print("**************************************************")
+            print("*************************")
+            print("=> (Regressor) => Performance Sheet")
+            print("*************************")
             
             df_results = pd.DataFrame(self._regressors_results)
             print(df_results)
@@ -216,9 +216,9 @@ class ModelSelectionStream:
         # create a pandas dataframe of each metric on each model
         
         if self._verbose:
-            print("**************************************************")
-            print("Classifier Performance Sheet")
-            print("**************************************************")
+            print("*************************")
+            print("=> (Classifier) => Performance Sheet")
+            print("*************************")
             
             df_results = pd.DataFrame(self._classifier_results)
             print(df_results)
@@ -287,13 +287,13 @@ class ModelSelectionStream:
         if self._verbose:
             
             if self._regressors:
-                print("**************************************************")
-                print("(Regressor) "+"Model Selection Streamline: " + stringbuilder[:-5])
-                print("**************************************************")
+                print("*************************")
+                print("=> (Regressor) "+"=> Model Selection Streamline: " + stringbuilder[:-5])
+                print("*************************")
             elif self._regressors == False:
-                print("**************************************************")
-                print("(Classifier) "+"Model Selection Streamline: " + stringbuilder[:-5])
-                print("**************************************************")
+                print("*************************")
+                print("=> (Classifier) "+"=> Model Selection Streamline: " + stringbuilder[:-5])
+                print("*************************")
             else:
                 print("Invalid model selected. Please set regressors=True or regressors=False.")
                 print
@@ -633,7 +633,8 @@ class ModelSelectionStream:
                                                               self._verbose)
             return model
         
-         def decisionTreeClassifier():
+
+        def decisionTreeClassifier():
             self._dtc_params={}
             for k,v in self._allParams.items():
                 if "dtc" in k:
@@ -679,7 +680,8 @@ class ModelSelectionStream:
                                                               self._verbose)
             return model
         
-         def knnClassifier():
+
+        def knnClassifier():
             self._knnc_params={}
             for k,v in self._allParams.items():
                 if "knnc" in k:

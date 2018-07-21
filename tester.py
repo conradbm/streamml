@@ -215,9 +215,15 @@ performances = ModelSelectionStream(X,y).flow(["svr","abr", "enet", "mlpr"],
 """
 
 # Classification
-performances = ModelSelectionStream(X2,y2).flow(["abc"],
+performances = ModelSelectionStream(X2,y2).flow(["abc","logr","mlpc","svc"],
                                               params={'abc__n_estimators':[10,100,1000],
-                                                      'abc__learning_rate':[0.001,0.01,0.1,1,10,100]},
+                                                      'abc__learning_rate':[0.001,0.01,0.1,1,10,100],
+                                                      'mlpr__hidden_layer_sizes':[(X.shape[1], 
+                                                                                   int(X.shape[1]/2),
+                                                                                   int(X.shape[1]/2)),
+                                                                                  (100,10,2),
+                                                                                  (1000,100,10,1),
+                                                                                 (5,5,5,5,5,1)]},
                                                  metrics=["auc",
                                                           "prec",
                                                           "recall",

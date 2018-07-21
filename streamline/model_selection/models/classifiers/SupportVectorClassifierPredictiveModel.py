@@ -15,7 +15,7 @@ class SupportVectorClassifierPredictiveModel(AbstractClassifierPredictiveModel):
         if verbose:
             print ("Constructed SupportVectorClassifierPredictiveModel: " +self._code)
         
-        AbstractClassifierPredictiveModel.__init__(self, "classifier", X, y, abr_params, nfolds, n_jobs, scoring, verbose)
+        AbstractClassifierPredictiveModel.__init__(self, "classifier", X, y, svc_params, nfolds, n_jobs, scoring, verbose)
         self._model = self.constructClassifier(SVC())
         
        

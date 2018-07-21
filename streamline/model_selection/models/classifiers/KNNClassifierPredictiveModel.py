@@ -2,9 +2,9 @@ import sys
 import os
 from streamline.model_selection.models.AbstractClassifierPredictiveModel import AbstractClassifierPredictiveModel
 
-from sklearn..neighbors import KNeighborsClassifier
+from sklearn.neighbors import KNeighborsClassifier
 
-class KNeighborsClassifierPredictiveModel(AbstractClassifierPredictiveModel):
+class KNNClassifierPredictiveModel(AbstractClassifierPredictiveModel):
     #properties
 
     #constructor
@@ -13,7 +13,7 @@ class KNeighborsClassifierPredictiveModel(AbstractClassifierPredictiveModel):
         self._code="knnc"
         
         if verbose:
-            print ("Constructed KNeighborsClassifierPredictiveModel: " +self._code)
+            print ("Constructed KNNClassifierPredictiveModel: " +self._code)
         
         AbstractClassifierPredictiveModel.__init__(self, "classifier", X, y, knnc_params, nfolds, n_jobs, scoring, verbose)
         self._model = self.constructClassifier(KNeighborsClassifier())
