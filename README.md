@@ -12,7 +12,7 @@ Streaming Capabilities provided:
   <li><code>TransformationStream</code>, meant to flow through preprocessing techniques such as: scaling, normalizing, boxcox, binarization, pca, or kmeans aimed at returning a desired input dataset for model development.</li>
 
 <li><code>ModelSelectionStream</code>. 
-<li>Regression Models:
+<p>Regression Models:
 {"lr" : linearRegression,
 "svr" : supportVectorRegression,
 "rfr":randomForestRegression,
@@ -33,11 +33,12 @@ Streaming Capabilities provided:
 "bays_ridge":bayesianRidgeRegression,
 "lasso_lar":lassoLeastAngleRegression,
 "lar":leastAngleRegression}
-</li>
-</li>Regression metrics:
+</p>
+  
+<p>Regression metrics:
 ['rmse','mse', 'r2','explained_variance','mean_absolute_error','median_absolute_error']
-</li>
-<li>Classification Models:
+</p>
+<p>Classification Models:
  {'abc':adaptiveBoostingClassifier,
 'dtc':decisionTreeClassifier,
 'gbc':gradientBoostingXlassifier,
@@ -49,10 +50,10 @@ Streaming Capabilities provided:
 'rfc':randomForestClassifier,
 'sgd':stochasticGradientDescentClassifier,
 'svc':supportVectorClassifier}
-</li>
-<li>Classification Metrics:
+</p>
+<p>Classification Metrics:
 ["auc","prec","recall","f1","accuracy", "kappa","log_loss"]
-</li>
+</p>
 </li>
 
   <li><code>FeatureSelectionStream</code>, meant to flow through several predictive models and algorithms to determine which subset of features is most predictive or representative of your dataset, these include: RandomForestFeatureImportance, LassoFeatureImportance, MixedSelection, and a technique to ensemble each named TOPSISFeatureRanking. You must specify whether your wish to ensemble and with what technique (denoted <code>ensemble=True). This is not currently supported, however will be built on top the <em>sklearn.feature_selection</em>.</code> 
@@ -61,11 +62,7 @@ Streaming Capabilities provided:
 
 <hr>
 
-<h2>Current Implementation</h2>
-
-Currently we support transformation streams and restricted model selection streams with 8 regression estiminators.
-
-Example of a transformation stream:
+<h2>Some Examples</h2>
 
 <strong>Simple data set</strong>
 
@@ -99,12 +96,9 @@ Xnew = TransformationStream(X).flow(
 
 
   
-<strong>Supported stream operators</strong>: lr, ridge, lasso, enet, svr, knnr, abr, mlpr
-
-<strong>Supported Args</strong>: metrics -> [rmse, mse, r2, explained_variance, mean_absolute_error, median_absolute_error], verbose, regressors, and params. Params is build into the GridSearchCV function within sklearn, so each specified parameter will be automatically plugged into this method and hypertuned for you.
-
 <code>
 # Regression
+  
 performances = ModelSelectionStream(Xnew,y).flow(
                                               
                                               #required: models you want to flow through in model selection
@@ -159,21 +153,37 @@ performances = ModelSelectionStream(Xnew,y).flow(
 </code>
 
 <code>
+
 # Classification
-performances = ModelSelectionStream(X2,y2).flow(["abc"], 
-params={'abc__n_estimators':[10,100,1000],
+  
+performances = ModelSelectionStream(X2,y2).flow(
+                                                  ["abc"], 
+
+                                                  params={'abc__n_estimators':[10,100,1000],
 'abc__learning_rate':[0.001,0.01,0.1,1,10,100]},
+
 metrics=["auc",
+
 "prec",
+
 "recall",
+
 "f1",
+
 "accuracy",
+
 "kappa",
+
 "log_loss"],
+
 verbose=True,
+
 modelSelection=True,
+
 regressors=False
+
 )
+
 </code>
 
 
