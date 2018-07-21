@@ -9,7 +9,7 @@ The three main classes in the <em>streamml</em> ecosystem are: TransformationStr
 In the <em>streamml</em> ecosystem, as mentioned above, we must build a stream object. The idea is within this stream, we can flow through very specific objects that are optimized for us behind the scenes. Yup. That's it. All of the gridsearching and pipelining procedures you are use to doing everytime you see a dataset are already built in. Just construct a stream and then <code>.flow([...])</code> right on through it, and it will return your hypertuned models, transformed feature-space, or a subspace of features that are most pronounced within your data. 
 Streaming Capabilities provided:
 <ul>
-  <li><code>TransformationStream</code>, meant to flow through preprocessing techniques such as: scaling, normalizing, boxcox, binarization, pca, or kmeans aimed at returning a desired input dataset for model development.</li>
+<li><code>TransformationStream</code>, meant to flow through preprocessing techniques such as: scaling, normalizing, boxcox, binarization, pca, or kmeans aimed at returning a desired input dataset for model development.</li>
 
 <li><code>ModelSelectionStream</code>. 
 <p>Regression Models:
@@ -34,12 +34,12 @@ Streaming Capabilities provided:
 "lasso_lar":lassoLeastAngleRegression,
 "lar":leastAngleRegression}
 </p>
-  
+
 <p>Regression metrics:
 ['rmse','mse', 'r2','explained_variance','mean_absolute_error','median_absolute_error']
 </p>
 <p>Classification Models:
- {'abc':adaptiveBoostingClassifier,
+{'abc':adaptiveBoostingClassifier,
 'dtc':decisionTreeClassifier,
 'gbc':gradientBoostingXlassifier,
 'gpc':guassianProcessClassifier,
@@ -56,8 +56,8 @@ Streaming Capabilities provided:
 </p>
 </li>
 
-  <li><code>FeatureSelectionStream</code>, meant to flow through several predictive models and algorithms to determine which subset of features is most predictive or representative of your dataset, these include: RandomForestFeatureImportance, LassoFeatureImportance, MixedSelection, and a technique to ensemble each named TOPSISFeatureRanking. You must specify whether your wish to ensemble and with what technique (denoted <code>ensemble=True). This is not currently supported, however will be built on top the <em>sklearn.feature_selection</em>.</code> 
-  </li>
+<li><code>FeatureSelectionStream</code>, meant to flow through several predictive models and algorithms to determine which subset of features is most predictive or representative of your dataset, these include: RandomForestFeatureImportance, LassoFeatureImportance, MixedSelection, and a technique to ensemble each named TOPSISFeatureRanking. You must specify whether your wish to ensemble and with what technique (denoted <code>ensemble=True). This is not currently supported, however will be built on top the <em>sklearn.feature_selection</em>.</code> 
+</li>
 </ul>
 
 <hr>
@@ -78,88 +78,88 @@ y = pd.DataFrame(np.array([np.random.exponential() for i in range(200)]))
 
 <code> 
 Xnew = TransformationStream(X).flow(
-  
-                                    #required: list of transformations to pipe through
-                                    ["scale","normalize","pca", "binarize", "boxcox", "kmeans", "brbm"], 
-                                    
-                                    #optional: parameters to specific transformers, NOT A GRIDSEARCH
-                                    params={"pca__percent_variance":0.75, 
-                                            "kmeans__n_clusters":2, 
-                                            "binarize__threshold":0.5, 
-                                            "brbm__n_components":X.shape[1], 
-                                            "brbm__learning_rate":0.0001},
-                                            
-                                   #optional: displays graphics
-                                   verbose=True)
-                                   
+
+#required: list of transformations to pipe through
+["scale","normalize","pca", "binarize", "boxcox", "kmeans", "brbm"], 
+
+#optional: parameters to specific transformers, NOT A GRIDSEARCH
+params={"pca__percent_variance":0.75, 
+"kmeans__n_clusters":2, 
+"binarize__threshold":0.5, 
+"brbm__n_components":X.shape[1], 
+"brbm__learning_rate":0.0001},
+
+#optional: displays graphics
+verbose=True)
+
 </code>
 
 
-  
+
 <code>
 # Regression
-  
+
 performances = ModelSelectionStream(Xnew,y).flow(
-                                              
-                                              #required: models you want to flow through in model selection
-                                              ["svr", "lr", "knnr","lasso","abr","mlp","enet"],
-                                              
-                                              #optional: sklearn `.fit` enabled model object parameters
-                                              params={'svr__C':[1,0.1,0.01,0.001],
-                                              
-                                                      'svr__gamma':[0, 0.01, 0.001, 0.0001],
-                                                      
-                                                      'svr__kernel':['poly', 'rbf'],
-                                                      
-                                                      'svr__epsilon':[0,0.1,0.01,0.001],
-                                                      
-                                                      'svr__degree':[1,2,3,4,5,6,7],
-                                                      
-                                                     'lr__fit_intercept':[False, True],
-                                                     
-                                                     'knnr__n_neighbors':[3, 5,7, 9, 11, 13],
-                                                     
-                                                     'lasso__alpha':[0, 0.1, 0.01,1,10.0,20.0],
-                                                     
-                                                      'ridge__alpha':[0, 0.1, 0.01,1,10.0,20.0],
-                                                      
-                                                      'enet__alpha':[0, 0.1, 0.01,1,10,20],
-                                                      
-                                                      'enet__l1_ratio':[.25,.5,.75],
-                                                      
-                                                     'abr__n_estimators':[10,20,50],
-                                                     
-                                                     'abr__learning_rate':[0.1,1,10, 100],
-                                                     
-                                                        'rfr__criterion':['mse', 'mae'],
-                                                        
-                                                 'rfr__n_estimators':[10,100,1000]}, 
-                                                 
-                                                 
-                                                 #optional: metrics you want competing models to draw against, if none specified no plot
-                                                 metrics=['r2','rmse', 'mse',
-                                                          'explained_variance','mean_absolute_error',
-                                                         'median_absolute_error'],
-                                                
-                                                #optional: displays graphics
-                                                verbose=True,
-                                                
-                                                #required: true if you want a regressor-like response, false if classification label based response
-                                                regressors=True,
-                                                
-                                                #required: only required for competing regressors, equally distributes points less than cut into stratified k-folds during competition.
-                                                cut=2)
-                                                 
+
+#required: models you want to flow through in model selection
+["svr", "lr", "knnr","lasso","abr","mlp","enet"],
+
+#optional: sklearn `.fit` enabled model object parameters
+params={'svr__C':[1,0.1,0.01,0.001],
+
+'svr__gamma':[0, 0.01, 0.001, 0.0001],
+
+'svr__kernel':['poly', 'rbf'],
+
+'svr__epsilon':[0,0.1,0.01,0.001],
+
+'svr__degree':[1,2,3,4,5,6,7],
+
+'lr__fit_intercept':[False, True],
+
+'knnr__n_neighbors':[3, 5,7, 9, 11, 13],
+
+'lasso__alpha':[0, 0.1, 0.01,1,10.0,20.0],
+
+'ridge__alpha':[0, 0.1, 0.01,1,10.0,20.0],
+
+'enet__alpha':[0, 0.1, 0.01,1,10,20],
+
+'enet__l1_ratio':[.25,.5,.75],
+
+'abr__n_estimators':[10,20,50],
+
+'abr__learning_rate':[0.1,1,10, 100],
+
+'rfr__criterion':['mse', 'mae'],
+
+'rfr__n_estimators':[10,100,1000]}, 
+
+
+#optional: metrics you want competing models to draw against, if none specified no plot
+metrics=['r2','rmse', 'mse',
+'explained_variance','mean_absolute_error',
+'median_absolute_error'],
+
+#optional: displays graphics
+verbose=True,
+
+#required: true if you want a regressor-like response, false if classification label based response
+regressors=True,
+
+#required: only required for competing regressors, equally distributes points less than cut into stratified k-folds during competition.
+cut=2)
+
 </code>
 
 <code>
 
 # Classification
-  
-performances = ModelSelectionStream(X2,y2).flow(
-                                                  ["abc"], 
 
-                                                  params={'abc__n_estimators':[10,100,1000],
+performances = ModelSelectionStream(X2,y2).flow(
+["abc"], 
+
+params={'abc__n_estimators':[10,100,1000],
 'abc__learning_rate':[0.001,0.01,0.1,1,10,100]},
 
 metrics=["auc",
@@ -185,6 +185,5 @@ regressors=False
 )
 
 </code>
-
 
 
