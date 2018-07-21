@@ -31,10 +31,10 @@ class AbstractRegressorPredictiveModel(AbstractPredictiveModel):
     
     def __init__(self, modelType, X, y, params, nfolds, n_jobs, scoring, verbose):
         
-        if self._verbose:
-            print("Constructed AbstractRegressorPredictiveModel: "+self._code)
+        #if self._verbose:
+            #print("Constructed AbstractRegressorPredictiveModel: "+self._code)
         
-        assert modelType == "regressor", "You are creating a regressor, but have no specified it to be one."
+        assert modelType == "regressor", "You are creating a regressor, but have not specified it to be one."
         #assert any([isinstance(y.dtypes[0],float),isinstance(y.dtypes[0],float)]), "Your response variable y is not a float."
 
         self._modelType = modelType
@@ -87,3 +87,6 @@ class AbstractRegressorPredictiveModel(AbstractPredictiveModel):
         
         self._model                 = self._grid.fit(self._X,self._y).best_estimator_.named_steps[self._code]
         return self._model    
+    
+    def getValidationResults(self):
+        return self._validation_results
