@@ -167,9 +167,9 @@ class ModelSelectionStream:
         # create a pandas dataframe of each metric on each model
         
         if self._verbose:
-            print("**************************************************")
-            print("Regressor Performance Sheet")
-            print("**************************************************")
+            print("*******************")
+            print("** => (Regressor) => Performance Sheet **")
+            print("*******************")
             
             df_results = pd.DataFrame(self._regressors_results)
             print(df_results)
@@ -216,9 +216,9 @@ class ModelSelectionStream:
         # create a pandas dataframe of each metric on each model
         
         if self._verbose:
-            print("**************************************************")
-            print("Classifier Performance Sheet")
-            print("**************************************************")
+            print("*******************")
+            print("** => (Classifier) => Performance Sheet **")
+            print("*******************")
             
             df_results = pd.DataFrame(self._classifier_results)
             print(df_results)
@@ -282,18 +282,18 @@ class ModelSelectionStream:
         stringbuilder=""
         for thing in models_to_flow:
             stringbuilder += thing
-            stringbuilder += " --> "
+            stringbuilder += " => "
             
         if self._verbose:
             
             if self._regressors:
-                print("**************************************************")
-                print("(Regressor) "+"Model Selection Streamline: " + stringbuilder[:-5])
-                print("**************************************************")
+                print("*******************")
+                print("** => (Regressor) "+"=> Model Selection Streamline: " + stringbuilder[:-5])
+                print("*******************")
             elif self._regressors == False:
-                print("**************************************************")
-                print("(Classifier) "+"Model Selection Streamline: " + stringbuilder[:-5])
-                print("**************************************************")
+                print("*******************")
+                print("** => (Classifier) "+"=> Model Selection Streamline: " + stringbuilder[:-5])
+                print("*******************")
             else:
                 print("Invalid model selected. Please set regressors=True or regressors=False.")
                 print
@@ -599,6 +599,7 @@ class ModelSelectionStream:
             
             return model
         
+        
         def decisionTreeRegression():
             self._dtr_params={}
             for k,v in self._allParams.items():
@@ -633,7 +634,7 @@ class ModelSelectionStream:
                                                               self._verbose)
             return model
         
-         def decisionTreeClassifier():
+        def decisionTreeClassifier():
             self._dtc_params={}
             for k,v in self._allParams.items():
                 if "dtc" in k:
@@ -679,7 +680,7 @@ class ModelSelectionStream:
                                                               self._verbose)
             return model
         
-         def knnClassifier():
+        def knnClassifier():
             self._knnc_params={}
             for k,v in self._allParams.items():
                 if "knnc" in k:
@@ -831,12 +832,17 @@ class ModelSelectionStream:
         # Wrapper models    
         self._wrapper_models=[]
         
+        # Wrapper Regressors
         if self._regressors:
             for key in models_to_flow:
                  self._wrapper_models.append(regression_options[key]())
+                    
+        # Wrapper Classifiers
         elif self._regressors == False:
             for key in models_to_flow:
                  self._wrapper_models.append(classification_options[key]())
+                    
+        # Error catch
         else:
             print("Invalid model type. Please set regressors=True or regressors=False.")
             print
@@ -848,11 +854,13 @@ class ModelSelectionStream:
         
         
 		
-        # Do you want 1 or many models returned? If verbose, a visual appears.
+        # Host Competition
         if self._modelSelection:
             
+            # Metrics Specified
             if len(self._metrics) > 0:
                 
+                # Regression on Metrics
                 if self._regressors:
                     assert self._cut != None , "you must select a cut point for your stratified folds to equally distribute your critical points"
                     self._scoring_results = self.handleRegressors(self._X_test, 
@@ -860,11 +868,15 @@ class ModelSelectionStream:
                                                                   self._metrics,
                                                                   self._wrapper_models,
                                                                   self._cut)
+                    
+                # Classification on Metrics
                 elif self._regressors == False: #classifiers
                     self._scoring_results = self.handleClassifiers (self._X_test,
                                                                    self._y_test,
                                                                    self._metrics,
                                                                    self._wrapper_models)
+                    
+                # Error
                 else:
                     print("You selected an invalid type of model.")
                     print

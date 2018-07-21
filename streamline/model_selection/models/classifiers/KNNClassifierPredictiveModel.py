@@ -2,9 +2,9 @@ import sys
 import os
 from streamline.model_selection.models.AbstractClassifierPredictiveModel import AbstractClassifierPredictiveModel
 
-from sklearn..neighbors import KNeighborsClassifier
+from sklearn.neighbors import KNeighborsClassifier
 
-class KNeighborsClassifierPredictiveModel(AbstractClassifierPredictiveModel):
+class KNNClassifierPredictiveModel(AbstractClassifierPredictiveModel):
     #properties
 
     #constructor
