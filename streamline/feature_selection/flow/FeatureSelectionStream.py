@@ -43,7 +43,7 @@ from streamml.streamline.model_selection.models.regressors.AdaptiveBoostingRegre
 # Classifiers
 from streamml.streamline.model_selection.models.classifiers.AdaptiveBoostingClassifierPredictiveModel import AdaptiveBoostingClassifierPredictiveModel
 from streamml.streamline.model_selection.models.classifiers.RandomForestClassifierPredictiveModel import RandomForestClassifierPredictiveModel
-
+from streamml.streamline.model_selection.models.classifiers.SupportVectorClassifierPredictiveModel import SupportVectorClassifierPredictiveModel
 # Ensembler
 # X
 #from streamml.streamline.feature_selection.ensemble.TOPSISEnsembleFeatureSelectionModel import TOPSISEnsembleFeatureSelectionModel
@@ -98,7 +98,6 @@ class FeatureSelectionStream:
              metrics=[], 
              verbose=False, 
              regressors=True,
-             ensemble=False,
              cut=None):
       
         assert isinstance(nfolds, int), "nfolds must be integer"
@@ -110,7 +109,6 @@ class FeatureSelectionStream:
         assert isinstance(test_size, float), "test_size must be a float"
         assert isinstance(metrics, list), "model scoring must be a list"
         assert isinstance(regressors, bool), "regressor must be bool"
-        assert isinstance(ensemble, bool), "ensemble must be bool"
         
         
         # Mixed Selection Parameters
@@ -130,7 +128,6 @@ class FeatureSelectionStream:
         self._metrics=metrics
         self._test_size=test_size
         self._regressors=regressors
-        self._ensemble=ensemble
         self._cut = cut
         
         # Inform the streamline to user.
@@ -153,10 +150,7 @@ class FeatureSelectionStream:
                 print("Invalid model selected. Please set regressors=True or regressors=False.")
                 print
                 
-                
-                
-                
-    
+
         def supportVectorRegression():
             self._svr_params={}
             for k,v in self._allParams.items():
@@ -164,7 +158,7 @@ class FeatureSelectionStream:
                     self._svr_params[k]=v
 
             
-            self._svr_params["kernel"]='linear'
+            self._svr_params["svr__kernel"]=['linear']
             model = SupportVectorRegressorPredictiveModel(self._X_train, 
                                                           self._y_train,
                                                           self._svr_params,
@@ -249,7 +243,7 @@ class FeatureSelectionStream:
             initial_list=[]
             threshold_in=0.01
             threshold_out = 0.05
-            verbose=True
+            verbose=False
             
             #initial_list = self._initial_list
             #threshold_in = self._threshold_in
@@ -273,7 +267,7 @@ class FeatureSelectionStream:
             included = list(initial_list)
             while True:
                 changed=False
-
+                
                 # forward step
                 excluded = list(set(X.columns)-set(included))
                 new_pval = pd.Series(index=excluded)
@@ -283,15 +277,13 @@ class FeatureSelectionStream:
 
                 best_pval = new_pval.min()
 
-
-
                 if best_pval < threshold_in:
                     best_feature = new_pval.idxmin()
                     #best_feature = new_pval.argmin()
                     included.append(best_feature)
                     changed=True
                     if verbose:
-                        print('Add  {:30} with p-value {:.6}'.format(best_feature, best_pval))
+                        print('Adding  {:30} with p-value {:.6}'.format(best_feature, best_pval))
 
                 # backward step
                 model = sm.OLS(y, sm.add_constant(pd.DataFrame(X[included]))).fit()
@@ -304,7 +296,7 @@ class FeatureSelectionStream:
                     #worst_feature = pvalues.argmax()
                     included.remove(worst_feature)
                     if verbose:
-                        print('Drop {:30} with p-value {:.6}'.format(worst_feature, worst_pval))
+                        print('Dropping {:30} with p-value {:.6}'.format(worst_feature, worst_pval))
 
                 if not changed:
                     break
@@ -354,7 +346,21 @@ class FeatureSelectionStream:
         
         
         
+        def supportVectorClassifier():
+            self._svc_params={}
+            for k,v in self._allParams.items():
+                if "svc" in k:
+                    self._svc_params[k]=v
 
+            
+            self._svc_params["svc__kernel"]=['linear']
+            print(self._svc_params)
+            model = SupportVectorClassifierPredictiveModel(self._X_train, 
+                                                          self._y_train,
+                                                          self._svc_params,
+                                                          self._nfolds, 
+                                                          self._n_jobs,
+                                                          self._verbose)
         
         # Valid regressors
         regression_options = {"mixed_selection" : mixed_selection,
@@ -369,8 +375,8 @@ class FeatureSelectionStream:
 
         # Valid classifiers
         classification_options = {'abc':adaptiveBoostingClassifier,
-                                    'rfc':randomForestClassifier
-                                    #,'svc':supportVectorClassifier
+                                    'rfc':randomForestClassifier,
+                                    'svc':supportVectorClassifier
                                  }
         
 		# Train test split
@@ -394,9 +400,6 @@ class FeatureSelectionStream:
             print
         if self._verbose:
             print
-		
-        if self._ensemble:
-            print("ensemble == True")
         
         
         return self._key_features

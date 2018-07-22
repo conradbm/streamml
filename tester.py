@@ -19,34 +19,48 @@ from streamml.streamline.feature_selection.flow.FeatureSelectionStream import Fe
 # source ~/.bash_profile
 # python -W ignore tester.py
 
-X = pd.DataFrame(np.matrix([[np.random.exponential() for j in range(10)] for i in range(200)]))
-y = pd.DataFrame(np.array([np.random.exponential() for i in range(200)]))
+#X = pd.DataFrame(np.matrix([[np.random.exponential() for j in range(10)] for i in range(200)]))
+#y = pd.DataFrame(np.array([np.random.exponential() for i in range(200)]))
 
 X2 = pd.DataFrame(np.matrix([[np.random.exponential() for j in range(10)] for i in range(200)]))
 y2 = pd.DataFrame(np.random.binomial(1,0.25,200))
-#D = pd.read_csv("Series3_6.15.17_padel.csv")
-#X = D.iloc[:,2:]
-#y = D.iloc[:,1]
+
+"""
+D = pd.read_csv("../Series3_6.15.17_padel.csv")
+X = D.iloc[:,2:]
+y = D.iloc[:,1]
+ynakiller = y.isna()
+X = X.loc[-ynakiller,:]
+y = y.loc[-ynakiller]
+y=pd.DataFrame(pd.factorize(y)[0].tolist())
+X.replace([np.nan, np.inf, -np.inf],0, inplace=True)
+
+"""
 
 
-feature_dict = FeatureSelectionStream(X,y).flow(["mixed_selection", "pls", "lasso", "rfr", "abr"],
+#
+# Supported Regression Feature Selection:
+# mixed_selection
+# rfr
+# abr
+# svr
+# Supported Classifier Feature Selection:
+# rfc
+# abc
+# svc
+#
+# {Coming Soon}
+# Regressors:
+# pls
+# Ensemble:
+# topsis
+feature_dict = FeatureSelectionStream(X2,y2).flow(["svc", "abc", "rfc"],
                                                 params={},
-                                                metrics=["r2", "rmse"],
                                                 verbose=True,
-                                               regressors=True,
-                                               ensemble=True)
+                                               regressors=False)
+print(feature_dict)
 
-print(feature_dict)
-feature_dict = FeatureSelectionStream(X2,y2).flow(["rfc", "abc"],
-                                                   params={},
-                                                  verbose=True,
-                                               regressors=False,
-                                               ensemble=True)
-print(feature_dict)
-#ynakiller = y.isna()
-#X = X.loc[-ynakiller,:]
-#y = y.loc[-ynakiller]
-#X.replace([np.nan, np.inf, -np.inf],0, inplace=True)
+
 
 #print(X.shape)
 #print (y.shape)
