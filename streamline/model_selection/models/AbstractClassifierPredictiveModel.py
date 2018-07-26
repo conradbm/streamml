@@ -1,5 +1,4 @@
-import sys
-import os
+
 from sklearn.pipeline import Pipeline
 from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import cohen_kappa_score
@@ -10,8 +9,7 @@ from sklearn.metrics import precision_score
 from sklearn.metrics import recall_score
 from sklearn.metrics import accuracy_score
 
-import numpy as np
-from streamline.model_selection.AbstractPredictiveModel import AbstractPredictiveModel
+from streamline.model_selection.AbstractPredictiveModel import *
 
 class AbstractClassifierPredictiveModel(AbstractPredictiveModel):
 
@@ -52,25 +50,26 @@ class AbstractClassifierPredictiveModel(AbstractPredictiveModel):
         for m in metrics:
             if m == 'auc':
                 ypred = self._model.predict(Xtest)
-                self._validation_results["auc"]=roc_auc_score(ytest, ypred)
+                self._validation_results["auc"]=roc_auc_score(ytest, ypred, average="macro")
             elif m == 'prec':
                 ypred = self._model.predict(Xtest)
-                self._validation_results["prec"]=precision_score(ytest, ypred)
+                self._validation_results["prec"]=precision_score(ytest, ypred, average="macro")
             elif m == 'recall':
                 ypred = self._model.predict(Xtest)
-                self._validation_results["recall"]=recall_score(ytest, ypred)
+                self._validation_results["recall"]=recall_score(ytest, ypred, average="macro")
             elif m == 'f1':
                 ypred = self._model.predict(Xtest)
-                self._validation_results["f1"]=f1_score(ytest, ypred)
+                self._validation_results["f1"]=f1_score(ytest, ypred, average="macro")
             elif m == 'accuracy':
                 ypred = self._model.predict(Xtest)
                 self._validation_results["accuracy"]=accuracy_score(ytest, ypred)
             elif m == 'kappa':
                 ypred = self._model.predict(Xtest)
                 self._validation_results["kappa"]=cohen_kappa_score(ytest,ypred)
-            elif m == 'log_loss':
-                ypred = self._model.predict(Xtest)
-                self._validation_results["log_loss"]=log_loss(ytest,ypred)
+            # Not working for multi-label classifiers.
+            #elif m == 'log_loss':
+            #    ypred = self._model.predict(Xtest)
+            #    self._validation_results["log_loss"]=log_loss(ytest,ypred, labels=pd.unique(self._y).tolist())
             else:
                 print("Metric not valid, how did you make it through the assertions?")
         

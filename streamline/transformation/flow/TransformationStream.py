@@ -92,10 +92,10 @@ class TransformationStream:
             if "tsne__n_components" in params.keys():
                 assert isinstance(params["tsne__n_components"], int), "n_components must be integer."
                 self._tsne_n_components=params["tsne__n_components"]
-                print ("custom: tsne__n_components="+str(self._tsne_n_components) )
+                print ("custom: tsne__n_components"+str(self._tsne_n_components) )
             else:
                 self._tsne_n_components=3
-                print ("default: _tsne_n_components="+str(self._tsne_n_components) )
+                print ("default: _tsne_n_components= "+str(self._tsne_n_components) )
             
         # Enforce Kmeans parameters
         if "kmeans" in preproc_args:
@@ -259,7 +259,7 @@ class TransformationStream:
 
         def runTSNE(X, verbose=False):
             if verbose:
-                print("Executing TNSE with" + str(self._tsne_n_components) + " components\n")
+                print("Executing TNSE with " + str(self._tsne_n_components) + " components\n")
             
             #X_embedded = TSNE(n_components=self._tsne_n_components).fit_transform(X)
             #return pd.DataFrame(X_embedded)

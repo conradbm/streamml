@@ -16,6 +16,6 @@ class NaiveBayesClassifierPredictiveModel(AbstractClassifierPredictiveModel):
             print ("Constructed NaiveBayesClassifierPredictiveModel: " +self._code)
         
         AbstractClassifierPredictiveModel.__init__(self, "classifier", X, y, nbc_params, nfolds, n_jobs, scoring, verbose)
-        self._model = self.constructClassifier(AdaBoostClassifier())
+        self._model = self.constructClassifier(GaussianNB())
         
        
