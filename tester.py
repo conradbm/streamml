@@ -53,11 +53,12 @@ X.replace([np.nan, np.inf, -np.inf],0, inplace=True)
 # Regressors:
 # pls
 # Ensemble:
-# topsis
+# topsis (weighted product, weighted sum, weighted average, linear, log, ect..)
 feature_dict = FeatureSelectionStream(X2,y2).flow(["svc", "abc", "rfc"],
                                                 params={},
                                                 verbose=True,
-                                               regressors=False)
+                                                regressors=False,
+                                                ensemble=True)
 print(feature_dict)
 
 

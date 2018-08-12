@@ -44,7 +44,9 @@ from streamml.streamline.model_selection.models.regressors.AdaptiveBoostingRegre
 from streamml.streamline.model_selection.models.classifiers.AdaptiveBoostingClassifierPredictiveModel import AdaptiveBoostingClassifierPredictiveModel
 from streamml.streamline.model_selection.models.classifiers.RandomForestClassifierPredictiveModel import RandomForestClassifierPredictiveModel
 from streamml.streamline.model_selection.models.classifiers.SupportVectorClassifierPredictiveModel import SupportVectorClassifierPredictiveModel
-# Ensembler
+
+# Ensemblers
+
 # X
 #from streamml.streamline.feature_selection.ensemble.TOPSISEnsembleFeatureSelectionModel import TOPSISEnsembleFeatureSelectionModel
 
@@ -98,7 +100,8 @@ class FeatureSelectionStream:
              metrics=[], 
              verbose=False, 
              regressors=True,
-             cut=None):
+             cut=None,
+             ensemble=False):
       
         assert isinstance(nfolds, int), "nfolds must be integer"
         assert isinstance(nrepeats, int), "nrepeats must be integer"
@@ -109,7 +112,7 @@ class FeatureSelectionStream:
         assert isinstance(test_size, float), "test_size must be a float"
         assert isinstance(metrics, list), "model scoring must be a list"
         assert isinstance(regressors, bool), "regressor must be bool"
-        
+        assert isinstance(ensemble, bool), "ensemble must be bool"
         
         # Mixed Selection Parameters
             # if defined, then set
@@ -129,6 +132,7 @@ class FeatureSelectionStream:
         self._test_size=test_size
         self._regressors=regressors
         self._cut = cut
+        self._ensemble=ensemble
         
         # Inform the streamline to user.
         stringbuilder=""
@@ -151,6 +155,7 @@ class FeatureSelectionStream:
                 print
                 
 
+        # TODO - Test
         def supportVectorRegression():
             self._svr_params={}
             for k,v in self._allParams.items():
@@ -167,7 +172,7 @@ class FeatureSelectionStream:
                                                           self._verbose)
             return model.getBestEstimator().coef_
             
-        
+        # TODO - Test
         def randomForestRegression():
             self._rfr_params={}
             for k,v in self._allParams.items():
@@ -185,7 +190,7 @@ class FeatureSelectionStream:
             
         
 
-        
+        # TODO - Test
         def adaptiveBoostingRegression():
             self._abr_params={}
             for k,v in self._allParams.items():
@@ -201,6 +206,7 @@ class FeatureSelectionStream:
                                                               self._verbose)
             return model.getBestEstimator().feature_importances_
         
+        # TODO - Test
         def lassoRegression():
             self._lasso_params={}
             for k,v in self._allParams.items():
@@ -216,7 +222,7 @@ class FeatureSelectionStream:
                                                           self._verbose)
             return model.getBestEstimator().coef_
             
-        
+        # TODO - Test
         def elasticNetRegression():
             self._enet_params={}
             for k,v in self._allParams.items():
@@ -231,6 +237,7 @@ class FeatureSelectionStream:
                                                           self._verbose)
             return model.getBestEstimator().coef_
     
+        # TODO - Test
         def mixed_selection():
             
             if self._verbose:
@@ -306,7 +313,7 @@ class FeatureSelectionStream:
 
         
         
-        
+        # TODO - Implement
         def partialLeastSquaresRegression():
             pass
     
@@ -314,6 +321,7 @@ class FeatureSelectionStream:
         ########## Classifiers Start Here ##########
         ############################################
         
+        # Good
         def adaptiveBoostingClassifier():
             self._abc_params={}
             for k,v in self._allParams.items():
@@ -329,6 +337,7 @@ class FeatureSelectionStream:
                                                               self._verbose)
             return model.getBestEstimator().feature_importances_
         
+        # Good
         def randomForestClassifier():
             self._rfc_params={}
             for k,v in self._allParams.items():
@@ -345,7 +354,7 @@ class FeatureSelectionStream:
             return model.getBestEstimator().feature_importances_
         
         
-        
+        # Good
         def supportVectorClassifier():
             self._svc_params={}
             for k,v in self._allParams.items():
@@ -361,6 +370,7 @@ class FeatureSelectionStream:
                                                           self._nfolds, 
                                                           self._n_jobs,
                                                           self._verbose)
+            return model.getBestEstimator().coef_
         
         # Valid regressors
         regression_options = {"mixed_selection" : mixed_selection,
@@ -401,5 +411,10 @@ class FeatureSelectionStream:
         if self._verbose:
             print
         
+        
+        if self._ensemble:
+            print("Ensemble is not yet implemented.")
+            print("Ensemble will support: TOPSIS and other MADM techniques to select the top features.")
+            pass
         
         return self._key_features
