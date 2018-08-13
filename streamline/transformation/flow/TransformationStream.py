@@ -13,7 +13,7 @@ from streamml.streamline.transformation.transformers.KMeansTransformer import KM
 from streamml.streamline.transformation.transformers.TSNETransformer import TSNETransformer
 from streamml.streamline.transformation.transformers.NormalizeTransformer import NormalizeTransformer
 from streamml.streamline.transformation.transformers.PCATransformer import PCATransformer
-
+from streamml.streamline.transformation.transformers.BoxcoxTransformer import BoxcoxTransformer
 
 """
 Example Usage:
@@ -195,7 +195,7 @@ class TransformationStream:
             """
             bct = BoxcoxTransformer()
             X_boxcoxed = bct.transform(X)
-            self._lambdas = cbt._lambdas
+            self._lambdas = bct._lambdas
             return X_boxcoxed
         
         # Implemented
