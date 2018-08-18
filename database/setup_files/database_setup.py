@@ -21,7 +21,8 @@ class Estimator(Base):
     F_Estimator_Symbol = Column(String(20), nullable=False)
     F_Estimator_PredictionClass = Column(String(20), nullable=False) # regressor or classifier
     F_Estimator_CanFeatureSelect = Column(Integer, nullable=False) # 1,0 if it can feature select
-
+    F_Estimator_Description = Column(String(1000), nullable=True)
+    
 # All possible parameters
 class Parameter(Base):
     
