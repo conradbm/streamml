@@ -158,6 +158,18 @@ classification_options = {'abc':adaptiveBoostingClassifier,
 Metric Options: {Coming Soon}
 ["auc","prec","recall","f1","accuracy", "kappa","log_loss"]
 
+(Classifiers)
+http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.AdaBoostClassifier.html
+http://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeClassifier.html
+http://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html
+http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.GradientBoostingClassifier.html
+http://scikit-learn.org/stable/modules/generated/sklearn.gaussian_process.GaussianProcessClassifier.html
+http://scikit-learn.org/stable/modules/generated/sklearn.neighbors.KNeighborsClassifier.html
+http://scikit-learn.org/stable/modules/generated/sklearn.neural_network.MLPClassifier.html
+# No parametes for Naive Bayes
+http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html
+http://scikit-learn.org/stable/modules/generated/sklearn.linear_model.SGDClassifier.html
+http://scikit-learn.org/stable/modules/generated/sklearn.svm.SVC.html
 
 http://scikit-learn.org/stable/modules/generated/sklearn.metrics.classification_report.html#sklearn.metrics.classification_report
 http://scikit-learn.org/stable/modules/generated/sklearn.metrics.cohen_kappa_score.html#sklearn.metrics.cohen_kappa_score

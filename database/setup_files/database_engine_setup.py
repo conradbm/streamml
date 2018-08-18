@@ -63,32 +63,8 @@ session = DBSession()
 
 
 
-""" (Regressors)
 
-http://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LinearRegression.html
-http://scikit-learn.org/stable/modules/generated/sklearn.svm.SVR.html
-http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestRegressor.html
-http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.AdaBoostRegressor.html
-http://scikit-learn.org/stable/modules/generated/sklearn.neighbors.KNeighborsRegressor.html
-http://scikit-learn.org/stable/modules/generated/sklearn.linear_model.Ridge.html
-http://scikit-learn.org/stable/modules/generated/sklearn.linear_model.Ridge.html
-http://scikit-learn.org/stable/modules/generated/sklearn.linear_model.ElasticNet.html
-http://scikit-learn.org/stable/modules/generated/sklearn.neural_network.MLPRegressor.html
-http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.BaggingRegressor.html
-http://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeRegressor.html#sklearn.tree.DecisionTreeRegressor
-http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.GradientBoostingRegressor.html
-http://scikit-learn.org/stable/modules/gaussian_process.html#gaussian-process-regression-gpr
-http://scikit-learn.org/stable/modules/generated/sklearn.linear_model.HuberRegressor.html#sklearn.linear_model.HuberRegressor
-http://scikit-learn.org/stable/modules/generated/sklearn.linear_model.TheilSenRegressor.html#sklearn.linear_model.TheilSenRegressor
-http://scikit-learn.org/stable/modules/generated/sklearn.linear_model.PassiveAggressiveRegressor.html#sklearn.linear_model.PassiveAggressiveRegressor
-http://scikit-learn.org/stable/modules/generated/sklearn.linear_model.ARDRegression.html#sklearn.linear_model.ARDRegression
-http://scikit-learn.org/stable/modules/generated/sklearn.linear_model.BayesianRidge.html#sklearn.linear_model.BayesianRidge
-http://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LassoLars.html#sklearn.linear_model.LassoLars
-http://scikit-learn.org/stable/modules/linear_model.html#least-angle-regression
-
-
-"""
-
+models=[]
 # Insert Regression Estimators
 lr = Estimator(F_Estimator_Name = "Linear Regressor",
                    F_Estimator_Symbol = 'lr',
@@ -97,14 +73,9 @@ lr = Estimator(F_Estimator_Name = "Linear Regressor",
               F_Estimator_Description="Ordinary least squares Linear Regression.")
 
 
-lr_param1 = Parameter(F_Estimator=lr,
-                     F_Parameter_Open = 0,
-                     F_Parameter_Name = 'fit_intercept',
-                     F_Parameter_Description = 'whether to calculate the intercept for this model. If set to False, no intercept will be used in calculations (e.g. data is expected to be already centered)')
-
 # Add lr
 session.add(lr)
-session.add(lr_param1)
+models.append(lr)
 
 svr = Estimator(F_Estimator_Name = "Support Vector Regressor",
                    F_Estimator_Symbol = 'svr',
@@ -112,159 +83,30 @@ svr = Estimator(F_Estimator_Name = "Support Vector Regressor",
                    F_Estimator_CanFeatureSelect = 1,
                F_Estimator_Description="Epsilon-Support Vector Regression. The free parameters in the model are C and epsilon. The implementation is based on libsvm.")
 
-svr_param1 = Parameter(F_Estimator = svr,
-                      F_Parameter_Open = 1,
-                      F_Parameter_Name = 'C',
-                      F_Parameter_Description = 'Penalty parameter C of the error term.'
-                     )
-
-svr_param2 = Parameter(F_Estimator = svr,
-                      F_Parameter_Open = 1,
-                      F_Parameter_Name = 'epsilon',
-                      F_Parameter_Description = 'Epsilon in the epsilon-SVR model. It specifies the epsilon-tube within which no penalty is associated in the training loss function with points predicted within a distance epsilon from the actual value.'
-                     )
-svr_param3 = Parameter(F_Estimator = svr,
-                      F_Parameter_Open = 1,
-                      F_Parameter_Name = 'kernel',
-                      F_Parameter_Description = 'Specifies the kernel type to be used in the algorithm. It must be one of ‘linear’, ‘poly’, ‘rbf’, ‘sigmoid’, ‘precomputed’ or a callable. If none is given, ‘rbf’ will be used. If a callable is given it is used to precompute the kernel matrix.'
-                     )
-
-svr_param4 = Parameter(F_Estimator = svr,
-                      F_Parameter_Open = 1,
-                      F_Parameter_Name = 'degree',
-                      F_Parameter_Description = 'Degree of the polynomial kernel function (‘poly’). Ignored by all other kernels.'
-                     )
-svr_param5 = Parameter(F_Estimator = svr,
-                      F_Parameter_Open = 1,
-                      F_Parameter_Name = 'gamma',
-                      F_Parameter_Description = 'Kernel coefficient for ‘rbf’, ‘poly’ and ‘sigmoid’. If gamma is ‘auto’ then 1/n_features will be used instead.'
-                     )
-svr_param6 = Parameter(F_Estimator = svr,
-                      F_Parameter_Open = 1,
-                      F_Parameter_Name = 'coef0',
-                      F_Parameter_Description = 'Independent term in kernel function. It is only significant in ‘poly’ and ‘sigmoid.'
-                     )
-svr_param7 = Parameter(F_Estimator = svr,
-                      F_Parameter_Open = 0,
-                      F_Parameter_Name = 'shrinking',
-                      F_Parameter_Description = 'Whether to use the shrinking heuristic.'
-                     )
-
-svr_param8 = Parameter(F_Estimator = svr,
-                      F_Parameter_Open = 1,
-                      F_Parameter_Name = 'tol',
-                      F_Parameter_Description = 'Tolerance for stopping criterion.'
-                     )
-
-svr_param9 = Parameter(F_Estimator = svr,
-                      F_Parameter_Open = 1,
-                      F_Parameter_Name = 'max_iter',
-                      F_Parameter_Description = 'Hard limit on iterations within solver, or -1 for no limit.'
-                     )
-
 # Add svr
 session.add(svr)
-session.add(svr_param1)
-session.add(svr_param2)
-session.add(svr_param3)
-session.add(svr_param4)
-session.add(svr_param5)
-session.add(svr_param6)
-session.add(svr_param7)
-session.add(svr_param8)
-session.add(svr_param9)
-
+models.append(svr)
 
 rfr = Estimator(F_Estimator_Name = "Random Forest Regressor",
                    F_Estimator_Symbol = 'rfr',
                    F_Estimator_PredictionClass = 'regressor',
                    F_Estimator_CanFeatureSelect = 1,
-                F_Estimator_Description = "")
+                F_Estimator_Description = "A random forest is a meta estimator that fits a number of classifying decision trees on various sub-samples of the dataset and use averaging to improve the predictive accuracy and control over-fitting. The sub-sample size is always the same as the original input sample size but the samples are drawn with replacement if bootstrap=True (default).")
 
 
-
-rfr_param1 = Parameter(F_Estimator = rfr,
-                      F_Parameter_Open = 1,
-                      F_Parameter_Name = 'n_estimators',
-                      F_Parameter_Description = 'The number of trees in the forest.'
-                     )
-rfr_param2 = Parameter(F_Estimator = rfr,
-                      F_Parameter_Open = 0,
-                      F_Parameter_Name = 'criterion',
-                      F_Parameter_Description = 'The function to measure the quality of a split. Supported criteria are mse for the mean squared error, which is equal to variance reduction as feature selection criterion, and mae for the mean absolute error.'
-                     )
-rfr_param3 = Parameter(F_Estimator = rfr,
-                      F_Parameter_Open = 1,
-                      F_Parameter_Name = 'max_features',
-                      F_Parameter_Description = 'The number of features to consider when looking for the best split: ints are considered as the max features at each split, floats are considered as percentages.'
-                     )
-rfr_param4 = Parameter(F_Estimator = rfr,
-                      F_Parameter_Open = 1,
-                      F_Parameter_Name = 'max_depth',
-                      F_Parameter_Description = 'The maximum depth of the tree. If None, then nodes are expanded until all leaves are pure or until all leaves contain less than min_samples_split samples.'
-                     )
-rfr_param5 = Parameter(F_Estimator = rfr,
-                      F_Parameter_Open = 1,
-                      F_Parameter_Name = 'min_samples_split',
-                      F_Parameter_Description = 'The minimum number of samples required to split an internal node.'
-                     )
-rfr_param6 = Parameter(F_Estimator = rfr,
-                      F_Parameter_Open = 1,
-                      F_Parameter_Name = 'min_samples_leaf',
-                      F_Parameter_Description = 'The minimum number of samples required to be at a leaf node.'
-                     )
-rfr_param7 = Parameter(F_Estimator = rfr,
-                      F_Parameter_Open = 1,
-                      F_Parameter_Name = 'min_samples_leaf',
-                      F_Parameter_Description = 'The minimum number of samples required to be at a leaf node.'
-                     )
-rfr_param8 = Parameter(F_Estimator = rfr,
-                      F_Parameter_Open = 1,
-                      F_Parameter_Name = 'min_weight_fraction_leaf',
-                      F_Parameter_Description = 'The minimum weighted fraction of the sum total of weights (of all the input samples) required to be at a leaf node. Samples have equal weight when sample_weight is not provided.'
-                     )
-rfr_param9 = Parameter(F_Estimator = rfr,
-                      F_Parameter_Open = 1,
-                      F_Parameter_Name = 'max_leaf_nodes',
-                      F_Parameter_Description = 'Grow trees with max_leaf_nodes in best-first fashion. Best nodes are defined as relative reduction in impurity. If None then unlimited number of leaf nodes.'
-                     )
-rfr_param10 = Parameter(F_Estimator = rfr,
-                      F_Parameter_Open = 1,
-                      F_Parameter_Name = 'min_impurity_split',
-                      F_Parameter_Description = 'Threshold for early stopping in tree growth. A node will split if its impurity is above the threshold, otherwise it is a leaf. A node will be split if this split induces a decrease of the impurity greater than or equal to this value.'
-                     )
-rfr_param11 = Parameter(F_Estimator = rfr,
-                      F_Parameter_Open = 0,
-                      F_Parameter_Name = 'bootstrap',
-                      F_Parameter_Description = 'Whether bootstrap samples are used when building trees.'
-                     )
-rfr_param12 = Parameter(F_Estimator = rfr,
-                      F_Parameter_Open = 0,
-                      F_Parameter_Name = 'oob_score',
-                      F_Parameter_Description = 'whether to use out-of-bag samples to estimate the R^2 on unseen data.'
-                     )
+# Add rfr
 session.add(rfr)
-session.add(rfr_param1)
-session.add(rfr_param2)
-session.add(rfr_param3)
-session.add(rfr_param4)
-session.add(rfr_param5)
-session.add(rfr_param6)
-session.add(rfr_param7)
-session.add(rfr_param8)
-session.add(rfr_param9)
-session.add(rfr_param10)
-session.add(rfr_param11)
-session.add(rfr_param12)
-
+models.append(rfr)
 
 abr = Estimator(F_Estimator_Name = "Adaptive Boosting Regressor",
                    F_Estimator_Symbol = 'abr',
                    F_Estimator_PredictionClass = 'regressor',
                    F_Estimator_CanFeatureSelect = 1,
-               F_Estimator_Description = "")
+               F_Estimator_Description = "An AdaBoost regressor is a meta-estimator that begins by fitting a regressor on the original dataset and then fits additional copies of the regressor on the same dataset but where the weights of instances are adjusted according to the error of the current prediction. As such, subsequent regressors focus more on difficult cases. This class implements the algorithm known as AdaBoost.R2.")
 
+# Add abr
 session.add(abr)
+models.append(abr)
 
 knnr = Estimator(F_Estimator_Name = "K-Nearest Neighbors Regressor",
                    F_Estimator_Symbol = 'knnr',
@@ -272,9 +114,9 @@ knnr = Estimator(F_Estimator_Name = "K-Nearest Neighbors Regressor",
                    F_Estimator_CanFeatureSelect = 0,
                 F_Estimator_Description = "")
 
+# add knnr
 session.add(knnr)
-
-
+models.append(knnr)
 
 ridge = Estimator(F_Estimator_Name = "Ridge Regressor",
                    F_Estimator_Symbol = 'ridge',
@@ -282,15 +124,28 @@ ridge = Estimator(F_Estimator_Name = "Ridge Regressor",
                    F_Estimator_CanFeatureSelect = 0,
                  F_Estimator_Description = "")
 
+# add ridge
 session.add(ridge)
+models.append(ridge)
+
 
 lasso = Estimator(F_Estimator_Name = "Lasso Regressor",
                    F_Estimator_Symbol = 'lasso',
                    F_Estimator_PredictionClass = 'regressor',
                    F_Estimator_CanFeatureSelect = 1,
-                 F_Estimator_Description = "")
+                 F_Estimator_Description = "Linear Model trained with L1 prior as regularizer (aka the Lasso). The optimization objective for Lasso is: (1 / (2 * n_samples)) * ||y - Xw||^2_2 + alpha * ||w||_1")
 
+"""
+lasso_param1 = Parameter(F_Estimator = lasso,
+                       F_Parameter_Open = 1,
+                       F_Parameter_Name = 'alpha',
+                       F_Parameter_Description='float, Constant that multiplies the L1 term. Defaults to 1.0. alpha = 0 is equivalent to an ordinary least square, solved by the LinearRegression object. For numerical reasons, using alpha = 0 with the Lasso object is not advised. Given this, you should use the LinearRegression object.')
+"""                   
+
+# add lasso
 session.add(lasso)
+models.append(lasso)
+
 enet = Estimator(F_Estimator_Name = "ElasticNet Regressor",
                    F_Estimator_Symbol = 'enet',
                    F_Estimator_PredictionClass = 'regressor',
@@ -298,6 +153,7 @@ enet = Estimator(F_Estimator_Name = "ElasticNet Regressor",
                 F_Estimator_Description = "")
 
 session.add(enet)
+models.append(enet)
 
 mlpr = Estimator(F_Estimator_Name = "Multi-Layer Perceptron Regressor",
                    F_Estimator_Symbol = 'mlpr',
@@ -306,6 +162,7 @@ mlpr = Estimator(F_Estimator_Name = "Multi-Layer Perceptron Regressor",
                 F_Estimator_Description = "")
 
 session.add(mlpr)
+models.append(mlpr)
 
 br = Estimator(F_Estimator_Name = "Bagging Regressor",
                    F_Estimator_Symbol = 'br',
@@ -314,6 +171,7 @@ br = Estimator(F_Estimator_Name = "Bagging Regressor",
               F_Estimator_Description = "")
 
 session.add(br)
+models.append(br)
 
 dtr = Estimator(F_Estimator_Name = "Decision Tree Regressor",
                    F_Estimator_Symbol = 'dtr',
@@ -322,6 +180,7 @@ dtr = Estimator(F_Estimator_Name = "Decision Tree Regressor",
                F_Estimator_Description = "")
 
 session.add(dtr)
+models.append(dtr)
 
 gbr = Estimator(F_Estimator_Name = "Gradient Boosting Regressor",
                    F_Estimator_Symbol = 'gbr',
@@ -330,6 +189,7 @@ gbr = Estimator(F_Estimator_Name = "Gradient Boosting Regressor",
                F_Estimator_Description = "")
 
 session.add(gbr)
+models.append(gbr)
 
 gpr = Estimator(F_Estimator_Name = "Gaussian Process Regressor",
                    F_Estimator_Symbol = 'gpr',
@@ -338,7 +198,7 @@ gpr = Estimator(F_Estimator_Name = "Gaussian Process Regressor",
                F_Estimator_Description = "")
 
 session.add(gpr)
-
+models.append(gpr)
 
 
 hr = Estimator(F_Estimator_Name = "Huber Regressor",
@@ -348,6 +208,7 @@ hr = Estimator(F_Estimator_Name = "Huber Regressor",
               F_Estimator_Description = "")
 
 session.add(hr)
+models.append(hr)
 
 tsr = Estimator(F_Estimator_Name = "Theil-Sen Regressor",
                    F_Estimator_Symbol = 'tsr',
@@ -356,6 +217,7 @@ tsr = Estimator(F_Estimator_Name = "Theil-Sen Regressor",
                F_Estimator_Description = "")
 
 session.add(tsr)
+models.append(tsr)
 
 par = Estimator(F_Estimator_Name = "Passive Aggressive Regressor",
                    F_Estimator_Symbol = 'par',
@@ -364,6 +226,7 @@ par = Estimator(F_Estimator_Name = "Passive Aggressive Regressor",
                F_Estimator_Description = "")
 
 session.add(par)
+models.append(par)
 
 ard = Estimator(F_Estimator_Name = "ARD Regressor",
                    F_Estimator_Symbol = 'ard',
@@ -372,6 +235,7 @@ ard = Estimator(F_Estimator_Name = "ARD Regressor",
                F_Estimator_Description = "")
 
 session.add(ard)
+models.append(ard)
 
 bays_ridge = Estimator(F_Estimator_Name = "Baysian Ridge Regressor",
                    F_Estimator_Symbol = 'bays_ridge',
@@ -380,6 +244,7 @@ bays_ridge = Estimator(F_Estimator_Name = "Baysian Ridge Regressor",
                       F_Estimator_Description = "")
 
 session.add(bays_ridge)
+models.append(bays_ridge)
 
 lasso_lar = Estimator(F_Estimator_Name = "Lasso Least Angle Regressor",
                    F_Estimator_Symbol = 'lasso_lar',
@@ -388,6 +253,7 @@ lasso_lar = Estimator(F_Estimator_Name = "Lasso Least Angle Regressor",
                      F_Estimator_Description = "")
 
 session.add(lasso_lar)
+models.append(lasso_lar)
 
 lar = Estimator(F_Estimator_Name = "Least Angle Regressor",
                    F_Estimator_Symbol = 'lar',
@@ -396,7 +262,7 @@ lar = Estimator(F_Estimator_Name = "Least Angle Regressor",
                F_Estimator_Description = "")
 
 session.add(lar)
-
+models.append(lar)
 
 # Insert Classification Estimators
 logr = Estimator(F_Estimator_Name = "Logistic Regression Classifier",
@@ -406,6 +272,7 @@ logr = Estimator(F_Estimator_Name = "Logistic Regression Classifier",
                 F_Estimator_Description = "")
 
 session.add(logr)
+models.append(logr)
 
 svc = Estimator(F_Estimator_Name = "Support Vector Classifier",
                    F_Estimator_Symbol = 'svc',
@@ -414,6 +281,7 @@ svc = Estimator(F_Estimator_Name = "Support Vector Classifier",
                F_Estimator_Description = "")
 
 session.add(svc)
+models.append(svc)
 
 rfc = Estimator(F_Estimator_Name = "Random Forest Classifier",
                    F_Estimator_Symbol = 'rfc',
@@ -422,6 +290,7 @@ rfc = Estimator(F_Estimator_Name = "Random Forest Classifier",
                F_Estimator_Description = "")
 
 session.add(rfc)
+models.append(rfc)
 
 abc = Estimator(F_Estimator_Name = "Adaptive Boosting Classifier",
                    F_Estimator_Symbol = 'abc',
@@ -430,6 +299,7 @@ abc = Estimator(F_Estimator_Name = "Adaptive Boosting Classifier",
                F_Estimator_Description = "")
 
 session.add(abc)
+models.append(abc)
 
 dtc = Estimator(F_Estimator_Name = "Decision Tree Classifier",
                    F_Estimator_Symbol = 'dtc',
@@ -438,6 +308,7 @@ dtc = Estimator(F_Estimator_Name = "Decision Tree Classifier",
                F_Estimator_Description = "")
 
 session.add(dtc)
+models.append(dtc)
 
 gbc = Estimator(F_Estimator_Name = "Gradient Boosting Classifier",
                    F_Estimator_Symbol = 'gbc',
@@ -446,6 +317,7 @@ gbc = Estimator(F_Estimator_Name = "Gradient Boosting Classifier",
                F_Estimator_Description = "")
 
 session.add(gbc)
+models.append(gbc)
 
 sgd = Estimator(F_Estimator_Name = "Stochastic Gradient Descent Classifier",
                    F_Estimator_Symbol = 'sgd',
@@ -454,6 +326,7 @@ sgd = Estimator(F_Estimator_Name = "Stochastic Gradient Descent Classifier",
                F_Estimator_Description = "")
 
 session.add(sgd)
+models.append(sgd)
 
 gpc = Estimator(F_Estimator_Name = "Gaussian Process Classifier",
                    F_Estimator_Symbol = 'gpc',
@@ -462,6 +335,7 @@ gpc = Estimator(F_Estimator_Name = "Gaussian Process Classifier",
                F_Estimator_Description = "")
 
 session.add(gpc)
+models.append(gpc)
 
 knnc = Estimator(F_Estimator_Name = "K-Nearest Neighbors Classifier",
                    F_Estimator_Symbol = 'knnc',
@@ -470,6 +344,7 @@ knnc = Estimator(F_Estimator_Name = "K-Nearest Neighbors Classifier",
                 F_Estimator_Description = "")
 
 session.add(knnc)
+models.append(knnc)
 
 mlpc = Estimator(F_Estimator_Name = "Multi-Layer Perceptron Classifier",
                    F_Estimator_Symbol = 'mlpc',
@@ -478,6 +353,7 @@ mlpc = Estimator(F_Estimator_Name = "Multi-Layer Perceptron Classifier",
                 F_Estimator_Description = "")
 
 session.add(mlpc)
+models.append(mlpc)
 
 nbc = Estimator(F_Estimator_Name = "Naive Bayes Classifier",
                    F_Estimator_Symbol = 'nbc',
@@ -486,22 +362,87 @@ nbc = Estimator(F_Estimator_Name = "Naive Bayes Classifier",
                F_Estimator_Description = "")
 
 session.add(nbc)
-""" (Classifier Parameters)
 
-http://scikit-learn.org/stable/modules/generated/sklearn.metrics.classification_report.html#sklearn.metrics.classification_report
-http://scikit-learn.org/stable/modules/generated/sklearn.metrics.cohen_kappa_score.html#sklearn.metrics.cohen_kappa_score
-http://scikit-learn.org/stable/modules/generated/sklearn.metrics.auc.html#sklearn.metrics.auc
-http://scikit-learn.org/stable/modules/generated/sklearn.metrics.log_loss.html#sklearn.metrics.log_loss
-http://scikithttp://scikit-learn.org/stable/modules/generated/sklearn.metrics.f1_score.html#sklearn.metrics.f1_score
-http://scikit-learn.org/stable/modules/generated/sklearn.metrics.precision_score.html#sklearn.metrics.precision_score
-http://scikit-learn.org/stable/modules/generated/sklearn.metrics.recall_score.html#sklearn.metrics.recall_score
-http://scikit-learn.org/stable/modules/generated/sklearn.metrics.accuracy_score.html#sklearn.metrics.accuracy_score
 
--learn.org/stable/modules/generated/sklearn.metrics.jaccard_similarity_score.html#sklearn.metrics.jaccard_similarity_score
+links = ["http://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LinearRegression.html",
+        "http://scikit-learn.org/stable/modules/generated/sklearn.svm.SVR.html",
+        "http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestRegressor.html",
+        "http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.AdaBoostRegressor.html",
+        "http://scikit-learn.org/stable/modules/generated/sklearn.neighbors.KNeighborsRegressor.html",
+        "http://scikit-learn.org/stable/modules/generated/sklearn.linear_model.Ridge.html",
+         "http://scikit-learn.org/stable/modules/generated/sklearn.linear_model.Lasso.html",
+        "http://scikit-learn.org/stable/modules/generated/sklearn.linear_model.ElasticNet.html",
+        "http://scikit-learn.org/stable/modules/generated/sklearn.neural_network.MLPRegressor.html",
+        "http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.BaggingRegressor.html",
+        "http://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeRegressor.html",
+        "http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.GradientBoostingRegressor.html",
+        "http://scikit-learn.org/stable/modules/generated/sklearn.gaussian_process.GaussianProcessClassifier.html",
+        "http://scikit-learn.org/stable/modules/generated/sklearn.linear_model.HuberRegressor.html#sklearn.linear_model.HuberRegressor",
+        "http://scikit-learn.org/stable/modules/generated/sklearn.linear_model.TheilSenRegressor.html#sklearn.linear_model.TheilSenRegressor",
+                 "http://scikit-learn.org/stable/modules/generated/sklearn.linear_model.PassiveAggressiveRegressor.html#sklearn.linear_model.PassiveAggressiveRegressor",
+        "http://scikit-learn.org/stable/modules/generated/sklearn.linear_model.ARDRegression.html#sklearn.linear_model.ARDRegression",
 
-http://scikit-learn.org/stable/modules/generated/sklearn.metrics.confusion_matrix.html#sklearn.metrics.confusion_matrix
+        "http://scikit-learn.org/stable/modules/generated/sklearn.linear_model.BayesianRidge.html#sklearn.linear_model.BayesianRidge",
+"http://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LassoLars.html",
+         "http://scikit-learn.org/stable/modules/generated/sklearn.linear_model.Lars.html",
+         
+"http://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html",
+"http://scikit-learn.org/stable/modules/generated/sklearn.svm.SVC.html",
+"http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html",
+"http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.AdaBoostClassifier.html",
+"http://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeClassifier.html",
+"http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.GradientBoostingClassifier.html",
+"http://scikit-learn.org/stable/modules/generated/sklearn.linear_model.SGDClassifier.html",
+"http://scikit-learn.org/stable/modules/generated/sklearn.gaussian_process.GaussianProcessClassifier.html",
+"http://scikit-learn.org/stable/modules/generated/sklearn.neighbors.KNeighborsClassifier.html",
+"http://scikit-learn.org/stable/modules/generated/sklearn.neural_network.MLPClassifier.html"
 
-"""
+]
+
+import requests
+import re
+import string
+printable = set(string.printable)
+
+
+# Make sure the links line up with the models
+#for i,j in zip(models, links):
+#    print(i.F_Estimator_Name,j)
+#input("...")
+
+link_contents = []
+for i,link in enumerate(links):
+    link_contents.append(str(requests.get(link).content).split("\\n"))
+    #print(link_contents[-1])
+    #print(link_contents[-1].replace("\\n","")[:100])
+    #print("****%s****" %(link[-30:]))
+    regex = r'<p.*><strong>(.*)<\/strong> : (.*)<\/p>'
+    for thing in link_contents[-1]:
+        
+        results = re.findall(regex, thing)
+        if len(results) > 0:
+            #print(thing)
+            #print(list(map(lambda x: (x[0],x[1]), results)))
+            #input("...")
+            hits = list(map(lambda x: (x[0],x[1]), results))[0]
+            param_name = hits[0]
+            param_descr = re.sub(r'\\x\d*|e2|<.*>|<|>', '', hits[1])
+            
+            if param_name == "X":
+                break
+            param_open = 1
+            if any([i in param_descr for i in ['str', 'string', 'bool', 'boolean']]):
+                param_open = 0
+                
+            param = Parameter(F_Estimator = models[i],
+                       F_Parameter_Open = param_open,
+                       F_Parameter_Name = param_name,
+                       F_Parameter_Description=param_descr)
+            session.add(param)
+            
+    #input("...")
+
+
 
 # ... Create Parameters for every estimator
 
@@ -532,6 +473,6 @@ for e in everything:
 # Query just the match ups
 query = session.query(Estimator, Parameter).filter(Estimator.F_Estimator_ID == Parameter.F_Estimator_ID).all()
 for e,p in query:
-    print("%s (aka) %s\n\t%s" %(e.F_Estimator_Name,e.F_Estimator_Symbol, p.F_Parameter_Name))
+    print("%s (aka) %s\n\t%s(%s)\t%s" %(e.F_Estimator_Name,e.F_Estimator_Symbol, p.F_Parameter_Name, p.F_Parameter_Open, p.F_Parameter_Description))
 
 # ... print to see if everything is working
