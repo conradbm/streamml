@@ -74,7 +74,6 @@ lr = Estimator(F_Estimator_Name = "Linear Regressor",
 
 
 # Add lr
-session.add(lr)
 models.append(lr)
 
 svr = Estimator(F_Estimator_Name = "Support Vector Regressor",
@@ -84,7 +83,6 @@ svr = Estimator(F_Estimator_Name = "Support Vector Regressor",
                F_Estimator_Description="Epsilon-Support Vector Regression. The free parameters in the model are C and epsilon. The implementation is based on libsvm.")
 
 # Add svr
-session.add(svr)
 models.append(svr)
 
 rfr = Estimator(F_Estimator_Name = "Random Forest Regressor",
@@ -95,7 +93,6 @@ rfr = Estimator(F_Estimator_Name = "Random Forest Regressor",
 
 
 # Add rfr
-session.add(rfr)
 models.append(rfr)
 
 abr = Estimator(F_Estimator_Name = "Adaptive Boosting Regressor",
@@ -105,7 +102,6 @@ abr = Estimator(F_Estimator_Name = "Adaptive Boosting Regressor",
                F_Estimator_Description = "An AdaBoost regressor is a meta-estimator that begins by fitting a regressor on the original dataset and then fits additional copies of the regressor on the same dataset but where the weights of instances are adjusted according to the error of the current prediction. As such, subsequent regressors focus more on difficult cases. This class implements the algorithm known as AdaBoost.R2.")
 
 # Add abr
-session.add(abr)
 models.append(abr)
 
 knnr = Estimator(F_Estimator_Name = "K-Nearest Neighbors Regressor",
@@ -115,7 +111,6 @@ knnr = Estimator(F_Estimator_Name = "K-Nearest Neighbors Regressor",
                 F_Estimator_Description = "")
 
 # add knnr
-session.add(knnr)
 models.append(knnr)
 
 ridge = Estimator(F_Estimator_Name = "Ridge Regressor",
@@ -125,7 +120,6 @@ ridge = Estimator(F_Estimator_Name = "Ridge Regressor",
                  F_Estimator_Description = "")
 
 # add ridge
-session.add(ridge)
 models.append(ridge)
 
 
@@ -143,7 +137,6 @@ lasso_param1 = Parameter(F_Estimator = lasso,
 """                   
 
 # add lasso
-session.add(lasso)
 models.append(lasso)
 
 enet = Estimator(F_Estimator_Name = "ElasticNet Regressor",
@@ -152,7 +145,6 @@ enet = Estimator(F_Estimator_Name = "ElasticNet Regressor",
                    F_Estimator_CanFeatureSelect = 1,
                 F_Estimator_Description = "")
 
-session.add(enet)
 models.append(enet)
 
 mlpr = Estimator(F_Estimator_Name = "Multi-Layer Perceptron Regressor",
@@ -161,7 +153,6 @@ mlpr = Estimator(F_Estimator_Name = "Multi-Layer Perceptron Regressor",
                    F_Estimator_CanFeatureSelect = 0,
                 F_Estimator_Description = "")
 
-session.add(mlpr)
 models.append(mlpr)
 
 br = Estimator(F_Estimator_Name = "Bagging Regressor",
@@ -170,7 +161,6 @@ br = Estimator(F_Estimator_Name = "Bagging Regressor",
                    F_Estimator_CanFeatureSelect = 0,
               F_Estimator_Description = "")
 
-session.add(br)
 models.append(br)
 
 dtr = Estimator(F_Estimator_Name = "Decision Tree Regressor",
@@ -179,7 +169,7 @@ dtr = Estimator(F_Estimator_Name = "Decision Tree Regressor",
                    F_Estimator_CanFeatureSelect = 1,
                F_Estimator_Description = "")
 
-session.add(dtr)
+
 models.append(dtr)
 
 gbr = Estimator(F_Estimator_Name = "Gradient Boosting Regressor",
@@ -188,7 +178,7 @@ gbr = Estimator(F_Estimator_Name = "Gradient Boosting Regressor",
                    F_Estimator_CanFeatureSelect = 0,
                F_Estimator_Description = "")
 
-session.add(gbr)
+
 models.append(gbr)
 
 gpr = Estimator(F_Estimator_Name = "Gaussian Process Regressor",
@@ -197,7 +187,7 @@ gpr = Estimator(F_Estimator_Name = "Gaussian Process Regressor",
                    F_Estimator_CanFeatureSelect = 0,
                F_Estimator_Description = "")
 
-session.add(gpr)
+
 models.append(gpr)
 
 
@@ -207,7 +197,7 @@ hr = Estimator(F_Estimator_Name = "Huber Regressor",
                    F_Estimator_CanFeatureSelect = 0,
               F_Estimator_Description = "")
 
-session.add(hr)
+
 models.append(hr)
 
 tsr = Estimator(F_Estimator_Name = "Theil-Sen Regressor",
@@ -216,7 +206,7 @@ tsr = Estimator(F_Estimator_Name = "Theil-Sen Regressor",
                    F_Estimator_CanFeatureSelect = 0,
                F_Estimator_Description = "")
 
-session.add(tsr)
+
 models.append(tsr)
 
 par = Estimator(F_Estimator_Name = "Passive Aggressive Regressor",
@@ -225,7 +215,7 @@ par = Estimator(F_Estimator_Name = "Passive Aggressive Regressor",
                    F_Estimator_CanFeatureSelect = 0,
                F_Estimator_Description = "")
 
-session.add(par)
+
 models.append(par)
 
 ard = Estimator(F_Estimator_Name = "ARD Regressor",
@@ -234,7 +224,7 @@ ard = Estimator(F_Estimator_Name = "ARD Regressor",
                    F_Estimator_CanFeatureSelect = 0,
                F_Estimator_Description = "")
 
-session.add(ard)
+
 models.append(ard)
 
 bays_ridge = Estimator(F_Estimator_Name = "Baysian Ridge Regressor",
@@ -243,7 +233,7 @@ bays_ridge = Estimator(F_Estimator_Name = "Baysian Ridge Regressor",
                    F_Estimator_CanFeatureSelect = 0,
                       F_Estimator_Description = "")
 
-session.add(bays_ridge)
+
 models.append(bays_ridge)
 
 lasso_lar = Estimator(F_Estimator_Name = "Lasso Least Angle Regressor",
@@ -252,7 +242,7 @@ lasso_lar = Estimator(F_Estimator_Name = "Lasso Least Angle Regressor",
                    F_Estimator_CanFeatureSelect = 1,
                      F_Estimator_Description = "")
 
-session.add(lasso_lar)
+
 models.append(lasso_lar)
 
 lar = Estimator(F_Estimator_Name = "Least Angle Regressor",
@@ -261,7 +251,7 @@ lar = Estimator(F_Estimator_Name = "Least Angle Regressor",
                    F_Estimator_CanFeatureSelect = 1,
                F_Estimator_Description = "")
 
-session.add(lar)
+
 models.append(lar)
 
 # Insert Classification Estimators
@@ -271,7 +261,7 @@ logr = Estimator(F_Estimator_Name = "Logistic Regression Classifier",
                    F_Estimator_CanFeatureSelect = 0,
                 F_Estimator_Description = "")
 
-session.add(logr)
+
 models.append(logr)
 
 svc = Estimator(F_Estimator_Name = "Support Vector Classifier",
@@ -280,7 +270,7 @@ svc = Estimator(F_Estimator_Name = "Support Vector Classifier",
                    F_Estimator_CanFeatureSelect = 1,
                F_Estimator_Description = "")
 
-session.add(svc)
+
 models.append(svc)
 
 rfc = Estimator(F_Estimator_Name = "Random Forest Classifier",
@@ -289,7 +279,7 @@ rfc = Estimator(F_Estimator_Name = "Random Forest Classifier",
                    F_Estimator_CanFeatureSelect = 1,
                F_Estimator_Description = "")
 
-session.add(rfc)
+
 models.append(rfc)
 
 abc = Estimator(F_Estimator_Name = "Adaptive Boosting Classifier",
@@ -298,7 +288,7 @@ abc = Estimator(F_Estimator_Name = "Adaptive Boosting Classifier",
                    F_Estimator_CanFeatureSelect = 1,
                F_Estimator_Description = "")
 
-session.add(abc)
+
 models.append(abc)
 
 dtc = Estimator(F_Estimator_Name = "Decision Tree Classifier",
@@ -307,7 +297,7 @@ dtc = Estimator(F_Estimator_Name = "Decision Tree Classifier",
                    F_Estimator_CanFeatureSelect = 1,
                F_Estimator_Description = "")
 
-session.add(dtc)
+
 models.append(dtc)
 
 gbc = Estimator(F_Estimator_Name = "Gradient Boosting Classifier",
@@ -316,7 +306,7 @@ gbc = Estimator(F_Estimator_Name = "Gradient Boosting Classifier",
                    F_Estimator_CanFeatureSelect = 0,
                F_Estimator_Description = "")
 
-session.add(gbc)
+
 models.append(gbc)
 
 sgd = Estimator(F_Estimator_Name = "Stochastic Gradient Descent Classifier",
@@ -325,7 +315,7 @@ sgd = Estimator(F_Estimator_Name = "Stochastic Gradient Descent Classifier",
                    F_Estimator_CanFeatureSelect = 0,
                F_Estimator_Description = "")
 
-session.add(sgd)
+
 models.append(sgd)
 
 gpc = Estimator(F_Estimator_Name = "Gaussian Process Classifier",
@@ -334,7 +324,7 @@ gpc = Estimator(F_Estimator_Name = "Gaussian Process Classifier",
                    F_Estimator_CanFeatureSelect = 0,
                F_Estimator_Description = "")
 
-session.add(gpc)
+
 models.append(gpc)
 
 knnc = Estimator(F_Estimator_Name = "K-Nearest Neighbors Classifier",
@@ -343,7 +333,7 @@ knnc = Estimator(F_Estimator_Name = "K-Nearest Neighbors Classifier",
                    F_Estimator_CanFeatureSelect = 0,
                 F_Estimator_Description = "")
 
-session.add(knnc)
+
 models.append(knnc)
 
 mlpc = Estimator(F_Estimator_Name = "Multi-Layer Perceptron Classifier",
@@ -352,17 +342,17 @@ mlpc = Estimator(F_Estimator_Name = "Multi-Layer Perceptron Classifier",
                    F_Estimator_CanFeatureSelect = 0,
                 F_Estimator_Description = "")
 
-session.add(mlpc)
+
 models.append(mlpc)
 
 nbc = Estimator(F_Estimator_Name = "Naive Bayes Classifier",
                    F_Estimator_Symbol = 'nbc',
                    F_Estimator_PredictionClass = 'clasifier',
                    F_Estimator_CanFeatureSelect = 0,
-               F_Estimator_Description = "")
+               F_Estimator_Description = "Gaussian Naive Bayes (GaussianNB). Can perform online updates to model parameters via partial_fit method. For details on algorithm used to update feature means and variance online, see Stanford CS tech report STAN-CS-79-773 by Chan, Golub, and LeVeque: http://i.stanford.edu/pub/cstr/reports/cs/tr/79/773/CS-TR-79-773.pdf")
 
-session.add(nbc)
 
+models.append(nbc)
 
 links = ["http://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LinearRegression.html",
         "http://scikit-learn.org/stable/modules/generated/sklearn.svm.SVR.html",
@@ -376,7 +366,7 @@ links = ["http://scikit-learn.org/stable/modules/generated/sklearn.linear_model.
         "http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.BaggingRegressor.html",
         "http://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeRegressor.html",
         "http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.GradientBoostingRegressor.html",
-        "http://scikit-learn.org/stable/modules/generated/sklearn.gaussian_process.GaussianProcessClassifier.html",
+        "http://scikit-learn.org/stable/modules/generated/sklearn.gaussian_process.GaussianProcessRegressor.html",
         "http://scikit-learn.org/stable/modules/generated/sklearn.linear_model.HuberRegressor.html#sklearn.linear_model.HuberRegressor",
         "http://scikit-learn.org/stable/modules/generated/sklearn.linear_model.TheilSenRegressor.html#sklearn.linear_model.TheilSenRegressor",
                  "http://scikit-learn.org/stable/modules/generated/sklearn.linear_model.PassiveAggressiveRegressor.html#sklearn.linear_model.PassiveAggressiveRegressor",
@@ -395,7 +385,8 @@ links = ["http://scikit-learn.org/stable/modules/generated/sklearn.linear_model.
 "http://scikit-learn.org/stable/modules/generated/sklearn.linear_model.SGDClassifier.html",
 "http://scikit-learn.org/stable/modules/generated/sklearn.gaussian_process.GaussianProcessClassifier.html",
 "http://scikit-learn.org/stable/modules/generated/sklearn.neighbors.KNeighborsClassifier.html",
-"http://scikit-learn.org/stable/modules/generated/sklearn.neural_network.MLPClassifier.html"
+"http://scikit-learn.org/stable/modules/generated/sklearn.neural_network.MLPClassifier.html",
+         "http://scikit-learn.org/stable/modules/generated/sklearn.naive_bayes.GaussianNB.html"
 
 ]
 
@@ -403,7 +394,10 @@ import requests
 import re
 import string
 printable = set(string.printable)
-
+regex_estimators1 = r'<dd><p>(.*)<\/p>'
+regex_estimators2 = r'<p>(.*)<\/p>'
+regex_estimators_flag = False
+regex_parameters = r'<p.*><strong>(.*)<\/strong> : (.*)<\/p>'
 
 # Make sure the links line up with the models
 #for i,j in zip(models, links):
@@ -416,20 +410,59 @@ for i,link in enumerate(links):
     #print(link_contents[-1])
     #print(link_contents[-1].replace("\\n","")[:100])
     #print("****%s****" %(link[-30:]))
-    regex = r'<p.*><strong>(.*)<\/strong> : (.*)<\/p>'
+    
+    # Find the description of the model, its the first <dd> tag folowed by the next <p>, so it looks funny.
+    estimator_description = ""
+    for thing in link_contents[-1]:
+        #print(thing)
+        if regex_estimators_flag == False:
+            results_est = re.findall(regex_estimators1,thing)
+        else:
+            results_est = re.findall(regex_estimators2,thing)
+        
+        if len(results_est) > 0:
+            
+            if regex_estimators_flag == False:
+                hits = list(map(lambda x: x, results_est))[0]
+                
+                estimator_description += hits
+                #print("a")
+                #input(estimator_description)
+                regex_estimators_flag = True
+                break
+            else:
+                
+                # Process
+                hits = list(map(lambda x: x, results_est))[0]
+                estimator_description += hits
+                regex_estimators_flag=False
+                #print("b")
+                #input(estimator_description)
+                break
+            
+
+    # Update description of models by specific regex foolishness
+    estimator_description = param_descr = re.sub(r'\\x\d*|e2|<.*>|<|>', '', estimator_description)
+    models[i].F_Estimator_Description=estimator_description
+    session.add(models[i])
+    
     for thing in link_contents[-1]:
         
-        results = re.findall(regex, thing)
-        if len(results) > 0:
+        results_para = re.findall(regex_parameters, thing)
+        if len(results_para) > 0:
             #print(thing)
             #print(list(map(lambda x: (x[0],x[1]), results)))
             #input("...")
-            hits = list(map(lambda x: (x[0],x[1]), results))[0]
+            hits = list(map(lambda x: (x[0],x[1]), results_para))[0]
             param_name = hits[0]
             param_descr = re.sub(r'\\x\d*|e2|<.*>|<|>', '', hits[1])
             
-            if param_name == "X":
+            if any([param_name in i for i in ["n_jobs", "random_state", "verbose", "copy_X", "copy_X_train", "cache_size"]]):
+                continue
+            if 'Attributes:' in thing:
                 break
+            #if param_name == "X":
+            #    break
             param_open = 1
             if any([i in param_descr for i in ['str', 'string', 'bool', 'boolean']]):
                 param_open = 0
@@ -448,7 +481,6 @@ for i,link in enumerate(links):
 
 # .. Add Parameters for every estimator
 
-
 session.commit()
 everything = session.query(Estimator).all()
 
@@ -458,6 +490,8 @@ for e in everything:
                                            e.F_Estimator_Symbol, 
                                            e.F_Estimator_PredictionClass, 
                                            e.F_Estimator_CanFeatureSelect) )
+
+
 
 everything = session.query(Parameter).all()
 
@@ -470,9 +504,10 @@ for e in everything:
                                            e.F_Parameter_Open,
                                            e.F_Parameter_Description) )
 
+
 # Query just the match ups
 query = session.query(Estimator, Parameter).filter(Estimator.F_Estimator_ID == Parameter.F_Estimator_ID).all()
 for e,p in query:
     print("%s (aka) %s\n\t%s(%s)\t%s" %(e.F_Estimator_Name,e.F_Estimator_Symbol, p.F_Parameter_Name, p.F_Parameter_Open, p.F_Parameter_Description))
 
-# ... print to see if everything is working
+

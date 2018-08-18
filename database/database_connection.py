@@ -44,12 +44,10 @@ def select_all_parameters(conn):
         print(row)
 
 def main():
-    database = "../streamml.db"
+    database = "streamml.db"
  
     # create a database connection
     conn = create_connection(database)
-    
-    print(conn)
     
     print("1. Query all Estimators")
     select_all_estimators(conn)
