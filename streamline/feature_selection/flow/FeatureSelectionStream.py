@@ -170,7 +170,7 @@ class FeatureSelectionStream:
                                                           self._nfolds, 
                                                           self._n_jobs,
                                                           self._verbose)
-            return model.getBestEstimator().coef_
+            return model.getBestEstimator().coef_.flatten()
             
         # TODO - Test
         def randomForestRegression():
@@ -186,7 +186,7 @@ class FeatureSelectionStream:
                                                           self._nfolds, 
                                                           self._n_jobs,
                                                           self._verbose)
-            return model.getBestEstimator().feature_importances_
+            return model.getBestEstimator().feature_importances_.flatten()
             
         
 
@@ -204,7 +204,7 @@ class FeatureSelectionStream:
                                                               self._nfolds, 
                                                               self._n_jobs,
                                                               self._verbose)
-            return model.getBestEstimator().feature_importances_
+            return model.getBestEstimator().feature_importances_.flatten()
         
         # TODO - Test
         def lassoRegression():
@@ -220,7 +220,7 @@ class FeatureSelectionStream:
                                                           self._nfolds, 
                                                           self._n_jobs,
                                                           self._verbose)
-            return model.getBestEstimator().coef_
+            return model.getBestEstimator().coef_.flatten()
             
         # TODO - Test
         def elasticNetRegression():
@@ -235,7 +235,7 @@ class FeatureSelectionStream:
                                                           self._nfolds, 
                                                           self._n_jobs,
                                                           self._verbose)
-            return model.getBestEstimator().coef_
+            return model.getBestEstimator().coef_.flatten()
     
         # TODO - Test
         def mixed_selection():
@@ -248,10 +248,33 @@ class FeatureSelectionStream:
             y = self._y
             
             initial_list=[]
-            threshold_in=0.01
-            threshold_out = 0.05
-            verbose=False
+            threshold_in_specified = False
+            threshold_out_specified = False
+
+            if "mixed_selection__threshold_in" in self._allParams.keys():
+              assert(isinstance(self._allParams["mixed_selection__threshold_in"], float), "threshold_in must be a float")
+              threshold_in = self._allParams["mixed_selection__threshold_in"]
+              threshold_in_specified=True
+            else:
+              threshold_in=0.01
+
+            if "mixed_selection__threshold_out" in self._allParams.keys():
+              assert(isinstance(self._allParams["mixed_selection__threshold_out"], float), "threshold_out must be a float")
+              threshold_out = self._allParams["mixed_selection__threshold_out"]
+              threshold_out_specified=True
+            else:
+              threshold_out = 0.05
+
+            if "mixed_selection__verbose" in self._allParams.keys():
+              assert(isinstance(self._allParams["mixed_selection__verbose"], bool), "verbose must be a bool")
+              verbose = self._allParams["mixed_selection__verbose"]
+            else:
+              verbose = False
             
+            if threshold_in_specified and threshold_out_specified:
+              assert(threshold_in < threshold_out, "threshold in must be strictly less than the threshold out to avoid infinite looping.")
+
+
             #initial_list = self._initial_list
             #threshold_in = self._threshold_in
             #threshold_out = self._threshold_out
@@ -278,7 +301,9 @@ class FeatureSelectionStream:
                 # forward step
                 excluded = list(set(X.columns)-set(included))
                 new_pval = pd.Series(index=excluded)
+    
                 for new_column in excluded:
+
                     model = sm.OLS(y, sm.add_constant(pd.DataFrame(X[included+[new_column]]))).fit()
                     new_pval[new_column] = model.pvalues[new_column]
 
@@ -308,8 +333,14 @@ class FeatureSelectionStream:
                 if not changed:
                     break
 
+            new_included = []
+            for col in X.columns:
+                if col in included:
+                  new_included.append(1)
+                else:
+                  new_included.append(0)
 
-            return included
+            return new_included
 
         
         
@@ -335,7 +366,7 @@ class FeatureSelectionStream:
                                                               self._nfolds, 
                                                               self._n_jobs,
                                                               self._verbose)
-            return model.getBestEstimator().feature_importances_
+            return model.getBestEstimator().feature_importances_.flatten()
         
         # Good
         def randomForestClassifier():
@@ -351,7 +382,7 @@ class FeatureSelectionStream:
                                                               self._nfolds, 
                                                               self._n_jobs,
                                                               self._verbose)
-            return model.getBestEstimator().feature_importances_
+            return model.getBestEstimator().feature_importances_.flatten()
         
         
         # Good
@@ -370,7 +401,7 @@ class FeatureSelectionStream:
                                                           self._nfolds, 
                                                           self._n_jobs,
                                                           self._verbose)
-            return model.getBestEstimator().coef_
+            return model.getBestEstimator().coef_.flatten()
         
         # Valid regressors
         regression_options = {"mixed_selection" : mixed_selection,
@@ -411,10 +442,42 @@ class FeatureSelectionStream:
         if self._verbose:
             print
         
-        
+        self._ensemble_results = None
         if self._ensemble:
-            print("Ensemble is not yet implemented.")
-            print("Ensemble will support: TOPSIS and other MADM techniques to select the top features.")
-            pass
-        
-        return self._key_features
+            # Run TOPSIS on the key features
+            from skcriteria import Data, MAX
+            from skcriteria.madm import closeness, simple
+
+            alternative_names = self._X.columns
+            criterion_names = self._key_features.keys()
+            criteria = [MAX for i in criterion_names]
+            weights = [i/len(criterion_names) for i in range(len(criterion_names))]
+            df = pd.DataFrame(self._key_features,
+                              index=alternative_names)
+ 
+            data = Data(df.as_matrix(),
+                        criteria,
+                        weights,
+                        anames=df.index.tolist(),
+                        cnames=df.columns
+                        )
+            print(data)
+            #if self._verbose:
+              #data.plot("radar");
+
+            dm1 = simple.WeightedSum()
+            dm2 = simple.WeightedProduct()
+            dm3 = closeness.TOPSIS()
+            dec1 = dm1.decide(data)
+            dec2 = dm2.decide(data)
+            dec3 = dm3.decide(data)
+            
+
+            self._ensemble_results = pd.DataFrame({"TOPSIS":dec3.rank_,
+                                                  "WeightedSum":dec1.rank_,
+                                                  "WeightedProduct":dec2.rank_},
+                                                  index=df.index.tolist())
+            
+
+        print("Returning three decision makers opinions.")
+        return (self._key_features,self._ensemble_results)
