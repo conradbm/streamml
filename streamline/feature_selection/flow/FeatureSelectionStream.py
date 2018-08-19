@@ -27,17 +27,12 @@ import warnings
 warnings.filterwarnings("ignore")
 
 # Regressors
+from sklearn.cross_decomposition import PLSRegression
 from streamml.streamline.model_selection.models.regressors.SupportVectorRegressorPredictiveModel import SupportVectorRegressorPredictiveModel
 from streamml.streamline.model_selection.models.regressors.LassoRegressorPredictiveModel import LassoRegressorPredictiveModel
 from streamml.streamline.model_selection.models.regressors.ElasticNetRegressorPredictiveModel import ElasticNetRegressorPredictiveModel
 from streamml.streamline.model_selection.models.regressors.RandomForestRegressorPredictiveModel import RandomForestRegressorPredictiveModel
 from streamml.streamline.model_selection.models.regressors.AdaptiveBoostingRegressorPredictiveModel import AdaptiveBoostingRegressorPredictiveModel
-
-# X
-#from streamml.streamline.feature_selection.models.regressors.MixedSelectionRegressionFeatureSelectionModel import MixedSelectionRegressionFeatureSelectionModel
-
-# X
-#from streamml.streamline.feature_selection.models.regressors.PartialLeastSquaresRegressionFeatureSelectionModel import PartialLeastSquaresRegressionFeatureSelectionModel
 
 
 # Classifiers
@@ -344,9 +339,21 @@ class FeatureSelectionStream:
 
         
         
-        # TODO - Implement
+        # TODO - Test
         def partialLeastSquaresRegression():
-            pass
+
+            if self._verbose:
+                print("Executing: plsr")
+            # The components are not helpful for this context. They might be for transformation, however.
+            #if "plsr__n_components" in self._allParams.keys():
+            #  n_components = self._allParams["plsr__n_components"]
+            #else:
+            #  n_components = 2
+            pls_model = PLSRegression()
+            pls_out = pls_model.fit(self._X, self._y)
+
+            # The coefficients are used to show direction of the relationship
+            return pls_out.coef_.flatten()
     
         ############################################
         ########## Classifiers Start Here ##########
@@ -405,12 +412,12 @@ class FeatureSelectionStream:
         
         # Valid regressors
         regression_options = {"mixed_selection" : mixed_selection,
-                              "pls":partialLeastSquaresRegression,
                                "svr" : supportVectorRegression,
                                "rfr":randomForestRegression,
                                "abr":adaptiveBoostingRegression,
                                "lasso":lassoRegression,
-                               "enet":elasticNetRegression}
+                               "enet":elasticNetRegression,
+                               "plsr":partialLeastSquaresRegression}
 
 
 
@@ -448,10 +455,12 @@ class FeatureSelectionStream:
             from skcriteria import Data, MAX
             from skcriteria.madm import closeness, simple
 
-            alternative_names = self._X.columns
+            alternative_names = self._X.columns.tolist()
             criterion_names = self._key_features.keys()
             criteria = [MAX for i in criterion_names]
             weights = [i/len(criterion_names) for i in range(len(criterion_names))]
+            
+
             df = pd.DataFrame(self._key_features,
                               index=alternative_names)
  

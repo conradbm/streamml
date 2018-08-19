@@ -21,10 +21,6 @@ from streamml.streamline.feature_selection.flow.FeatureSelectionStream import Fe
 
 
 
-#X2 = pd.DataFrame(np.matrix([[np.random.exponential() for j in range(10)] for i in range(200)]))
-#y2 = pd.DataFrame(np.random.binomial(1,0.25,200))
-
-
 D = pd.read_csv("data/Series3_6.15.17_padel.csv")
 X = D.iloc[:,2:]
 y = D.iloc[:,1]
@@ -34,8 +30,14 @@ y = y.loc[-ynakiller]
 #y=pd.DataFrame(pd.factorize(y)[0].tolist())
 X.replace([np.nan, np.inf, -np.inf],0, inplace=True)
 
-X = pd.DataFrame(np.matrix([[np.random.exponential() for j in range(10)] for i in range(200)]))
-y = pd.DataFrame(np.array([np.random.exponential() for i in range(200)]))
+
+
+#X = pd.DataFrame(np.matrix([[np.random.exponential() for j in range(10)] for i in range(200)]))
+#y = pd.DataFrame(np.array([np.random.exponential() for i in range(200)]))
+X2 = pd.DataFrame(np.matrix([[np.random.exponential() for j in range(10)] for i in range(200)]))
+y2 = pd.DataFrame(np.random.binomial(1,0.25,200))
+
+
 
 #
 # Supported Regression Feature Selection:
@@ -48,15 +50,16 @@ y = pd.DataFrame(np.array([np.random.exponential() for i in range(200)]))
 # abc
 # svc
 #
-# {Coming Soon}
-# Regressors:
-# pls
-# Ensemble:
-# topsis (weighted product, weighted sum, weighted average, linear, log, ect..)
-feature_dict, ensemble_results = FeatureSelectionStream(X,y).flow(["svr","abr","mixed_selection"],
+# Ensemble your feature importances
+# Decision makers:
+# (weighted product, weighted sum, TOPSIS)
+
+
+feature_dict, ensemble_results = FeatureSelectionStream(X,y).flow(["plsr", "mixed_selection", "rfr", "abr", "svr"],
                                                 params={"mixed_selection__threshold_in":0.01,
                                                         "mixed_selection__threshold_out":0.05,
-                                                        "mixed_selection__verbose":False},
+                                                        "mixed_selection__verbose":True
+                                                        },
                                                 verbose=True,
                                                 regressors=True,
                                                 ensemble=True)
