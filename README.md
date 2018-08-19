@@ -39,17 +39,19 @@ Streaming Capabilities provided:
 ['rmse','mse', 'r2','explained_variance','mean_absolute_error','median_absolute_error']
 </p>
 <p>Classification Models:
-{'abc':adaptiveBoostingClassifier,
-'dtc':decisionTreeClassifier,
-'gbc':gradientBoostingXlassifier,
-'gpc':guassianProcessClassifier,
-'knnc':knnClassifier,
-'logr':logisticRegressionClassifier,
-'mlpc':multilayerPerceptronClassifier,
-'nbc':naiveBayesClassifier,
-'rfc':randomForestClassifier,
-'sgd':stochasticGradientDescentClassifier,
-'svc':supportVectorClassifier}
+
+	{'abc':adaptiveBoostingClassifier,
+	'dtc':decisionTreeClassifier,
+	'gbc':gradientBoostingClassifier,
+	'gpc':guassianProcessClassifier,
+	'knnc':knnClassifier,
+	'logr':logisticRegressionClassifier,
+	'mlpc':multilayerPerceptronClassifier,
+	'nbc':naiveBayesClassifier,
+	'rfc':randomForestClassifier,
+	'sgd':stochasticGradientDescentClassifier,
+	'svc':supportVectorClassifier}
+			
 </p>
 <p>Classification Metrics:
 ["auc","prec","recall","f1","accuracy", "kappa","log_loss"]
@@ -63,126 +65,90 @@ Streaming Capabilities provided:
 <hr>
 
 <h2>Some Examples</h2>
-
 <strong>Simple data set</strong>
-
 <code>
-X = pd.DataFrame(np.matrix([[np.random.exponential() for j in range(10)] for i in range(200)]))
-
-y = pd.DataFrame(np.array([np.random.exponential() for i in range(200)]))
+	
+	X = pd.DataFrame(np.matrix([[np.random.exponential() for j in range(10)] for i in range(200)]))
+	
+	y = pd.DataFrame(np.array([np.random.exponential() for i in range(200)]))
 </code>
-
 
 <strong>Supported stream operators</strong>: scale, normalize, boxcox, binarize, pca, kmeans, brbm (Bernoulli Restricted Boltzman Machine).
 
-
 <code> 
-Xnew = TransformationStream(X).flow(
 
-#required: list of transformations to pipe through
-["scale","normalize","pca", "binarize", "boxcox", "kmeans", "brbm"], 
-
-#optional: parameters to specific transformers, NOT A GRIDSEARCH
-params={"pca__percent_variance":0.75, 
-"kmeans__n_clusters":2, 
-"binarize__threshold":0.5, 
-"brbm__n_components":X.shape[1], 
-"brbm__learning_rate":0.0001},
-
-#optional: displays graphics
-verbose=True)
-
-</code>
-
-
-
-<code>
-# Regression
-
-performances = ModelSelectionStream(Xnew,y).flow(
-
-#required: models you want to flow through in model selection
-["svr", "lr", "knnr","lasso","abr","mlp","enet"],
-
-#optional: sklearn `.fit` enabled model object parameters
-params={'svr__C':[1,0.1,0.01,0.001],
-
-'svr__gamma':[0, 0.01, 0.001, 0.0001],
-
-'svr__kernel':['poly', 'rbf'],
-
-'svr__epsilon':[0,0.1,0.01,0.001],
-
-'svr__degree':[1,2,3,4,5,6,7],
-
-'lr__fit_intercept':[False, True],
-
-'knnr__n_neighbors':[3, 5,7, 9, 11, 13],
-
-'lasso__alpha':[0, 0.1, 0.01,1,10.0,20.0],
-
-'ridge__alpha':[0, 0.1, 0.01,1,10.0,20.0],
-
-'enet__alpha':[0, 0.1, 0.01,1,10,20],
-
-'enet__l1_ratio':[.25,.5,.75],
-
-'abr__n_estimators':[10,20,50],
-
-'abr__learning_rate':[0.1,1,10, 100],
-
-'rfr__criterion':['mse', 'mae'],
-
-'rfr__n_estimators':[10,100,1000]}, 
-
-
-#optional: metrics you want competing models to draw against, if none specified no plot
-metrics=['r2','rmse', 'mse',
-'explained_variance','mean_absolute_error',
-'median_absolute_error'],
-
-#optional: displays graphics
-verbose=True,
-
-#required: true if you want a regressor-like response, false if classification label based response
-regressors=True,
-
-#required: only required for competing regressors, equally distributes points less than cut into stratified k-folds during competition.
-cut=2)
-
+	Xnew = TransformationStream(X).flow(
+		["scale","normalize","pca", "binarize", "boxcox", "kmeans", "brbm"],
+	 	params={"pca__percent_variance":0.75, 
+				"kmeans__n_clusters":2, 
+				"binarize__threshold":0.5, 
+				"brbm__n_components":X.shape[1], 
+				"brbm__learning_rate":0.0001},
+				verbose=True)
 </code>
 
 <code>
+<h2>Regression</h2>
 
+	performances = ModelSelectionStream(Xnew,y).flow(
+		["svr", "lr", "knnr","lasso","abr","mlp","enet"],
+
+	    params={'svr__C':[1,0.1,0.01,0.001],
+
+				'svr__gamma':[0, 0.01, 0.001, 0.0001],
+				
+				'svr__kernel':['poly', 'rbf'],
+				
+				'svr__epsilon':[0,0.1,0.01,0.001],
+				
+				'svr__degree':[1,2,3,4,5,6,7],
+				
+				'lr__fit_intercept':[False, True],
+				
+				'knnr__n_neighbors':[3, 5,7, 9, 11, 13],
+				
+				'lasso__alpha':[0, 0.1, 0.01,1,10.0,20.0],
+				
+				'ridge__alpha':[0, 0.1, 0.01,1,10.0,20.0],
+				
+				'enet__alpha':[0, 0.1, 0.01,1,10,20],
+				
+				'enet__l1_ratio':[.25,.5,.75],
+				
+				'abr__n_estimators':[10,20,50],
+				
+				'abr__learning_rate':[0.1,1,10, 100],
+				
+				'rfr__criterion':['mse', 'mae'],
+				
+				'rfr__n_estimators':[10,100,1000]}, 
+				
+		metrics=['r2','rmse', 'mse',
+		'explained_variance','mean_absolute_error',
+		'median_absolute_error'],
+		verbose=True,
+		regressors=True,
+		cut=2)
+</code>
+<code>
 # Classification
-
-performances = ModelSelectionStream(X2,y2).flow(
-["abc"], 
-
-params={'abc__n_estimators':[10,100,1000],
-'abc__learning_rate':[0.001,0.01,0.1,1,10,100]},
-
-metrics=["auc",
-
-"prec",
-
-"recall",
-
-"f1",
-
-"accuracy",
-
-"kappa",
-
-"log_loss"],
-
-verbose=True,
-
-modelSelection=True,
-
-regressors=False
-
-)
+	performances = ModelSelectionStream(X2,y2).flow(
+		["abc"], 
+		
+		params={'abc__n_estimators':[10,100,1000],
+		'abc__learning_rate':[0.001,0.01,0.1,1,10,100]},
+		
+		metrics=["auc",
+			   	"prec",
+				"recall",
+				"f1",
+				"accuracy",
+				"kappa",
+				"log_loss"],
+		verbose=True,
+		modelSelection=True,
+		regressors=False
+		)
 
 </code>
 
