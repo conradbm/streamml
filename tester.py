@@ -73,7 +73,7 @@ print(ensemble_results)
 
 """
 Transformation Options:
-["scale","normalize","boxcox","binarize","pca","kmeans", "brbm]
+["scale","normalize","boxcox","binarize","pca","kmeans", "brbm"]
 kmeans: n_clusters
 pca: percent_variance (only keeps # comps that capture this %)
 binarize: threshold (binarizes those less than threshold as 0 and above as 1)

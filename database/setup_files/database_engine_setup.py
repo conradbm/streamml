@@ -48,7 +48,7 @@ class ParameterValue(Base):
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from database_setup import Base, Estimator, Parameter, ParameterValue
+from database_setup import Base, Estimator, EstimatorParameter, EstimatorParameterValue
 
 # Re-create the database
 engine = create_engine('sqlite:///streamml.db')
@@ -128,13 +128,7 @@ lasso = Estimator(F_Estimator_Name = "Lasso Regressor",
                    F_Estimator_PredictionClass = 'regressor',
                    F_Estimator_CanFeatureSelect = 1,
                  F_Estimator_Description = "Linear Model trained with L1 prior as regularizer (aka the Lasso). The optimization objective for Lasso is: (1 / (2 * n_samples)) * ||y - Xw||^2_2 + alpha * ||w||_1")
-
-"""
-lasso_param1 = Parameter(F_Estimator = lasso,
-                       F_Parameter_Open = 1,
-                       F_Parameter_Name = 'alpha',
-                       F_Parameter_Description='float, Constant that multiplies the L1 term. Defaults to 1.0. alpha = 0 is equivalent to an ordinary least square, solved by the LinearRegression object. For numerical reasons, using alpha = 0 with the Lasso object is not advised. Given this, you should use the LinearRegression object.')
-"""                   
+                 
 
 # add lasso
 models.append(lasso)
@@ -467,10 +461,10 @@ for i,link in enumerate(links):
             if any([i in param_descr for i in ['str', 'string', 'bool', 'boolean']]):
                 param_open = 0
                 
-            param = Parameter(F_Estimator = models[i],
-                       F_Parameter_Open = param_open,
-                       F_Parameter_Name = param_name,
-                       F_Parameter_Description=param_descr)
+            param = EstimatorParameter(F_Estimator = models[i],
+				                       F_EstimatorParameter_Open = param_open,
+				                       F_EstimatorParameter_Name = param_name,
+				                       F_EstimatorParameter_Description=param_descr)
             session.add(param)
             
     #input("...")

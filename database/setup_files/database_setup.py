@@ -24,32 +24,32 @@ class Estimator(Base):
     F_Estimator_Description = Column(String(1000), nullable=True)
     
 # All possible parameters
-class Parameter(Base):
+class EstimatorParameter(Base):
     
-    __tablename__ = 'T_Parameter'
-    F_Parameter_ID = Column(Integer, primary_key=True)
+    __tablename__ = 'T_EstimatorParameter'
+    F_EstimatorParameter_ID = Column(Integer, primary_key=True)
     F_Estimator_ID = Column(Integer, ForeignKey('T_Estimator.F_Estimator_ID'))
-    F_Parameter_Open = Column(Integer, nullable=False)
-    F_Parameter_Name = Column(String(20), nullable=False)
-    F_Parameter_Description = Column(String(100), nullable=True)
+    F_EstimatorParameter_Open = Column(Integer, nullable=False)
+    F_EstimatorParameter_Name = Column(String(20), nullable=False)
+    F_EstimatorParameter_Description = Column(String(100), nullable=True)
 
     #Relationship From
     F_Estimator = relationship(Estimator)
 
 
 # When user selects estimator then chooses values for each parameter to go with it
-class ParameterValue(Base):
+class EstimatorParameterValue(Base):
     #F_ParameterValue_ID | PK
     #F_ParameterValue_Realization | Char(20); Actual value the user selected for the parameter
     
-    __tablename__ = 'T_ParameterValue'
-    F_ParameterValue_ID = Column(Integer, primary_key=True)
-    F_Parameter_ID = Column(Integer , ForeignKey('T_Parameter.F_Parameter_ID'))
-    F_ParameterValue_Realization = Column(String(10), nullable=False)
+    __tablename__ = 'T_EstimatorParameterValue'
+    F_EstimatorParameterValue_ID = Column(Integer, primary_key=True)
+    F_EstimatorParameter_ID = Column(Integer , ForeignKey('T_EstimatorParameter.F_EstimatorParameter_ID'))
+    F_EstimatorParameterValue_Realization = Column(String(10), nullable=False)
 
     
      #Relationship From
-    F_Parameter = relationship(Parameter)
+    F_EstimatorParameter = relationship(EstimatorParameter)
 """
 class T_Preprocessor(Base):
     #F_Preprocessor_ID | PK

@@ -36,7 +36,7 @@ def select_all_parameters(conn):
     :return:
     """
     cur = conn.cursor()
-    cur.execute("SELECT * FROM T_Parameter")
+    cur.execute("SELECT * FROM T_EstimatorParameter")
  
     rows = cur.fetchall()
  
