@@ -86,6 +86,14 @@ class TransformationStream:
             else:
                 self._percent_variance=0.90
                 print ("default: pca__percent_variance="+str(self._percent_variance) )
+
+            if "pca__n_components" in params.keys():
+                assert isinstance(params["pca__n_components"], int), "number of components must be int."
+                self._pca_n_components=params["pca__n_components"]
+                print ("custom: pca__n_components="+str(self._pca_n_components) )
+            else:
+                self._pca_n_components=len(self._X.columns.tolist())
+                print ("default: pca__n_components="+str(self._pca_n_components) )
             
         # Enforce TSNE parameters
         if "tsne" in preproc_args:
@@ -178,21 +186,7 @@ class TransformationStream:
                 print ("Executing Boxcox")
             # More parameters can be found here: 
             # https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.boxcox.html
-            """
-            X_boxcoxed = X
-            lambdas=[]
-            for col in X:
-                X_boxcoxed[col], l = stats.boxcox(X_boxcoxed[col])
-                lambdas.append(l)
-                
-            self._lambdas = lambdas
-            
-            if verbose:
-                print("Optimized BoxCox-Lambdas For Each Column: ")
-                print(self._lambdas)
 
-            return X_boxcoxed
-            """
             bct = BoxcoxTransformer()
             X_boxcoxed = bct.transform(X)
             self._lambdas = bct._lambdas
@@ -232,7 +226,7 @@ class TransformationStream:
             
             return pca_df.iloc[:, :idx]
             """
-            return PCATransformer(self._percent_variance, self._verbose).transform(X)
+            return PCATransformer(self._percent_variance, self._pca_n_components, self._verbose).transform(X)
         
         # Implemented
         def runKmeans(X, verbose=False):

@@ -4,8 +4,11 @@ import matplotlib.pyplot as plt
 
 class PCATransformer(AbstractTransformer):
     
-    def __init__(self, percent_variance, verbose=False):
+    def __init__(self, percent_variance, n_comps, verbose=False):
         self._percent_variance = percent_variance
+
+        # n_components are captured here, but not used in the transform function
+        self._n_components = n_comps
         self._verbose = verbose
         AbstractTransformer.__init__(self, "scale")
         

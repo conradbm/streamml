@@ -98,6 +98,7 @@ class FeatureSelectionStream:
              cut=None,
              ensemble=False):
       
+        # Enforce parameters
         assert isinstance(nfolds, int), "nfolds must be integer"
         assert isinstance(nrepeats, int), "nrepeats must be integer"
         assert isinstance(n_jobs, int), "n_jobs must be integer"
@@ -109,14 +110,12 @@ class FeatureSelectionStream:
         assert isinstance(regressors, bool), "regressor must be bool"
         assert isinstance(ensemble, bool), "ensemble must be bool"
         
-        # Mixed Selection Parameters
-            # if defined, then set
-            # else
-                #self._initial_list=[]
-                #self._threshold_in=0.01
-                #self._threshold_out = 0.05
-            
-        
+        # Enforce logic for regressors
+        #if regressors:
+        #  assert(not any(["c" in k.split("__") for k,v in params.items()]), "You selected classifiers with the regressors flag true. Comon\' man!")
+        #else:
+        #  assert(not any(["r" in k.split("__") for k,v in params.items()]), "You selected regressors with the regressors flag false. Comon\' man!")
+
         self._nfolds=nfolds
         self._nrepeats=nrepeats
         self._n_jobs=n_jobs
@@ -166,7 +165,7 @@ class FeatureSelectionStream:
                                                           self._n_jobs,
                                                           self._verbose)
             return model.getBestEstimator().coef_.flatten()
-            
+        
         # TODO - Test
         def randomForestRegression():
             self._rfr_params={}
@@ -488,5 +487,5 @@ class FeatureSelectionStream:
                                                   index=df.index.tolist())
             
 
-        print("Returning three decision makers opinions.")
+        print("Returning three decision maker\'s opinions.")
         return (self._key_features,self._ensemble_results)

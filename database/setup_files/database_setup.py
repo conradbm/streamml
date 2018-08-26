@@ -50,6 +50,47 @@ class EstimatorParameterValue(Base):
     
      #Relationship From
     F_EstimatorParameter = relationship(EstimatorParameter)
+
+class Transformer(Base):
+    __tablename__ = 'T_Transformer'
+    F_Transformer_ID = Column(Integer, primary_key=True)
+    F_Transformer_Name = Column(String(100), nullable=False)
+    F_Transformer_CanAugment = Column(Integer, nullable=False) # 1,0 if it can append feautres
+    F_Transformer_CanDimDrop = Column(Integer, nullable=False) # 1,0 if it can drop dimensions
+    F_Transformer_Description = Column(String(200), nullable=True)
+
+class TransformerParameter(Base):
+    __tablename__ = 'T_TransformerParameter'
+    F_TransformerParameter_ID = Column(Integer, primary_key=True)
+    F_Transformer_ID = Column(Integer, ForeignKey('T_Transformer.F_Transformer_ID'))
+    F_TransformerParameter_Type = Column(String(10), nullable=False)
+    F_TransformerParameter_Name = Column(String(20), nullable=False)
+    F_TransformerParameter_Description = Column(String(100), nullable=True)
+
+    #Relationship From
+    F_Transformer = relationship(Transformer)
+
+class FeatureSelector(Base):
+    __tablename__ = 'T_FeatureSelector'
+    F_FeatureSelector_ID = Column(Integer, primary_key=True)
+    F_FeatureSelector_Name = Column(String(100), nullable=False)
+    F_FeatureSelector_HasCoef = Column(Integer, nullable=False) # 1,0 if the model has coef attribute
+    F_FeatureSelector_HasFeatureImportance = Column(Integer, nullable=False) # 1,0 if the model has feature_importance attribute
+    F_FeatureSelector_PredictionClass = Column(String(20), nullable=False) # regressor or classifier
+
+class FeatureSelectorParameter(Base):
+    __tablename__ = 'T_FeatureSelectorParameter'
+    F_FeatureSelectorParameter_ID = Column(Integer, primary_key=True)
+    F_FeatureSelector_ID = Column(Integer, ForeignKey('T_FeatureSelector.F_FeatureSelector_ID'))
+    F_FeatureSelectorParameter_Value = Column(Integer, nullable=False)
+    F_FeatureSelectorParameter_Name = Column(String(20), nullable=False)
+    F_FeatureSelectorParameter_Description = Column(String(100), nullable=True)
+
+    #Relationship From
+    F_FeatureSelector = relationship(FeatureSelector)
+# Create a featureSelectorEstimator
+# Create a transformationEstimator
+
 """
 class T_Preprocessor(Base):
     #F_Preprocessor_ID | PK

@@ -7,6 +7,7 @@
 *** Table Structures ***
 ************************
 
+# Estimators the user can select from
 class Estimator(Base):
     #F_Estimator_ID | PK
     #F_Estimator_Name | char(200)
@@ -17,38 +18,81 @@ class Estimator(Base):
     F_Estimator_Symbol = Column(String(20), nullable=False)
     F_Estimator_PredictionClass = Column(String(20), nullable=False) # regressor or classifier
     F_Estimator_CanFeatureSelect = Column(Integer, nullable=False) # 1,0 if it can feature select
-
-class Parameter(Base):
+    F_Estimator_Description = Column(String(1000), nullable=True)
     
-    __tablename__ = 'T_Parameter'
-    F_Parameter_ID = Column(Integer, primary_key=True)
+# All possible parameters
+class EstimatorParameter(Base):
+    
+    __tablename__ = 'T_EstimatorParameter'
+    F_EstimatorParameter_ID = Column(Integer, primary_key=True)
     F_Estimator_ID = Column(Integer, ForeignKey('T_Estimator.F_Estimator_ID'))
-    F_Parameter_Open = Column(Integer, nullable=False)
-    F_Parameter_Name = Column(String(20), nullable=False)
-    F_Parameter_Description = Column(String(100), nullable=True)
+    F_EstimatorParameter_Open = Column(Integer, nullable=False)
+    F_EstimatorParameter_Name = Column(String(20), nullable=False)
+    F_EstimatorParameter_Description = Column(String(100), nullable=True)
 
     #Relationship From
     F_Estimator = relationship(Estimator)
 
 
-class ParameterValue(Base):
+# When user selects estimator then chooses values for each parameter to go with it
+class EstimatorParameterValue(Base):
     #F_ParameterValue_ID | PK
     #F_ParameterValue_Realization | Char(20); Actual value the user selected for the parameter
     
-    __tablename__ = 'T_ParameterValue'
-    F_ParameterValue_ID = Column(Integer, primary_key=True)
-    F_Parameter_ID = Column(Integer , ForeignKey('T_Parameter.F_Parameter_ID'))
-    F_ParameterValue_Realization = Column(String(10), nullable=False)
+    __tablename__ = 'T_EstimatorParameterValue'
+    F_EstimatorParameterValue_ID = Column(Integer, primary_key=True)
+    F_EstimatorParameter_ID = Column(Integer , ForeignKey('T_EstimatorParameter.F_EstimatorParameter_ID'))
+    F_EstimatorParameterValue_Realization = Column(String(10), nullable=False)
 
     
      #Relationship From
-    F_Parameter = relationship(Parameter)
+    F_EstimatorParameter = relationship(EstimatorParameter)
+
+class Transformer(Base):
+    __tablename__ = 'T_Transformer'
+    F_Transformer_ID = Column(Integer, primary_key=True)
+    F_Transformer_Name = Column(String(100), nullable=False)
+    F_Transformer_CanAugment = Column(Integer, nullable=False) # 1,0 if it can append feautres
+    F_Transformer_CanDimDrop = Column(Integer, nullable=False) # 1,0 if it can drop dimensions
+
+class TransformerParameter
+    __tablename__ = 'T_TransformerParameter'
+    F_TransformerParameter_ID = Column(Integer, primary_key=True)
+    F_Transformer_ID = Column(Integer, ForeignKey('T_Transformer.F_Transformer_ID'))
+    F_TransformerParameter_Value = Column(Integer, nullable=False)
+    F_TransformerParameter_Name = Column(String(20), nullable=False)
+    F_TransformerParameter_Description = Column(String(100), nullable=True)
+
+    #Relationship From
+    F_Transformer = relationship(Transformer)
+
+class FeatureSelector(Base):
+    __tablename__ = 'T_FeatureSelector'
+    F_FeatureSelector_ID = Column(Integer, primary_key=True)
+    F_FeatureSelector_Name = Column(String(100), nullable=False)
+    F_FeatureSelector_HasCoef = Column(Integer, nullable=False) # 1,0 if the model has coef attribute
+    F_FeatureSelector_HasFeatureImportance = Column(Integer, nullable=False) # 1,0 if the model has feature_importance attribute
+
+class FeatureSelectorParameter(Base):
+    __tablename__ = 'T_FeatureSelectorParameter'
+    F_FeatureSelectorParameter_ID = Column(Integer, primary_key=True)
+    F_FeatureSelector_ID = Column(Integer, ForeignKey('T_Transformer.F_Transformer_ID'))
+    F_FeatureSelectorParameter_Value = Column(Integer, nullable=False)
+    F_FeatureSelectorParameter_Name = Column(String(20), nullable=False)
+    F_FeatureSelectorParameter_Description = Column(String(100), nullable=True)
+
+    #Relationship From
+    F_FeatureSelector = relationship(FeatureSelector)
     
 """
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from database_setup import Base, Estimator, EstimatorParameter, EstimatorParameterValue
+from database_setup import Base
+from database_setup import Estimator, EstimatorParameter, EstimatorParameterValue
+from database_setup import Transformer, TransformerParameter
+from database_setup import FeatureSelector, FeatureSelectorParameter
+
 
 # Re-create the database
 engine = create_engine('sqlite:///streamml.db')
@@ -62,7 +106,133 @@ DBSession = sessionmaker(bind=engine)
 session = DBSession()
 
 
+"""
+# Set up transformers
+options = {"scale" : runScale,
+           "normalize" : runNormalize,
+           "binarize" :runBinarize,
+           "itemset": runItemset,
+           "boxcox" : runBoxcox,
+           "pca" : runPCA,
+           "kmeans" : runKmeans,
+          "brbm": runBRBM,
+          "tsne":runTSNE}
+regression_options = {"mixed_selection" : mixed_selection,
+                               "svr" : supportVectorRegression,
+                               "rfr":randomForestRegression,
+                               "abr":adaptiveBoostingRegression,
+                               "lasso":lassoRegression,
+                               "enet":elasticNetRegression,
+                               "plsr":partialLeastSquaresRegression}
 
+
+
+        # Valid classifiers
+        classification_options = {'abc':adaptiveBoostingClassifier,
+                                    'rfc':randomForestClassifier,
+                                    'svc':supportVectorClassifier
+                                 }
+
+class FeatureSelector(Base):
+    __tablename__ = 'T_FeatureSelector'
+    F_FeatureSelector_ID = Column(Integer, primary_key=True)
+    F_FeatureSelector_Name = Column(String(100), nullable=False)
+    F_FeatureSelector_HasCoef = Column(Integer, nullable=False) # 1,0 if the model has coef attribute
+    F_FeatureSelector_HasFeatureImportance = Column(Integer, nullable=False) # 1,0 if the model has feature_importance attribute
+    F_FeatureSelector_PredictionClass = Column(String(20), nullable=False) # regressor or classifier
+    
+class FeatureSelectorParameter(Base):
+    __tablename__ = 'T_FeatureSelectorParameter'
+    F_FeatureSelectorParameter_ID = Column(Integer, primary_key=True)
+    F_FeatureSelector_ID = Column(Integer, ForeignKey('T_Transformer.F_Transformer_ID'))
+    F_FeatureSelectorParameter_Value = Column(Integer, nullable=False)
+    F_FeatureSelectorParameter_Name = Column(String(20), nullable=False)
+    F_FeatureSelectorParameter_Description = Column(String(100), nullable=True)
+
+    #Relationship From
+    F_FeatureSelector = relationship(FeatureSelector)
+
+
+class Transformer(Base):
+    __tablename__ = 'T_Transformer'
+    F_Transformer_ID = Column(Integer, primary_key=True)
+    F_Transformer_Name = Column(String(100), nullable=False)
+    F_Transformer_CanAugment = Column(Integer, nullable=False) # 1,0 if it can append feautres
+    F_Transformer_CanDimDrop = Column(Integer, nullable=False) # 1,0 if it can drop dimensions
+
+class TransformerParameter
+    __tablename__ = 'T_TransformerParameter'
+    F_TransformerParameter_ID = Column(Integer, primary_key=True)
+    F_Transformer_ID = Column(Integer, ForeignKey('T_Transformer.F_Transformer_ID'))
+    F_TransformerParameter_Value = Column(Integer, nullable=False)
+    F_TransformerParameter_Name = Column(String(20), nullable=False)
+    F_TransformerParameter_Description = Column(String(100), nullable=True)
+
+    #Relationship From
+    F_Transformer = relationship(Transformer)
+"""
+# Add feature selectors ...
+
+transformers = []
+scale = Transformer(F_Transformer_Name="scale",
+                    F_Transformer_CanAugment = 0,
+                    F_Transformer_CanDimDrop = 0)
+
+# Scale parameters
+transformers.append(scale)
+
+normalize = Transformer(F_Transformer_Name="normalize",
+                    F_Transformer_CanAugment = 0,
+                    F_Transformer_CanDimDrop = 0)
+# Normalize parameters
+transformers.append(normalize)
+
+boxcox = Transformer(F_Transformer_Name="boxcox",
+                    F_Transformer_CanAugment = 0,
+                    F_Transformer_CanDimDrop = 0)
+# Boxcox parameters
+transformers.append(boxcox)
+
+binarize = Transformer(F_Transformer_Name="binarize",
+                    F_Transformer_CanAugment = 0,
+                    F_Transformer_CanDimDrop = 0)
+
+binarize_param = TransformerParameter(F_Transformer = binarize,
+                             F_TransformerParameter_Type = 'float',
+                               F_TransformerParameter_Name = 'threshold',
+                               F_TransformerParameter_Description='Sets all values greater than this value to 1 and less than it to 0.')
+transformers.append(binarize_param)
+
+# Binarize parameters
+transformers.append(binarize)
+
+brbm = Transformer(F_Transformer_Name="brbm",
+                    F_Transformer_CanAugment = 0,
+                    F_Transformer_CanDimDrop = 0)
+# Brbm parameters
+transformers.append(brbm)
+
+pca = Transformer(F_Transformer_Name="pca",
+                    F_Transformer_CanAugment = 0,
+                    F_Transformer_CanDimDrop = 1)
+# PCA parameters
+transformers.append(pca)
+
+tsne = Transformer(F_Transformer_Name="tsne",
+                    F_Transformer_CanAugment = 0,
+                    F_Transformer_CanDimDrop = 1)
+# tsne parameters
+transformers.append(tsne)
+
+kmeans = Transformer(F_Transformer_Name="kmeans",
+                    F_Transformer_CanAugment = 1,
+                    F_Transformer_CanDimDrop = 0)
+# Kmeans parameters
+transformers.append(kmeans)
+
+# Commit all transformers
+for t in transformers:
+  session.add(t)
 
 models=[]
 # Insert Regression Estimators

@@ -27,9 +27,8 @@ y = D.iloc[:,1]
 ynakiller = y.isna()
 X = X.loc[-ynakiller,:]
 y = y.loc[-ynakiller]
-#y=pd.DataFrame(pd.factorize(y)[0].tolist())
+#y=pd.DataFrame(pd.factorize(y)[0].tolist(), dtype=np.int)
 X.replace([np.nan, np.inf, -np.inf],0, inplace=True)
-
 
 
 #X = pd.DataFrame(np.matrix([[np.random.exponential() for j in range(10)] for i in range(200)]))
@@ -56,6 +55,7 @@ y2 = pd.DataFrame(np.random.binomial(1,0.25,200))
 
 
 feature_dict, ensemble_results = FeatureSelectionStream(X,y).flow(["plsr", "mixed_selection", "rfr", "abr", "svr"],
+                                                                    #["rfc", "abc", "svc"],
                                                 params={"mixed_selection__threshold_in":0.01,
                                                         "mixed_selection__threshold_out":0.05,
                                                         "mixed_selection__verbose":True
@@ -63,8 +63,8 @@ feature_dict, ensemble_results = FeatureSelectionStream(X,y).flow(["plsr", "mixe
                                                 verbose=True,
                                                 regressors=True,
                                                 ensemble=True)
+print(feature_dict)
 print(ensemble_results)
-
 
 
 

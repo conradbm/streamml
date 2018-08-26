@@ -29,7 +29,7 @@ def select_all_estimators(conn):
     for row in rows:
         print(row)
 
-def select_all_parameters(conn):
+def select_all_estimator_parameters(conn):
     """
     Query all rows in the tasks table
     :param conn: the Connection object
@@ -37,6 +37,34 @@ def select_all_parameters(conn):
     """
     cur = conn.cursor()
     cur.execute("SELECT * FROM T_EstimatorParameter")
+ 
+    rows = cur.fetchall()
+ 
+    for row in rows:
+        print(row)
+
+def select_all_transformers(conn):
+    """
+    Query all rows in the tasks table
+    :param conn: the Connection object
+    :return:
+    """
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM T_Transformer")
+ 
+    rows = cur.fetchall()
+ 
+    for row in rows:
+        print(row)
+
+def select_all_transformer_parameters(conn):
+    """
+    Query all rows in the tasks table
+    :param conn: the Connection object
+    :return:
+    """
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM T_TransformerParameter")
  
     rows = cur.fetchall()
  
@@ -53,7 +81,13 @@ def main():
     select_all_estimators(conn)
 
     print("2. Query all Parameters")
-    select_all_parameters(conn)
+    select_all_estimator_parameters(conn)
+
+    print("3. Query all Transformers")
+    select_all_transformers(conn)
+
+    print("4. Query all Transformer Parameters")
+    select_all_transformer_parameters(conn)
  
  
 if __name__ == '__main__':
