@@ -46,7 +46,7 @@ class TransformationStream:
     """
     def __init__(self, df=None):
         assert isinstance(df, pd.DataFrame), "data must be a pandas DataFrame"
-        self._df = df
+        self._X = df
         
     """
     Methods:
@@ -72,7 +72,7 @@ class TransformationStream:
     def flow(self, preproc_args=[], params=None, verbose=False):
         
         # Assert correct formatting
-        assert isinstance(self._df, pd.DataFrame), "data must be a pandas DataFrame."
+        assert isinstance(self._X, pd.DataFrame), "data must be a pandas DataFrame."
         
         # Set verbosity.
         self._verbose=verbose
@@ -94,7 +94,7 @@ class TransformationStream:
             else:
                 self._pca_n_components=len(self._X.columns.tolist())
                 print ("default: pca__n_components="+str(self._pca_n_components) )
-            
+
         # Enforce TSNE parameters
         if "tsne" in preproc_args:
             if "tsne__n_components" in params.keys():
@@ -277,7 +277,7 @@ class TransformationStream:
                   "tsne":runTSNE}
         
         # Execute commands as provided in the preproc_args list
-        self._df_transformed = self._df
+        self._df_transformed = self._X
         for key in preproc_args:
             self._df_transformed = options[key](self._df_transformed, verbose=self._verbose)
 

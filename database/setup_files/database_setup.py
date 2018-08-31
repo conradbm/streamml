@@ -70,6 +70,19 @@ class TransformerParameter(Base):
     #Relationship From
     F_Transformer = relationship(Transformer)
 
+# When user selects transformer then chooses values for each parameter to go with it
+class TransformerParameterValue(Base):
+    #F_ParameterValue_ID | PK
+    #F_ParameterValue_Realization | Char(20); Actual value the user selected for the parameter
+    
+    __tablename__ = 'T_TransformerParameterValue'
+    F_TransformerParameterValue_ID = Column(Integer, primary_key=True)
+    F_TransformerParameter_ID = Column(Integer , ForeignKey('T_TransformerParameter.F_TransformerParameter_ID'))
+    F_TransformerParameterValue_Realization = Column(String(10), nullable=False)
+    
+     #Relationship From
+    F_EstimatorParameter = relationship(TransformerParameter)
+
 class FeatureSelector(Base):
     __tablename__ = 'T_FeatureSelector'
     F_FeatureSelector_ID = Column(Integer, primary_key=True)
@@ -88,8 +101,20 @@ class FeatureSelectorParameter(Base):
 
     #Relationship From
     F_FeatureSelector = relationship(FeatureSelector)
-# Create a featureSelectorEstimator
-# Create a transformationEstimator
+
+
+# When user selects transformer then chooses values for each parameter to go with it
+class FeatureSelectorParameterValue(Base):
+    #F_ParameterValue_ID | PK
+    #F_ParameterValue_Realization | Char(20); Actual value the user selected for the parameter
+    
+    __tablename__ = 'T_FeatureSelectorParameterValue'
+    F_FeatureSelectorParameterValue_ID = Column(Integer, primary_key=True)
+    F_FeatureSelectorParameter_ID = Column(Integer , ForeignKey('T_FeatureSelectorParameter.F_FeatureSelectorParameter_ID'))
+    F_FeatureSelectorParameterValue_Realization = Column(String(10), nullable=False)
+    
+     #Relationship From
+    F_EstimatorParameter = relationship(FeatureSelectorParameter)
 
 """
 class T_Preprocessor(Base):

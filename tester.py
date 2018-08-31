@@ -4,7 +4,7 @@ import numpy as np
 
 # FOR ANY SYSTEM: INCLUDE STREAMML
 import sys
-sys.path.append('/Users/bmc/Desktop/') #I.e., make it a path variable
+sys.path.append('/Users/bmc/Desktop') #I.e., make it a path variable
 
 from streamml.streamline.transformation.flow.TransformationStream import TransformationStream
 from streamml.streamline.model_selection.flow.ModelSelectionStream import ModelSelectionStream
@@ -30,7 +30,6 @@ y = y.loc[-ynakiller]
 #y=pd.DataFrame(pd.factorize(y)[0].tolist(), dtype=np.int)
 X.replace([np.nan, np.inf, -np.inf],0, inplace=True)
 
-
 #X = pd.DataFrame(np.matrix([[np.random.exponential() for j in range(10)] for i in range(200)]))
 #y = pd.DataFrame(np.array([np.random.exponential() for i in range(200)]))
 X2 = pd.DataFrame(np.matrix([[np.random.exponential() for j in range(10)] for i in range(200)]))
@@ -52,6 +51,9 @@ y2 = pd.DataFrame(np.random.binomial(1,0.25,200))
 # Ensemble your feature importances
 # Decision makers:
 # (weighted product, weighted sum, TOPSIS)
+outs = TransformationStream(X2).flow(["pca"],params={"pca__percent_variance":.9}, verbose=True)
+print(outs)
+input("...")
 
 
 feature_dict, ensemble_results = FeatureSelectionStream(X,y).flow(["plsr", "mixed_selection", "rfr", "abr", "svr"],

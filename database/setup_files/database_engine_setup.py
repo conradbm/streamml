@@ -201,34 +201,59 @@ binarize_param = TransformerParameter(F_Transformer = binarize,
                              F_TransformerParameter_Type = 'float',
                                F_TransformerParameter_Name = 'threshold',
                                F_TransformerParameter_Description='Sets all values greater than this value to 1 and less than it to 0.')
-transformers.append(binarize_param)
-
-# Binarize parameters
 transformers.append(binarize)
+transformers.append(binarize_param)
 
 brbm = Transformer(F_Transformer_Name="brbm",
                     F_Transformer_CanAugment = 0,
                     F_Transformer_CanDimDrop = 0)
-# Brbm parameters
+brbm_param1 = TransformerParameter(F_Transformer = brbm,
+                                   F_TransformerParameter_Type = 'integer',
+                                   F_TransformerParameter_Name = 'n_components',
+                                   F_TransformerParameter_Description='Number of binary hidden units.')
+brbm_param2 = TransformerParameter(F_Transformer = brbm,
+                                   F_TransformerParameter_Type = 'integer',
+                                   F_TransformerParameter_Name = 'learning_rate',
+                                   F_TransformerParameter_Description='The learning rate for weight updates. It is highly recommended to tune this hyper-parameter. Reasonable values are in the 10**[0., -3.] range.')
 transformers.append(brbm)
+transformers.append(brbm_param1)
+transformers.append(brbm_param2)
 
+# PCA parameters
 pca = Transformer(F_Transformer_Name="pca",
                     F_Transformer_CanAugment = 0,
                     F_Transformer_CanDimDrop = 1)
+pca_param1 = TransformerParameter(F_Transformer = pca,
+                                   F_TransformerParameter_Type = 'float',
+                                   F_TransformerParameter_Name = 'percent_variance',
+                                   F_TransformerParameter_Description='The first K number of components that cumulatively capture this perentage.')
+
 # PCA parameters
 transformers.append(pca)
+transformers.append(pca_param1)
 
 tsne = Transformer(F_Transformer_Name="tsne",
                     F_Transformer_CanAugment = 0,
                     F_Transformer_CanDimDrop = 1)
+tsne_param1 = TransformerParameter(F_Transformer = tsne,
+                                   F_TransformerParameter_Type = 'integer',
+                                   F_TransformerParameter_Name = 'n_components',
+                                   F_TransformerParameter_Description='Number dimensions to capture.')
 # tsne parameters
 transformers.append(tsne)
+transformers.append(tsne_param1)
 
 kmeans = Transformer(F_Transformer_Name="kmeans",
                     F_Transformer_CanAugment = 1,
                     F_Transformer_CanDimDrop = 0)
+
+kmeans_param1 = TransformerParameter(F_Transformer = kmeans,
+                                   F_TransformerParameter_Type = 'integer',
+                                   F_TransformerParameter_Name = 'n_clusters',
+                                   F_TransformerParameter_Description='Number of clusters to calculate.')
 # Kmeans parameters
 transformers.append(kmeans)
+transformers.append(kmeans_param1)
 
 # Commit all transformers
 for t in transformers:
