@@ -71,6 +71,45 @@ def select_all_transformer_parameters(conn):
     for row in rows:
         print(row)
 
+def select_all_feature_selectors(conn):
+    """
+    Query all rows in the tasks table
+    :param conn: the Connection object
+    :return:
+    """
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM T_NonEstimatorFeatureSelector")
+ 
+    rows = cur.fetchall()
+ 
+    for row in rows:
+        print(row)
+
+def select_all_feature_selectors_parameters(conn):
+    """
+    Query all rows in the tasks table
+    :param conn: the Connection object
+    :return:
+    """
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM T_NonEstimatorFeatureSelectorParameter")
+ 
+    rows = cur.fetchall()
+ 
+
+    for row in rows:
+        print(row)
+
+    print("***** AND *****")
+    
+    cur.execute("SELECT * FROM T_Estimator a WHERE a.F_Estimator_CanFeatureSelect=1")
+ 
+    rows = cur.fetchall()
+ 
+
+    for row in rows:
+        print(row)
+
 def main():
     database = "streamml.db"
  
@@ -89,6 +128,11 @@ def main():
     print("4. Query all Transformer Parameters")
     select_all_transformer_parameters(conn)
  
+    print("5. Query all NonEstimatorFeatureSelectors")
+    select_all_feature_selectors(conn)
+
+    print("6. Query all FeatureSelector Parameters")
+    select_all_feature_selectors_parameters(conn)
  
 if __name__ == '__main__':
     main()

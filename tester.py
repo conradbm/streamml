@@ -51,7 +51,7 @@ y2 = pd.DataFrame(np.random.binomial(1,0.25,200))
 # Ensemble your feature importances
 # Decision makers:
 # (weighted product, weighted sum, TOPSIS)
-outs = TransformationStream(X2).flow(["pca"],params={"pca__percent_variance":.9}, verbose=True)
+outs = TransformationStream(X2).flow(["pca"],params={"pca__percent_variance":0.9}, verbose=True)
 print(outs)
 input("...")
 

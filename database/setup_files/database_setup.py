@@ -83,55 +83,39 @@ class TransformerParameterValue(Base):
      #Relationship From
     F_EstimatorParameter = relationship(TransformerParameter)
 
-class FeatureSelector(Base):
-    __tablename__ = 'T_FeatureSelector'
-    F_FeatureSelector_ID = Column(Integer, primary_key=True)
-    F_FeatureSelector_Name = Column(String(100), nullable=False)
-    F_FeatureSelector_HasCoef = Column(Integer, nullable=False) # 1,0 if the model has coef attribute
-    F_FeatureSelector_HasFeatureImportance = Column(Integer, nullable=False) # 1,0 if the model has feature_importance attribute
-    F_FeatureSelector_PredictionClass = Column(String(20), nullable=False) # regressor or classifier
+class NonEstimatorFeatureSelector(Base):
+    __tablename__ = 'T_NonEstimatorFeatureSelector'
+    F_NonEstimatorFeatureSelector_ID = Column(Integer, primary_key=True)
+    F_NonEstimatorFeatureSelector_Name = Column(String(100), nullable=False)
+    F_NonEstimatorFeatureSelector_HasCoef = Column(Integer, nullable=False) # 1,0 if the model has coef attribute
+    F_NonEstimatorFeatureSelector_HasFeatureImportance = Column(Integer, nullable=False) # 1,0 if the model has feature_importance attribute
+    F_NonEstimatorFeatureSelector_PredictionClass = Column(String(20), nullable=False) # regressor or classifier
 
-class FeatureSelectorParameter(Base):
-    __tablename__ = 'T_FeatureSelectorParameter'
-    F_FeatureSelectorParameter_ID = Column(Integer, primary_key=True)
-    F_FeatureSelector_ID = Column(Integer, ForeignKey('T_FeatureSelector.F_FeatureSelector_ID'))
-    F_FeatureSelectorParameter_Value = Column(Integer, nullable=False)
-    F_FeatureSelectorParameter_Name = Column(String(20), nullable=False)
-    F_FeatureSelectorParameter_Description = Column(String(100), nullable=True)
+class NonEstimatorFeatureSelectorParameter(Base):
+    __tablename__ = 'T_NonEstimatorFeatureSelectorParameter'
+    F_NonEstimatorFeatureSelectorParameter_ID = Column(Integer, primary_key=True)
+    F_NonEstimatorFeatureSelector_ID = Column(Integer, ForeignKey('T_NonEstimatorFeatureSelector.F_NonEstimatorFeatureSelector_ID'))
+    F_NonEstimatorFeatureSelectorParameter_Open= Column(Integer, nullable=True)
+    F_NonEstimatorFeatureSelectorParameter_Name = Column(String(20), nullable=True)
+    F_NonEstimatorFeatureSelectorParameter_Description = Column(String(100), nullable=True)
 
     #Relationship From
-    F_FeatureSelector = relationship(FeatureSelector)
-
-
+    F_NonEstimatorFeatureSelector = relationship(NonEstimatorFeatureSelector)
+    
 # When user selects transformer then chooses values for each parameter to go with it
-class FeatureSelectorParameterValue(Base):
+class NonEstimatorFeatureSelectorParameterValue(Base):
     #F_ParameterValue_ID | PK
     #F_ParameterValue_Realization | Char(20); Actual value the user selected for the parameter
     
-    __tablename__ = 'T_FeatureSelectorParameterValue'
-    F_FeatureSelectorParameterValue_ID = Column(Integer, primary_key=True)
-    F_FeatureSelectorParameter_ID = Column(Integer , ForeignKey('T_FeatureSelectorParameter.F_FeatureSelectorParameter_ID'))
-    F_FeatureSelectorParameterValue_Realization = Column(String(10), nullable=False)
+    __tablename__ = 'T_NonEstimatorFeatureSelectorParameterValue'
+    F_NonEstimatorFeatureSelectorParameterValue_ID = Column(Integer, primary_key=True)
+    F_NonEstimatorFeatureSelectorParameter_ID = Column(Integer , ForeignKey('T_NonEstimatorFeatureSelectorParameter.F_NonEstimatorFeatureSelectorParameter_ID'))
+    F_NonEstimatorFeatureSelectorParameterValue_Realization = Column(String(10), nullable=False)
     
      #Relationship From
-    F_EstimatorParameter = relationship(FeatureSelectorParameter)
+    F_NonEstimatorFeatureSelectorParameter = relationship(NonEstimatorFeatureSelectorParameter)
 
 """
-class T_Preprocessor(Base):
-    #F_Preprocessor_ID | PK
-    #F_Preprocessor_Name | Char(100)
-    pass
-class T_Preprocessor_PreprocessorType(Base):
-    #F_Preprocessor_PreprocessorType_ID | PK
-    #F_Preprocessor_ID | FK
-    #F_PreprocessorType_ID | FK
-    pass
-class T_PreprocessorType(Base):
-    #F_PreprocessorType_ID | PK
-    #F_PreprocessorType_Purpose | Char(100) in {transform, augment, or reduce}
-    #F_PreprocessorType_Name | Char(20); Name of the preprocessorType
-    pass
-
 
 class T_ErrorMetric(Base):
     #F_ErrorMetric_ID PK | PK
