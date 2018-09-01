@@ -4,7 +4,7 @@ import numpy as np
 
 # FOR ANY SYSTEM: INCLUDE STREAMML
 import sys
-sys.path.append('/Users/bmc/Desktop/') #I.e., make it a path variable
+sys.path.append('/Users/bmc/Desktop') #I.e., make it a path variable
 
 from streamml.streamline.transformation.flow.TransformationStream import TransformationStream
 from streamml.streamline.model_selection.flow.ModelSelectionStream import ModelSelectionStream
@@ -19,23 +19,22 @@ from streamml.streamline.feature_selection.flow.FeatureSelectionStream import Fe
 # source ~/.bash_profile
 # python -W ignore tester.py
 
-#X = pd.DataFrame(np.matrix([[np.random.exponential() for j in range(10)] for i in range(200)]))
-#y = pd.DataFrame(np.array([np.random.exponential() for i in range(200)]))
 
-X2 = pd.DataFrame(np.matrix([[np.random.exponential() for j in range(10)] for i in range(200)]))
-y2 = pd.DataFrame(np.random.binomial(1,0.25,200))
 
-"""
-D = pd.read_csv("../Series3_6.15.17_padel.csv")
+D = pd.read_csv("data/Series3_6.15.17_padel.csv")
 X = D.iloc[:,2:]
 y = D.iloc[:,1]
 ynakiller = y.isna()
 X = X.loc[-ynakiller,:]
 y = y.loc[-ynakiller]
-y=pd.DataFrame(pd.factorize(y)[0].tolist())
+#y=pd.DataFrame(pd.factorize(y)[0].tolist(), dtype=np.int)
 X.replace([np.nan, np.inf, -np.inf],0, inplace=True)
 
-"""
+#X = pd.DataFrame(np.matrix([[np.random.exponential() for j in range(10)] for i in range(200)]))
+#y = pd.DataFrame(np.array([np.random.exponential() for i in range(200)]))
+X2 = pd.DataFrame(np.matrix([[np.random.exponential() for j in range(10)] for i in range(200)]))
+y2 = pd.DataFrame(np.random.binomial(1,0.25,200))
+
 
 
 #
@@ -49,17 +48,22 @@ X.replace([np.nan, np.inf, -np.inf],0, inplace=True)
 # abc
 # svc
 #
-# {Coming Soon}
-# Regressors:
-# pls
-# Ensemble:
-# topsis (weighted product, weighted sum, weighted average, linear, log, ect..)
-feature_dict = FeatureSelectionStream(X2,y2).flow(["svc", "abc", "rfc"],
-                                                params={},
+# Ensemble your feature importances
+# Decision makers:
+# (weighted product, weighted sum, TOPSIS)
+#outs = TransformationStream(X2).flow(["pca"],params={"pca__percent_variance":0.9}, verbose=True)
+
+feature_dict, ensemble_results = FeatureSelectionStream(X,y).flow(["plsr", "mixed_selection", "rfr", "abr", "svr"],
+                                                                    #["rfc", "abc", "svc"],
+                                                params={"mixed_selection__threshold_in":0.01,
+                                                        "mixed_selection__threshold_out":0.05,
+                                                        "mixed_selection__verbose":True
+                                                        },
                                                 verbose=True,
-                                                regressors=False,
+                                                regressors=True,
                                                 ensemble=True)
 print(feature_dict)
+print(ensemble_results)
 
 
 
@@ -68,7 +72,7 @@ print(feature_dict)
 
 """
 Transformation Options:
-["scale","normalize","boxcox","binarize","pca","kmeans", "brbm]
+["scale","normalize","boxcox","binarize","pca","kmeans", "brbm"]
 kmeans: n_clusters
 pca: percent_variance (only keeps # comps that capture this %)
 binarize: threshold (binarizes those less than threshold as 0 and above as 1)
@@ -158,6 +162,18 @@ classification_options = {'abc':adaptiveBoostingClassifier,
 Metric Options: {Coming Soon}
 ["auc","prec","recall","f1","accuracy", "kappa","log_loss"]
 
+(Classifiers)
+http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.AdaBoostClassifier.html
+http://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeClassifier.html
+http://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html
+http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.GradientBoostingClassifier.html
+http://scikit-learn.org/stable/modules/generated/sklearn.gaussian_process.GaussianProcessClassifier.html
+http://scikit-learn.org/stable/modules/generated/sklearn.neighbors.KNeighborsClassifier.html
+http://scikit-learn.org/stable/modules/generated/sklearn.neural_network.MLPClassifier.html
+# No parametes for Naive Bayes
+http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html
+http://scikit-learn.org/stable/modules/generated/sklearn.linear_model.SGDClassifier.html
+http://scikit-learn.org/stable/modules/generated/sklearn.svm.SVC.html
 
 http://scikit-learn.org/stable/modules/generated/sklearn.metrics.classification_report.html#sklearn.metrics.classification_report
 http://scikit-learn.org/stable/modules/generated/sklearn.metrics.cohen_kappa_score.html#sklearn.metrics.cohen_kappa_score

@@ -19,11 +19,11 @@ from streamml.streamline.feature_selection.flow.FeatureSelectionStream import Fe
 # source ~/.bash_profile
 # python -W ignore tester.py
 
-#X = pd.DataFrame(np.matrix([[np.random.exponential() for j in range(10)] for i in range(200)]))
-#y = pd.DataFrame(np.array([np.random.exponential() for i in range(200)]))
+X = pd.DataFrame(np.matrix([[np.random.exponential() for j in range(10)] for i in range(200)]))
+y = pd.DataFrame(np.array([np.random.exponential() for i in range(200)]))
 
-X2 = pd.DataFrame(np.matrix([[np.random.exponential() for j in range(10)] for i in range(200)]))
-y2 = pd.DataFrame(np.random.binomial(1,0.25,200))
+#X2 = pd.DataFrame(np.matrix([[np.random.exponential() for j in range(10)] for i in range(200)]))
+#y2 = pd.DataFrame(np.random.binomial(1,0.25,200))
 
 """
 D = pd.read_csv("../Series3_6.15.17_padel.csv")
@@ -54,7 +54,7 @@ X.replace([np.nan, np.inf, -np.inf],0, inplace=True)
 # pls
 # Ensemble:
 # topsis (weighted product, weighted sum, weighted average, linear, log, ect..)
-feature_dict = FeatureSelectionStream(X2,y2).flow(["svc", "abc", "rfc"],
+feature_dict = FeatureSelectionStream(X2,y2).flow(["svr", "abr", "rfr"],
                                                 params={},
                                                 verbose=True,
                                                 regressors=False,
