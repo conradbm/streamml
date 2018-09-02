@@ -78,6 +78,7 @@ class ModelSelectionStream:
     _test_size=None
     _wrapper_models=None
     _bestEstimators=None
+    _scoring_results=None
     _regressors_results=None
     _classifiers_results=None
     _modelSelection=None
@@ -196,6 +197,7 @@ class ModelSelectionStream:
 	"""
     def handleClassifiers(self, Xtest, ytest, metrics, wrapper_models):
         
+
         self._classifier_results=defaultdict(list)
         
         rskf = RepeatedStratifiedKFold(n_splits=10, n_repeats=10,random_state=36851234)
@@ -227,7 +229,7 @@ class ModelSelectionStream:
             plt.setp(labels, rotation=45)
             plt.show()
             # plot models against one another in charts
-        
+
         return self._classifier_results
         
         
@@ -846,8 +848,6 @@ class ModelSelectionStream:
 		
         # Hyper-tune models
         self._bestEstimators = self.determineBestEstimators(self._wrapper_models)
-        
-        
 		
         # Do you want 1 or many models returned? If verbose, a visual appears.
         if self._modelSelection:
