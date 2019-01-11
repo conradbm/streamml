@@ -40,14 +40,10 @@ from streamml.streamline.model_selection.models.classifiers.AdaptiveBoostingClas
 from streamml.streamline.model_selection.models.classifiers.RandomForestClassifierPredictiveModel import RandomForestClassifierPredictiveModel
 from streamml.streamline.model_selection.models.classifiers.SupportVectorClassifierPredictiveModel import SupportVectorClassifierPredictiveModel
 
-# Ensemblers
-
-# X
-#from streamml.streamline.feature_selection.ensemble.TOPSISEnsembleFeatureSelectionModel import TOPSISEnsembleFeatureSelectionModel
-
 
 class FeatureSelectionStream:
-        #properties
+    
+    #Properties
     _X=None
     _y=None
     _test_size=None
@@ -61,7 +57,7 @@ class FeatureSelectionStream:
     _regressors_results=None
     _classifiers_results=None
     _modelSelection=None
-    
+    _featurePercentage=None
     """
     Constructor: __init__:
     
@@ -96,7 +92,8 @@ class FeatureSelectionStream:
              verbose=False, 
              regressors=True,
              cut=None,
-             ensemble=False):
+             ensemble=False,
+             featurePercentage=0.25):
       
         # Enforce parameters
         assert isinstance(nfolds, int), "nfolds must be integer"
@@ -127,7 +124,8 @@ class FeatureSelectionStream:
         self._regressors=regressors
         self._cut = cut
         self._ensemble=ensemble
-        
+        self._featurePercentage=featurePercentage
+
         # Inform the streamline to user.
         stringbuilder=""
         for thing in models_to_flow:
@@ -400,14 +398,18 @@ class FeatureSelectionStream:
 
             
             self._svc_params["svc__kernel"]=['linear']
-            print(self._svc_params)
             model = SupportVectorClassifierPredictiveModel(self._X_train, 
                                                           self._y_train,
                                                           self._svc_params,
                                                           self._nfolds, 
                                                           self._n_jobs,
                                                           self._verbose)
-            return model.getBestEstimator().coef_.flatten()
+
+            coefs=model.getBestEstimator().coef_
+            prods=coefs[0,:]
+            for i in range(1, len(coefs)):
+              prods = np.multiply(prods, coefs[i,:])
+            return prods
         
         # Valid regressors
         regression_options = {"mixed_selection" : mixed_selection,
@@ -432,7 +434,6 @@ class FeatureSelectionStream:
                                                                                      test_size=self._test_size)
 
         
-    
         # Wrapper models    
         self._key_features={}
         
@@ -455,10 +456,9 @@ class FeatureSelectionStream:
             from skcriteria.madm import closeness, simple
 
             alternative_names = self._X.columns.tolist()
-            criterion_names = self._key_features.keys()
+            criterion_names = list(self._key_features.keys())
             criteria = [MAX for i in criterion_names]
             weights = [i/len(criterion_names) for i in range(len(criterion_names))]
-            
 
             df = pd.DataFrame(self._key_features,
                               index=alternative_names)
@@ -485,7 +485,17 @@ class FeatureSelectionStream:
                                                   "WeightedSum":dec1.rank_,
                                                   "WeightedProduct":dec2.rank_},
                                                   index=df.index.tolist())
-            
+
+            if self._verbose:
+              print("Selected ",self._featurePercentage, " \% of features:")
+              # Print feature set
+              original_features=alternative_names
+              num_features_requested=math.floor(len(alternative_names)*self._featurePercentage)
+              print("LEFT OFF HERE ...")
+              print(dec3.rank_)
+
+              print("Subset of data with ",self._featurePercentage, " \% of features:")
+              # Print data with only those features
 
         print("Returning three decision maker\'s opinions.")
         return (self._key_features,self._ensemble_results)

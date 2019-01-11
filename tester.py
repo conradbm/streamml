@@ -1,10 +1,10 @@
 
 import pandas as pd
 import numpy as np
-
-# FOR ANY SYSTEM: INCLUDE STREAMML
+import os
 import sys
-sys.path.append('/Users/bmc/Desktop') #I.e., make it a path variable
+sys.path.append(os.getcwd()) #I.e., make it a path variable
+sys.path.append(os.path.join(os.getcwd(),"streamml"))
 
 from streamml.streamline.transformation.flow.TransformationStream import TransformationStream
 from streamml.streamline.model_selection.flow.ModelSelectionStream import ModelSelectionStream
@@ -24,53 +24,147 @@ from sklearn.tree import DecisionTreeClassifier
 
 
 
-D = pd.read_csv("data/Series3_6.15.17_padel.csv")
-X = D.iloc[:,2:]
-y = D.iloc[:,1]
-ynakiller = y.isna()
-X = X.loc[-ynakiller,:]
-y = y.loc[-ynakiller]
-#y=pd.DataFrame(pd.factorize(y)[0].tolist(), dtype=np.int)
-X.replace([np.nan, np.inf, -np.inf],0, inplace=True)
-
-#X = pd.DataFrame(np.matrix([[np.random.exponential() for j in range(10)] for i in range(200)]))
-#y = pd.DataFrame(np.array([np.random.exponential() for i in range(200)]))
-X2 = pd.DataFrame(np.matrix([[np.random.exponential() for j in range(10)] for i in range(200)]))
-y2 = pd.DataFrame(np.random.binomial(1,0.25,200))
+"""
+One stop shop for streamml:
 
 
-res = ModelSelectionStream(X2,y2).flow(["abc","logr","dtc"],
-					 params={'abc__base_estimator':[LogisticRegression() for i in range(50)]},
-					metrics=["prec", "accuracy", "auc"], verbose=True, regressors=False)
+Feature Selection Params:
+    def flow(self, 
+             models_to_flow=[], 
+             params=None, 
+             test_size=0.2, 
+             nfolds=3, 
+             nrepeats=3,
+             pos_split=1,
+             n_jobs=1, 
+             metrics=[], 
+             verbose=False, 
+             regressors=True,
+             cut=None,
+             ensemble=False):
 
-input(res)
-#
-# Supported Regression Feature Selection:
-# mixed_selection
-# rfr
-# abr
-# svr
-# Supported Classifier Feature Selection:
-# rfc
-# abc
-# svc
-#
-# Ensemble your feature importances
-# Decision makers:
-# (weighted product, weighted sum, TOPSIS)
-#outs = TransformationStream(X2).flow(["pca"],params={"pca__percent_variance":0.9}, verbose=True)
+Feature Selection Models:
+        #Valid regressors
+        regression_options = {"mixed_selection" : mixed_selection,
+                               "svr" : supportVectorRegression,
+                               "rfr":randomForestRegression,
+                               "abr":adaptiveBoostingRegression,
+                               "lasso":lassoRegression,
+                               "enet":elasticNetRegression,
+                               "plsr":partialLeastSquaresRegression}
+        # Valid classifiers
+        classification_options = {'abc':adaptiveBoostingClassifier,
+                                    'rfc':randomForestClassifier,
+                                    'svc':supportVectorClassifier
+                                 }
 
-feature_dict, ensemble_results = FeatureSelectionStream(X,y).flow(["plsr", "mixed_selection", "rfr", "abr", "svr"],
-                                                                    #["rfc", "abc", "svc"],
-                                                params={"mixed_selection__threshold_in":0.01,
-                                                        "mixed_selection__threshold_out":0.05,
-                                                        "mixed_selection__verbose":True
-                                                        },
-                                                verbose=True,
-                                                regressors=True,
-                                                ensemble=True)
-print(feature_dict)
+Model Selection Params:
+    def flow(self, 
+             models_to_flow=[], 
+             params=None, 
+             test_size=0.2, 
+             nfolds=3, 
+             nrepeats=3,
+             pos_split=1,
+             n_jobs=1, 
+             metrics=[], 
+             verbose=False, 
+             regressors=True,
+             modelSelection=False,
+             cut=None):
+Model Selection Models:
+        # Valid regressors
+        regression_options = {"lr" : linearRegression,
+                               "svr" : supportVectorRegression,
+                               "rfr":randomForestRegression,
+                               "abr":adaptiveBoostingRegression,
+                               "knnr":knnRegression,
+                               "ridge":ridgeRegression,
+                               "lasso":lassoRegression,
+                               "enet":elasticNetRegression,
+                               "mlpr":multilayerPerceptronRegression,
+                               "br":baggingRegression,
+                               "dtr":decisionTreeRegression,
+                               "gbr":gradientBoostingRegression,
+                               "gpr":gaussianProcessRegression,
+                               "hr":huberRegression,
+                               "tsr":theilSenRegression,
+                               "par":passiveAggressiveRegression,
+                               "ard":ardRegression,
+                               "bays_ridge":bayesianRidgeRegression,
+                               "lasso_lar":lassoLeastAngleRegression,
+                               "lar":leastAngleRegression}
+
+
+
+        # Valid classifiers
+        classification_options = {'abc':adaptiveBoostingClassifier,
+                                  'dtc':decisionTreeClassifier,
+                                  'gbc':gradientBoostingClassifier,
+                                    'gpc':guassianProcessClassifier,
+                                    'knnc':knnClassifier,
+                                    'logr':logisticRegressionClassifier,
+                                    'mlpc':multilayerPerceptronClassifier,
+                                    'nbc':naiveBayesClassifier,
+                                    'rfc':randomForestClassifier,
+                                    'sgd':stochasticGradientDescentClassifier,
+                                    'svc':supportVectorClassifier}
+Transformation Selection Params:
+    def flow(self, preproc_args=[], params=None, verbose=False):
+
+Transformation Selection Options:
+        # map the inputs to the function blocks
+        options = {"scale" : runScale,
+                   "normalize" : runNormalize,
+                   "binarize" :runBinarize,
+                   "itemset": runItemset,
+                   "boxcox" : runBoxcox,
+                   "pca" : runPCA,
+                   "kmeans" : runKmeans,
+                  "brbm": runBRBM,
+                  "tsne":runTSNE}
+"""
+
+import math
+X = pd.DataFrame(np.matrix([[np.random.exponential() for j in range(10)] for i in range(2000)]))
+y = pd.DataFrame(np.array([math.floor(np.random.exponential()) for i in range(2000)]))
+
+X2 = TransformationStream(X).flow(["pca","normalize","kmeans"],
+                                  params={"pca__percent_variance":0.70,
+                                          "kmeans__n_clusters":len(set(y[0]))}, 
+                                  verbose=False)
+
+from sklearn.svm import SVC
+from sklearn.naive_bayes import GaussianNB
+from sklearn.ensemble import RandomForestClassifier
+best_models = ModelSelectionStream(X2,y).flow(["abc","logr","dtc", "gbc", "mlpc", "sgd", "knnc"],
+                                    					 params={ 'abc__algorithm':['SAMME'],
+                                                        'abc__base_estimator':[LogisticRegression(), SVC(), GaussianNB(), RandomForestClassifier()],
+                                                        'abc__n_estimators':[50],
+                                                        'knnc__n_neighbors':[5,50,100],
+                                                        'mlpc__hidden_layer_sizes':[(100,10), (10, 100)],
+                                                        'mlpc__learning_rate':['constant','invscaling']},
+                                    					 metrics=["precision", "accuracy", "recall", "f1", "kappa"],
+                                               verbose=True, 
+                                               regressors=False,
+                                               modelSelection=True)
+print("Best Models")
+print(best_models)
+feature_dict, ensemble_results = FeatureSelectionStream(X2,y).flow(["plsr", "mixed_selection", "rfr", "abr", "svr"],
+                                                                    #"rfc", "abc", "svc"],
+                                                                    #params={"mixed_selection__threshold_in":0.01,
+                                                                    #        "mixed_selection__threshold_out":0.05,
+                                                                    #        "mixed_selection__verbose":True
+                                                                    #        },
+                                                                    params={},
+                                                                    verbose=True,
+                                                                    regressors=True,
+                                                                    ensemble=True,
+                                                                    featurePercentage=0.1)
+print("Features rankings decision maker...")
 print(ensemble_results)
+print("Feature data ...")
+print(feature_dict)
 
 
 

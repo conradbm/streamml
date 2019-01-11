@@ -174,9 +174,13 @@ class ModelSelectionStream:
             df_results = pd.DataFrame(self._regressors_results)
             print(df_results)
             df_results.plot(title='Errors by Model')
+            print("A")
             plt.xticks(range(len(df_results.index.tolist())), df_results.index.tolist())
+            print("B")
             locs, labels = plt.xticks()
+            print("C")
             plt.setp(labels, rotation=45)
+            print("D")
             plt.show()
             # plot models against one another in charts
         
