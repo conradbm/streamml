@@ -14,7 +14,7 @@ class DecisionTreeRegressorPredictiveModel(AbstractRegressorPredictiveModel):
         self._code="dtr"
         
         if verbose:
-            print ("Constructed AdaptiveBoostingRegressorPredictiveModel: " +self._code)
+            print ("Constructed DecisionTreeRegressor: " +self._code)
         
         AbstractRegressorPredictiveModel.__init__(self, "regressor", X, y, dtr_params, nfolds, n_jobs, scoring, verbose)
         self._model = self.constructRegressor(DecisionTreeRegressor())

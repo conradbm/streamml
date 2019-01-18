@@ -14,7 +14,7 @@ class ARDRegressorPredictiveModel(AbstractRegressorPredictiveModel):
         self._code="ardr"
         
         if verbose:
-            print ("Constructed AdaptiveBoostingRegressorPredictiveModel: " +self._code)
+            print ("Constructed ARDRegression: " +self._code)
         
         AbstractRegressorPredictiveModel.__init__(self, "regressor", X, y, ardr_params, nfolds, n_jobs, scoring, verbose)
         self._model = self.constructRegressor(ARDRegression())

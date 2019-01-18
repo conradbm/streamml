@@ -18,6 +18,9 @@ import os
 # Data containers
 from collections import defaultdict
 
+#Stats
+from scipy.stats import ttest_ind
+
 # Regressors
 from streamml.streamline.model_selection.models.regressors.LinearRegressorPredictiveModel import LinearRegressorPredictiveModel
 from streamml.streamline.model_selection.models.regressors.SupportVectorRegressorPredictiveModel import SupportVectorRegressorPredictiveModel
@@ -87,7 +90,7 @@ class ModelSelectionStream:
     _classifiers_results=None
     _modelSelection=None
     _stratified=None
-    
+    _metrics_significance_dict=None
     """
     Constructor: __init__:
     
@@ -174,7 +177,8 @@ class ModelSelectionStream:
 	"""
     def handleRegressors(self, Xtrain, ytrain, metrics, wrapper_models, cut, stratified):
         
-
+        return_dict={}
+        
         self._regressors_results_list=defaultdict(list)
         self._regressors_results=dict()
         
@@ -204,6 +208,24 @@ class ModelSelectionStream:
                 mean = example_df.mean()
                 self._regressors_results[k]=mean
 
+        else:
+            kf = KFold(n_splits=self._nfolds)
+            for train_index, test_index in kf.split(Xtrain):
+                fold_X_train, fold_X_test = Xtrain.iloc[train_index,:], Xtrain.iloc[test_index,:]
+                fold_y_train, fold_y_test = ytrain.iloc[train_index], ytrain.iloc[test_index]
+                
+                for model in wrapper_models:
+                    model._model.fit(fold_X_train, fold_y_train)
+                    results=model.validate(fold_X_test, fold_y_test, metrics)
+                    self._regressors_results_list[model.getCode()].append(results)
+            
+            # Convert our repeated stratified K folds into an average dataframe
+            for k,v in  self._regressors_results_list.items():
+                example_df = pd.DataFrame(self._regressors_results_list[k])
+                mean = example_df.mean()
+                self._regressors_results[k]=mean
+        return_dict["avg_kfold"]=self._regressors_results
+        
         # create a pandas dataframe of each metric on each model
         print("*****************************************")
         print("=> (Regressor) => Performance Sheet")
@@ -218,9 +240,40 @@ class ModelSelectionStream:
         plt.setp(labels, rotation=45)
         plt.show()
         
+
+        
+        if self._stats:
+            
+            def listofdict2dictoflist(somelistofdicts):
+                nd=defaultdict(list)
+                for d in somelistofdicts:
+                   for key,val in d.items():
+                      nd[key].append(val)
+                return nd
+            
+            print("*****************************************************************************************")
+            print("=> (Regressor) => (Two Tailed T-test) =>(Calculating Statistical Differences In Means)")
+            print("*****************************************************************************************")
+            self._metrics_significance_dict={}
+            for m in metrics:
+                ttest_sig_mat = np.zeros((len(wrapper_models), len(wrapper_models)))
+                for i, k in enumerate(self._regressors_results.keys()):
+                    for j,k2 in enumerate(self._regressors_results.keys()):
+                        nd=listofdict2dictoflist(self._regressors_results_list[k])
+                        nd2=listofdict2dictoflist(self._regressors_results_list[k2])
+                        p_int=ttest_ind(nd[m],
+                                        nd2[m], 
+                                        equal_var = False)
+                        if p_int[1] <= 0.05:
+                            ttest_sig_mat[i,j]=1
+                df=pd.DataFrame(ttest_sig_mat)
+                df.index=list(self._regressors_results.keys())
+                df.columns=list(self._regressors_results.keys())
+                self._metrics_significance_dict[m]=df
+            return_dict["significance"]=self._metrics_significance_dict
         # plot models against one another in charts
         
-        return self._regressors_results
+        return return_dict
         
     """
 	Methods: handleClassifiers
@@ -235,8 +288,9 @@ class ModelSelectionStream:
     @return pd.DataFrame
 	"""
     def handleClassifiers(self, Xtrain, ytrain, metrics, wrapper_models, stratified):
+            
+        return_dict={}
         
-
         self._classifier_results_list=defaultdict(list)
         self._classifier_results=dict()
         
@@ -259,6 +313,24 @@ class ModelSelectionStream:
                 example_df = pd.DataFrame(self._classifier_results_list[k])
                 mean = example_df.mean()
                 self._classifier_results[k]=mean
+        else:
+            kf = KFold(n_splits=self._nfolds)
+            for train_index, test_index in kf.split(Xtrain):
+                fold_X_train, fold_X_test = Xtrain.iloc[train_index,:], Xtrain.iloc[test_index,:]
+                fold_y_train, fold_y_test = ytrain.iloc[train_index], ytrain.iloc[test_index]
+                
+                for model in wrapper_models:
+                    model._model.fit(fold_X_train, fold_y_train)
+                    results=model.validate(fold_X_test, fold_y_test, metrics)
+                    self._classifier_results_list[model.getCode()].append(results)
+            
+            # Convert our repeated stratified K folds into an average dataframe
+            for k,v in  self._classifier_results_list.items():
+                example_df = pd.DataFrame(self._classifier_results_list[k])
+                mean = example_df.mean()
+                self._classifier_results[k]=mean
+        
+        return_dict["avg_kfold"]=self._classifier_results
         
         # create a pandas dataframe of each metric on each model
 
@@ -275,8 +347,42 @@ class ModelSelectionStream:
         plt.setp(labels, rotation=45)
         plt.show()
         # plot models against one another in charts
+        
+        if self._stats:
+        
+            def listofdict2dictoflist(somelistofdicts):
+                nd=defaultdict(list)
+                for d in somelistofdicts:
+                   for key,val in d.items():
+                      nd[key].append(val)
+                return nd
             
-        return self._classifier_results
+            print("*****************************************************************************************")
+            print("=> (Classifier) => (Two Tailed T-test) =>(Calculating Statistical Differences In Means)")
+            print("*****************************************************************************************")
+            self._metrics_significance_dict={}
+            for m in metrics:
+                ttest_sig_mat = np.zeros((len(wrapper_models), len(wrapper_models)))
+                for i, k in enumerate(self._classifier_results.keys()):
+                    for j,k2 in enumerate(self._classifier_results.keys()):
+                        nd=listofdict2dictoflist(self._classifier_results_list[k])
+                        nd2=listofdict2dictoflist(self._classifier_results_list[k2])
+                        p_int=ttest_ind(nd[m],
+                                        nd2[m], 
+                                        equal_var = False)
+                        
+                        if p_int[1] <= 0.10:
+                            ttest_sig_mat[i,j]=1
+                        else:
+                            ttest_sig_mat[i,j]=0
+                df=pd.DataFrame(ttest_sig_mat)
+                df.index=list(self._classifier_results.keys())
+                df.columns=list(self._classifier_results.keys())
+                self._metrics_significance_dict[m]=df
+            return_dict["significance"]=self._metrics_significance_dict
+            # plot models against one another in charts
+        
+        return return_dict
         
         
     """
@@ -292,8 +398,9 @@ class ModelSelectionStream:
              models_to_flow=[], 
              params=None, 
              test_size=0.3, 
-             nfolds=10,
-             nrepeats=3,
+             nfolds=3,
+             nrepeats=10,
+             stats=True,
              stratified=False,
              n_jobs=1, 
              metrics=[], 
@@ -312,7 +419,7 @@ class ModelSelectionStream:
         assert isinstance(regressors, bool), "regressor must be bool"
         assert isinstance(modelSelection, bool), "modelSelection must be bool"
         assert isinstance(stratified, bool), "modelSelection must be bool"
-        
+        assert isinstance(stats, bool), "stats must be bool"
         self._nfolds=nfolds
         self._nrepeats=nrepeats
         self._n_jobs=n_jobs
@@ -324,6 +431,7 @@ class ModelSelectionStream:
         self._modelSelection=modelSelection
         self._cut = cut
         self._stratified=stratified
+        self._stats=stats
         
         # Inform the streamline to user.
         stringbuilder=""
@@ -890,12 +998,15 @@ class ModelSelectionStream:
             print("Invalid model type. Please set regressors=True or regressors=False.")
             print
 		
+        #results dict
+        return_dict={}
+        
         # Hyper-tune models
         self._bestEstimators = self.determineBestEstimators(self._wrapper_models)
 		
         # Do you want 1 or many models returned? If verbose, a visual appears.
         if self._modelSelection:
-            
+            assert(len(self._wrapper_models) > 1, "In order to compare models, you must have more than one. Add some in the first argument of `flow(...)` and retry.")
             if not len(self._metrics) > 0:
                 if self._regressors:
                     self._metrics=['rmse',
@@ -920,23 +1031,25 @@ class ModelSelectionStream:
             self._final_results = self.getActualErrorOnTest(self._metrics,self._wrapper_models)
             
             if self._regressors:
-                self._scoring_results = self.handleRegressors(self._X_train, 
-                                                                                  self._y_train, 
-                                                                                  self._metrics,
-                                                                                  self._wrapper_models,
-                                                                                  self._cut,
-                                                                                  self._stratified)
+                return_dict = self.handleRegressors(self._X_train, 
+                                                      self._y_train, 
+                                                      self._metrics,
+                                                      self._wrapper_models,
+                                                      self._cut,
+                                                      self._stratified)
             elif self._regressors == False: #classifiers
-                self._scoring_results = self.handleClassifiers (self._X_train,
-                                                                                   self._y_train,
-                                                                                   self._metrics,
-                                                                                   self._wrapper_models,
-                                                                                   self._stratified)
+                return_dict = self.handleClassifiers (self._X_train,
+                                                       self._y_train,
+                                                       self._metrics,
+                                                       self._wrapper_models,
+                                                       self._stratified)
             else:
                 print("You selected an invalid type of model.")
                 print
-
+            
+            return_dict["final_errors"]=self._final_results
+        return_dict["models"]=self._bestEstimators
 		# Return each best estimator the user is interested in
-        return (self._bestEstimators, self._scoring_results, self._final_results)
+        return return_dict
     
 

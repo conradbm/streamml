@@ -14,7 +14,7 @@ class HuberRegressorPredictiveModel(AbstractRegressorPredictiveModel):
         self._code="hr"
         
         if verbose:
-            print ("Constructed AdaptiveBoostingRegressorPredictiveModel: " +self._code)
+            print ("Constructed HuberRegressor: " +self._code)
         
         AbstractRegressorPredictiveModel.__init__(self, "regressor", X, y, hr_params, nfolds, n_jobs, scoring, verbose)
         self._model = self.constructRegressor(HuberRegressor())

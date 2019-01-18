@@ -14,7 +14,7 @@ class GaussianProcessRegressorPredictiveModel(AbstractRegressorPredictiveModel):
         self._code="gpr"
         
         if verbose:
-            print ("Constructed AdaptiveBoostingRegressorPredictiveModel: " +self._code)
+            print ("Constructed GaussianProcessRegressor: " +self._code)
         
         AbstractRegressorPredictiveModel.__init__(self, "regressor", X, y, gpr_params, nfolds, n_jobs, scoring, verbose)
         self._model = self.constructRegressor(GaussianProcessRegressor())

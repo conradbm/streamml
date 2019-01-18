@@ -14,7 +14,7 @@ class PassiveAggressiveRegressorPredictiveModel(AbstractRegressorPredictiveModel
         self._code="par"
         
         if verbose:
-            print ("Constructed AdaptiveBoostingRegressorPredictiveModel: " +self._code)
+            print ("Constructed PassiveAggressiveRegressor: " +self._code)
         
         AbstractRegressorPredictiveModel.__init__(self, "regressor", X, y, par_params, nfolds, n_jobs, scoring, verbose)
         self._model = self.constructRegressor(PassiveAggressiveRegressor())

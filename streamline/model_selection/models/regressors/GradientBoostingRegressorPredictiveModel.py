@@ -14,7 +14,7 @@ class GradientBoostingRegressorPredictiveModel(AbstractRegressorPredictiveModel)
         self._code="gbr"
         
         if verbose:
-            print ("Constructed AdaptiveBoostingRegressorPredictiveModel: " +self._code)
+            print ("Constructed GradientBoostingRegressor: " +self._code)
         
         AbstractRegressorPredictiveModel.__init__(self, "regressor", X, y, gbr_params, nfolds, n_jobs, scoring, verbose)
         self._model = self.constructRegressor(GradientBoostingRegressor())

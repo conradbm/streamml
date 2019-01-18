@@ -14,7 +14,7 @@ class TheilSenRegressorPredictiveModel(AbstractRegressorPredictiveModel):
         self._code="tsr"
         
         if verbose:
-            print ("Constructed AdaptiveBoostingRegressorPredictiveModel: " +self._code)
+            print ("Constructed TheilSenRegressor: " +self._code)
         
         AbstractRegressorPredictiveModel.__init__(self, "regressor", X, y, tsr_params, nfolds, n_jobs, scoring, verbose)
         self._model = self.constructRegressor(TheilSenRegressor())

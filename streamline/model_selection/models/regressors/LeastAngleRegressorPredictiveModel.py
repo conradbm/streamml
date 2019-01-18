@@ -14,7 +14,7 @@ class LeastAngleRegressorPredictiveModel(AbstractRegressorPredictiveModel):
         self._code="lar"
         
         if verbose:
-            print ("Constructed AdaptiveBoostingRegressorPredictiveModel: " +self._code)
+            print ("Constructed Lars: " +self._code)
         
         AbstractRegressorPredictiveModel.__init__(self, "regressor", X, y, lar_params, nfolds, n_jobs, scoring, verbose)
         self._model = self.constructRegressor(Lars())

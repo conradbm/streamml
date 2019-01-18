@@ -14,7 +14,7 @@ class BayesianRidgeRegressorPredictiveModel(AbstractRegressorPredictiveModel):
         self._code="bays_ridge"
         
         if verbose:
-            print ("Constructed AdaptiveBoostingRegressorPredictiveModel: " +self._code)
+            print ("Constructed BayesianRidge: " +self._code)
         
         AbstractRegressorPredictiveModel.__init__(self, "regressor", X, y, bays_ridge_params, nfolds, n_jobs, scoring, verbose)
         self._model = self.constructRegressor(BayesianRidge ())

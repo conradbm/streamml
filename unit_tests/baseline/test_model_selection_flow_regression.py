@@ -1,8 +1,9 @@
+"""
 #
 #
 #
 #
-# Model Selection Example
+# Model Selection Example (Regression)
 # test_model_selection_flow.py
 #
 #
@@ -11,27 +12,6 @@
 #
 #
 
-import pandas as pd
-import numpy as np
-import os
-import sys
-sys.path.append(os.getcwd()) #I.e., make it a path variable
-sys.path.append(os.path.join(os.getcwd(),"streamml"))
-
-from streamml.streamline.model_selection.flow.ModelSelectionStream import ModelSelectionStream
-from sklearn.svm import SVC
-from sklearn.naive_bayes import GaussianNB
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.linear_model import LogisticRegression
-
-from sklearn.datasets import load_iris
-iris=load_iris()
-X=pd.DataFrame(iris['data'], columns=iris['feature_names'])
-y=pd.DataFrame(iris['target'], columns=['target'])
-
-
-
-"""
 Model Selection Params:
     def flow(self, 
              models_to_flow=[], 
@@ -85,12 +65,29 @@ Model Selection Models:
                                     'sgd':stochasticGradientDescentClassifier,
                                     'svc':supportVectorClassifier}
 """
+import pandas as pd
+import numpy as np
+import os
+import sys
+sys.path.append(os.getcwd()) #I.e., make it a path variable
+sys.path.append(os.path.join(os.getcwd(),"streamml"))
 
-# Classification Test
+from streamml.streamline.model_selection.flow.ModelSelectionStream import ModelSelectionStream
+from sklearn.svm import SVR
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.linear_model import LinearRegression
+
+from sklearn.datasets import load_boston
+boston=load_boston()
+X=pd.DataFrame(boston['data'], columns=boston['feature_names'])
+y=pd.DataFrame(boston['target'],columns=["target"])
+
+
+
 
 """
-params={ 'abc__algorithm':['SAMME'],
-                                                        'abc__base_estimator':[LogisticRegression(), SVC(), GaussianNB(), RandomForestClassifier()],
+params={ 'abr__algorithm':['SAMME'],
+                                                        'abr__base_estimator':[LinearRegression(), SVR(), RandomForestRegressor())],
                                                         'abc__n_estimators':[50, 100, 150],
                                                         'rfc__n_estimators':[50, 100, 150],
                                                         'knnc__n_neighbors':[5,10,15],
@@ -101,43 +98,6 @@ params={ 'abc__algorithm':['SAMME'],
                                   'mlpc__learning_rate':['constant','invscaling']}
 ["abc","rfc","logr","dtc", "gbc", "mlpc", "sgd","knnc"]
 """
-classification_options = {'abc':0,
-                          'dtc':0,
-                          'gbc':0,
-                            'gpc':0,
-                            'knnc':0,
-                            'logr':0,
-                            'mlpc':0,
-                            'nbc':0,
-                            'rfc':0,
-                            'sgd':0,
-                            'svc':0}
-best_models, scoring_results,final_results = ModelSelectionStream(X,y).flow(list(classification_options.keys()),
-                                                                params={},
-                                                                metrics=[],
-                                                                test_size=0.35,
-                                                                verbose=False, 
-                                                                regressors=False,
-                                                                stratified=True,
-                                                                modelSelection=True,
-                                                                n_jobs=3)
-
-print("Best Models ... ")
-print(best_models)
-print("Metric Table ...")
-print(pd.DataFrame(scoring_results))
-
-
-#1. Does regression work?
-#2. Why isn't n_jobs showing up for any of the classifiers?
-
-
-from sklearn.datasets import load_boston
-boston=load_boston()
-X=pd.DataFrame(boston['data'], columns=boston['feature_names'])
-y=pd.DataFrame(boston['target'],columns=["target"])
-print(X.head())
-print(y.head())
 # Regression Test
 regression_options={"lr" : 0,
                    "svr" : 0,
@@ -159,10 +119,13 @@ regression_options={"lr" : 0,
                    "bays_ridge":0,
                    "lasso_lar":0,
                    "lar":0}
-best_models, scoring_results, final_results = ModelSelectionStream(X,y).flow(list(regression_options.keys()),
+results_dict = ModelSelectionStream(X,y).flow(list(regression_options.keys()),
                                                                     params={},
                                                                     metrics=[],
-                                                                    verbose=True, 
+                                                                    test_size=0.5,
+                                                                    nfolds=10,
+                                                                    nrepeats=10,
+                                                                    verbose=False, 
                                                                     regressors=True,
                                                                     stratified=True, 
                                                                     cut=y['target'].mean(),
@@ -170,13 +133,12 @@ best_models, scoring_results, final_results = ModelSelectionStream(X,y).flow(lis
                                                                     n_jobs=3)
 
 print("Best Models ... ")
-print(best_models)
+print(results_dict["models"])
+print("Final Errors ... ")
+print(pd.DataFrame(results_dict["final_errors"]))
 print("Metric Table ...")
-print(pd.DataFrame(scoring_results))
-print("Final Results ...")
-print(pd.DataFrame(final_results))
-
-print("Best Models ... ")
-print(best_models)
-print("Metric Table ...")
-print(pd.DataFrame(scoring_results))
+print(pd.DataFrame(results_dict["avg_kfold"]))
+print("Significance By Metric ...")
+for k in results_dict["significance"].keys():
+    print(k)
+    print(results_dict["significance"][k])
