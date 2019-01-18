@@ -2,8 +2,8 @@
 #
 #
 #
-# Feature Selection Example
-# test_feature_selection_flow.py
+# Model Selection Example
+# test_model_selection_flow.py
 #
 #
 #
@@ -25,23 +25,14 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 
 from sklearn.datasets import load_iris
-
 iris=load_iris()
-X=pd.DataFrame(iris['data'])
-y=pd.DataFrame(iris['target'])
+X=pd.DataFrame(iris['data'], columns=iris['feature_names'])
+y=pd.DataFrame(iris['target'], columns=['target'])
 
 
-"""
-1. Does regression work?
-2. Why isn't n_jobs showing up for any of the classifiers?
-"""
-from sklearn.datasets import load_boston
-boston=load_boston()
-X=pd.DataFrame(boston['data'])
-y=pd.DataFrame(boston['target'])
 
 """
-Feature Selection Params:
+Model Selection Params:
     def flow(self, 
              models_to_flow=[], 
              params=None, 
@@ -53,28 +44,52 @@ Feature Selection Params:
              metrics=[], 
              verbose=False, 
              regressors=True,
-             cut=None,
-             ensemble=False):
+             modelSelection=False,
+             cut=None):
 
-Feature Selection Models:
-        #Valid regressors
-        regression_options = {"mixed_selection" : mixed_selection,
+Model Selection Models:
+        # Valid regressors
+        regression_options = {"lr" : linearRegression,
                                "svr" : supportVectorRegression,
                                "rfr":randomForestRegression,
                                "abr":adaptiveBoostingRegression,
+                               "knnr":knnRegression,
+                               "ridge":ridgeRegression,
                                "lasso":lassoRegression,
                                "enet":elasticNetRegression,
-                               "plsr":partialLeastSquaresRegression}
+                               "mlpr":multilayerPerceptronRegression,
+                               "br":baggingRegression,
+                               "dtr":decisionTreeRegression,
+                               "gbr":gradientBoostingRegression,
+                               "gpr":gaussianProcessRegression,
+                               "hr":huberRegression,
+                               "tsr":theilSenRegression,
+                               "par":passiveAggressiveRegression,
+                               "ard":ardRegression,
+                               "bays_ridge":bayesianRidgeRegression,
+                               "lasso_lar":lassoLeastAngleRegression,
+                               "lar":leastAngleRegression}
+
+
+
         # Valid classifiers
         classification_options = {'abc':adaptiveBoostingClassifier,
+                                  'dtc':decisionTreeClassifier,
+                                  'gbc':gradientBoostingClassifier,
+                                    'gpc':guassianProcessClassifier,
+                                    'knnc':knnClassifier,
+                                    'logr':logisticRegressionClassifier,
+                                    'mlpc':multilayerPerceptronClassifier,
+                                    'nbc':naiveBayesClassifier,
                                     'rfc':randomForestClassifier,
-                                    'svc':supportVectorClassifier
-                                 }
+                                    'sgd':stochasticGradientDescentClassifier,
+                                    'svc':supportVectorClassifier}
 """
 
+# Classification Test
 
-best_models, scoring_results = ModelSelectionStream(X,y).flow(["abc","rfc","logr","dtc", "gbc", "mlpc", "sgd", "knnc"],
-                                    					 params={ 'abc__algorithm':['SAMME'],
+"""
+params={ 'abc__algorithm':['SAMME'],
                                                         'abc__base_estimator':[LogisticRegression(), SVC(), GaussianNB(), RandomForestClassifier()],
                                                         'abc__n_estimators':[50, 100, 150],
                                                         'rfc__n_estimators':[50, 100, 150],
@@ -82,12 +97,85 @@ best_models, scoring_results = ModelSelectionStream(X,y).flow(["abc","rfc","logr
                                                         'mlpc__hidden_layer_sizes':[(100), (100,100)],
                                                         'mlpc__alpha':[1e-5,1e-4,1e-3,1e-2,1e-1],
                                                         'mlpc__activation':['identity','logistic','relu','tanh'],
-                                                        'mlpc__learning_rate':['constant','invscaling']},
-                                    					 metrics=["precision", "accuracy", "recall", "f1", "kappa"],
-                                               verbose=False, 
-                                               regressors=False,
-                                               modelSelection=True,
-                                               n_jobs=3)
+                      
+                                  'mlpc__learning_rate':['constant','invscaling']}
+["abc","rfc","logr","dtc", "gbc", "mlpc", "sgd","knnc"]
+"""
+classification_options = {'abc':0,
+                          'dtc':0,
+                          'gbc':0,
+                            'gpc':0,
+                            'knnc':0,
+                            'logr':0,
+                            'mlpc':0,
+                            'nbc':0,
+                            'rfc':0,
+                            'sgd':0,
+                            'svc':0}
+best_models, scoring_results,final_results = ModelSelectionStream(X,y).flow(list(classification_options.keys()),
+                                                                params={},
+                                                                metrics=[],
+                                                                test_size=0.35,
+                                                                verbose=False, 
+                                                                regressors=False,
+                                                                stratified=True,
+                                                                modelSelection=True,
+                                                                n_jobs=3)
+
+print("Best Models ... ")
+print(best_models)
+print("Metric Table ...")
+print(pd.DataFrame(scoring_results))
+
+
+#1. Does regression work?
+#2. Why isn't n_jobs showing up for any of the classifiers?
+
+
+from sklearn.datasets import load_boston
+boston=load_boston()
+X=pd.DataFrame(boston['data'], columns=boston['feature_names'])
+y=pd.DataFrame(boston['target'],columns=["target"])
+print(X.head())
+print(y.head())
+# Regression Test
+regression_options={"lr" : 0,
+                   "svr" : 0,
+                   "rfr":0,
+                   "abr":0,
+                   "knnr":0,
+                   "ridge":0,
+                   "lasso":0,
+                   "enet":0,
+                   "mlpr":0,
+                   "br":0,
+                   "dtr":0,
+                   "gbr":0,
+                   "gpr":0,
+                   "hr":0,
+                   "tsr":0,
+                   "par":0,
+                   "ard":0,
+                   "bays_ridge":0,
+                   "lasso_lar":0,
+                   "lar":0}
+best_models, scoring_results, final_results = ModelSelectionStream(X,y).flow(list(regression_options.keys()),
+                                                                    params={},
+                                                                    metrics=[],
+                                                                    verbose=True, 
+                                                                    regressors=True,
+                                                                    stratified=True, 
+                                                                    cut=y['target'].mean(),
+                                                                    modelSelection=True,
+                                                                    n_jobs=3)
+
+print("Best Models ... ")
+print(best_models)
+print("Metric Table ...")
+print(pd.DataFrame(scoring_results))
+print("Final Results ...")
+print(pd.DataFrame(final_results))
+
 print("Best Models ... ")
 print(best_models)
 print("Metric Table ...")

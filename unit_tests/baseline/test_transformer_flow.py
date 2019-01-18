@@ -21,8 +21,8 @@ sys.path.append(os.path.join(os.getcwd(),"streamml"))
 from streamml.streamline.transformation.flow.TransformationStream import TransformationStream
 from sklearn.datasets import load_iris
 iris=load_iris()
-X=pd.DataFrame(iris['data'])
-y=pd.DataFrame(iris['target'])
+X=pd.DataFrame(iris['data'], columns=iris['feature_names'])
+y=pd.DataFrame(iris['target'], columns=['target'])
 """
 Transformation Selection Params:
     def flow(self, preproc_args=[], params=None, verbose=False):

@@ -5,6 +5,7 @@ import numpy as np
 # Data Splitting
 from sklearn.model_selection import train_test_split
 from sklearn.model_selection import RepeatedStratifiedKFold
+from sklearn.model_selection import KFold
 
 # Plotting
 import matplotlib.pyplot as plt
@@ -67,21 +68,25 @@ Core Methods:
 1. flow - 
 """
 class ModelSelectionStream:
-    #properties
+    #members
     _X=None
     _y=None
     _test_size=None
     _nfolds=None
+    _nrepeats=None
     _n_jobs=None
     _verbose=None
     _metrics=None
-    _test_size=None
     _wrapper_models=None
     _bestEstimators=None
     _scoring_results=None
+    _final_results=None
+    _regressors_results_list=None
     _regressors_results=None
+    _classifier_results_list=None
     _classifiers_results=None
     _modelSelection=None
+    _stratified=None
     
     """
     Constructor: __init__:
@@ -94,7 +99,37 @@ class ModelSelectionStream:
         assert any([isinstance(y,pd.DataFrame), isinstance(y,pd.Series)]), "y was not a pandas DataFrame or Series"
         self._X = X
         self._y = y
-       
+    
+    """
+	Method: getActualErrorOnTest:
+    
+    @usage: Called before kfold cross validation to get the actual estimate of each hyper-tuned model on the train test split.
+              However, the kfold cross validation is often a better generalized error than this.
+    
+    @param: wrapper_models - list, list of wrapper models constructed with a getCode() method and a validate() method.
+    @param: metrics - list, list of metrics used to benchmark the models.
+    @return dict, final results dictionary representing the true error when trained on by the Xtrain and tested on by Xtest with a test_size percentage partition.
+	"""
+    def getActualErrorOnTest(self, metrics, wrapper_models):
+        self._final_results={}
+        for model in wrapper_models:
+            model._model.fit(self._X_train, self._y_train)
+            results=model.validate(self._X_test, self._y_test, metrics)
+            self._final_results[model.getCode()]=results
+            
+        print("*************************************************************")
+        print("=> (Final Results) => True Error Between Xtrain Xtest")
+        print("*************************************************************")
+        df_results = pd.DataFrame(self._final_results)
+        print(df_results)
+        
+        df_results.plot(title='Errors by Model')
+        plt.xticks(range(len(df_results.index.tolist())), df_results.index.tolist())
+        locs, labels = plt.xticks()
+        plt.setp(labels, rotation=45)
+        plt.show()
+        
+        return self._final_results
     """
 	Method: getBestEstimators:
     
@@ -105,7 +140,6 @@ class ModelSelectionStream:
     def getBestEstimators(self):
         return self._bestEstimators
 
-        
     """
 	Methods: determineBestEstimators
 	
@@ -138,49 +172,53 @@ class ModelSelectionStream:
     
     @return pd.DataFrame
 	"""
-    def handleRegressors(self, Xtest, ytest, metrics, wrapper_models, cut):
+    def handleRegressors(self, Xtrain, ytrain, metrics, wrapper_models, cut, stratified):
         
 
-        self._regressors_results=defaultdict(list)
+        self._regressors_results_list=defaultdict(list)
+        self._regressors_results=dict()
         
-        rskf = RepeatedStratifiedKFold(n_splits=10, n_repeats=10,random_state=36851234)
-        
-        butch = self._y.copy()
-        butch[butch < cut] = 1
-        butch[butch >= cut] = 0
-        
-        
-        for train_index, test_index in rskf.split(self._X, butch):
-            self._X_train, self._X_test = self._X.iloc[train_index,:], self._X.iloc[test_index,:]
-            self._y_train, self._y_test = self._y.iloc[train_index], self._y.iloc[test_index]
-            for model in wrapper_models:
-                self._regressors_results[model.getCode()].append(model.validate(self._X_test, self._y_test, metrics))
-
-        # Convert our repeated stratified K folds into an average dataframe
-        for k,v in  self._regressors_results.items():
-            example_df = pd.DataFrame(self._regressors_results[k])
-            mean = example_df.mean()
-            self._regressors_results[k]=mean
+        # Get a StratifiedKFold Cross Validation parameters
+        if stratified:
+            
+            assert self._cut != None , "you must select a cut point for your stratified folds to equally distribute your critical points"
+            rskf = RepeatedStratifiedKFold(n_splits=self._nfolds, n_repeats=self._nrepeats,random_state=36851234)
+            
+            ycut = ytrain.copy()
+            ycut[ycut < cut] = 1
+            ycut[ycut >= cut] = 0
+    
+            for train_index, test_index in rskf.split(Xtrain, ycut):
+                
+                fold_X_train, fold_X_test = Xtrain.iloc[train_index,:], Xtrain.iloc[test_index,:]
+                fold_y_train, fold_y_test = ytrain.iloc[train_index], ytrain.iloc[test_index]
+                
+                for model in wrapper_models:
+                    model._model.fit(fold_X_train, fold_y_train)
+                    results=model.validate(fold_X_test, fold_y_test, metrics)
+                    self._regressors_results_list[model.getCode()].append(results)
+            
+            # Convert our repeated stratified K folds into an average dataframe
+            for k,v in  self._regressors_results_list.items():
+                example_df = pd.DataFrame(self._regressors_results_list[k])
+                mean = example_df.mean()
+                self._regressors_results[k]=mean
 
         # create a pandas dataframe of each metric on each model
-
-            print("*************************")
-            print("=> (Regressor) => Performance Sheet")
-            print("*************************")
-            
-            df_results = pd.DataFrame(self._regressors_results)
-            print(df_results)
-            df_results.plot(title='Errors by Model')
-            print("A")
-            plt.xticks(range(len(df_results.index.tolist())), df_results.index.tolist())
-            print("B")
-            locs, labels = plt.xticks()
-            print("C")
-            plt.setp(labels, rotation=45)
-            print("D")
-            plt.show()
-            # plot models against one another in charts
+        print("*****************************************")
+        print("=> (Regressor) => Performance Sheet")
+        print("*****************************************")
         
+        df_results = pd.DataFrame(self._regressors_results)
+        print(df_results)
+        
+        df_results.plot(title='Errors by Model')
+        plt.xticks(range(len(df_results.index.tolist())), df_results.index.tolist())
+        locs, labels = plt.xticks()
+        plt.setp(labels, rotation=45)
+        plt.show()
+        
+        # plot models against one another in charts
         
         return self._regressors_results
         
@@ -196,40 +234,48 @@ class ModelSelectionStream:
     
     @return pd.DataFrame
 	"""
-    def handleClassifiers(self, Xtest, ytest, metrics, wrapper_models):
+    def handleClassifiers(self, Xtrain, ytrain, metrics, wrapper_models, stratified):
         
 
-        self._classifier_results=defaultdict(list)
+        self._classifier_results_list=defaultdict(list)
+        self._classifier_results=dict()
         
-        rskf = RepeatedStratifiedKFold(n_splits=10, n_repeats=10,random_state=36851234)
-        
-        for train_index, test_index in rskf.split(self._X, self._y):
-            self._X_train, self._X_test = self._X.iloc[train_index,:], self._X.iloc[test_index,:]
-            self._y_train, self._y_test = self._y.iloc[train_index], self._y.iloc[test_index]
-            for model in wrapper_models:
-                self._classifier_results[model.getCode()].append(model.validate(self._X_test, self._y_test, metrics))
-
-        # Convert our repeated stratified K folds into an average dataframe
-        for k,v in  self._classifier_results.items():
-            example_df = pd.DataFrame(self._classifier_results[k])
-            mean = example_df.mean()
-            self._classifier_results[k]=mean
+        # Get a StratifiedKFold Cross Validation parameters
+        if stratified:
+            
+            rskf = RepeatedStratifiedKFold(n_splits=self._nfolds, n_repeats=self._nrepeats,random_state=36851234)
+            for train_index, test_index in rskf.split(Xtrain, ytrain):
+                
+                fold_X_train, fold_X_test = Xtrain.iloc[train_index,:], Xtrain.iloc[test_index,:]
+                fold_y_train, fold_y_test = ytrain.iloc[train_index], ytrain.iloc[test_index]
+                
+                for model in wrapper_models:
+                    model._model.fit(fold_X_train, fold_y_train)
+                    results=model.validate(fold_X_test, fold_y_test, metrics)
+                    self._classifier_results_list[model.getCode()].append(results)
+    
+            # Convert our repeated stratified K folds into an average dataframe
+            for k,v in  self._classifier_results_list.items():
+                example_df = pd.DataFrame(self._classifier_results_list[k])
+                mean = example_df.mean()
+                self._classifier_results[k]=mean
         
         # create a pandas dataframe of each metric on each model
 
-        print("*************************")
+        print("*****************************************")
         print("=> (Classifier) => Performance Sheet")
-        print("*************************")
+        print("*****************************************")
         
         df_results = pd.DataFrame(self._classifier_results)
         print(df_results)
+        
         df_results.plot(title='Errors by Model')
         plt.xticks(range(len(df_results.index.tolist())), df_results.index.tolist())
         locs, labels = plt.xticks()
         plt.setp(labels, rotation=45)
         plt.show()
-            # plot models against one another in charts
-
+        # plot models against one another in charts
+            
         return self._classifier_results
         
         
@@ -245,10 +291,10 @@ class ModelSelectionStream:
     def flow(self, 
              models_to_flow=[], 
              params=None, 
-             test_size=0.2, 
-             nfolds=3, 
+             test_size=0.3, 
+             nfolds=10,
              nrepeats=3,
-             pos_split=1,
+             stratified=False,
              n_jobs=1, 
              metrics=[], 
              verbose=False, 
@@ -260,24 +306,24 @@ class ModelSelectionStream:
         assert isinstance(nrepeats, int), "nrepeats must be integer"
         assert isinstance(n_jobs, int), "n_jobs must be integer"
         assert isinstance(verbose, bool), "verbosem ust be bool"
-        assert isinstance(pos_split, int), "pos_split must be integer"
         assert isinstance(params, dict), "params must be a dict"
         assert isinstance(test_size, float), "test_size must be a float"
         assert isinstance(metrics, list), "model scoring must be a list"
         assert isinstance(regressors, bool), "regressor must be bool"
         assert isinstance(modelSelection, bool), "modelSelection must be bool"
+        assert isinstance(stratified, bool), "modelSelection must be bool"
         
         self._nfolds=nfolds
         self._nrepeats=nrepeats
         self._n_jobs=n_jobs
         self._verbose=verbose
-        self._pos_split=pos_split
         self._allParams=params
         self._metrics=metrics
         self._test_size=test_size
         self._regressors=regressors
         self._modelSelection=modelSelection
         self._cut = cut
+        self._stratified=stratified
         
         # Inform the streamline to user.
         stringbuilder=""
@@ -606,7 +652,7 @@ class ModelSelectionStream:
                 if "dtr" in k:
                     self._dtr_params[k]=v
 
-            model = BaggingRegressorPredictiveModel(self._X_train, 
+            model = DecisionTreeRegressorPredictiveModel(self._X_train, 
                                                           self._y_train,
                                                           self._dtr_params,
                                                           self._nfolds, 
@@ -850,25 +896,47 @@ class ModelSelectionStream:
         # Do you want 1 or many models returned? If verbose, a visual appears.
         if self._modelSelection:
             
-            if len(self._metrics) > 0:
-                
+            if not len(self._metrics) > 0:
                 if self._regressors:
-                    assert self._cut != None , "you must select a cut point for your stratified folds to equally distribute your critical points"
-                    self._scoring_results = self.handleRegressors(self._X_test, 
-                                                                  self._y_test, 
-                                                                  self._metrics,
-                                                                  self._wrapper_models,
-                                                                  self._cut)
-                elif self._regressors == False: #classifiers
-                    self._scoring_results = self.handleClassifiers (self._X_test,
-                                                                   self._y_test,
-                                                                   self._metrics,
-                                                                   self._wrapper_models)
+                    self._metrics=['rmse',
+                                    'mse',
+                                    'r2',
+                                    'explained_variance',
+                                    'mean_absolute_error',
+                                    #'mean_squared_log_error', #not general - negative values not supported
+                                    'median_absolute_error'
+                                    ]
                 else:
-                    print("You selected an invalid type of model.")
-                    print
+                    self._metrics=[  #"auc", # not general - multi-class problems
+                                     "precision",
+                                     "recall",
+                                     "f1",
+                                     "accuracy",
+                                     "kappa",
+                                     #"log_loss" # not working with splits right now
+                                    ]
+            
+            # Get final results from actual train test dataset
+            self._final_results = self.getActualErrorOnTest(self._metrics,self._wrapper_models)
+            
+            if self._regressors:
+                self._scoring_results = self.handleRegressors(self._X_train, 
+                                                                                  self._y_train, 
+                                                                                  self._metrics,
+                                                                                  self._wrapper_models,
+                                                                                  self._cut,
+                                                                                  self._stratified)
+            elif self._regressors == False: #classifiers
+                self._scoring_results = self.handleClassifiers (self._X_train,
+                                                                                   self._y_train,
+                                                                                   self._metrics,
+                                                                                   self._wrapper_models,
+                                                                                   self._stratified)
+            else:
+                print("You selected an invalid type of model.")
+                print
 
 		# Return each best estimator the user is interested in
-        return (self._bestEstimators, self._scoring_results)
+        return (self._bestEstimators, self._scoring_results, self._final_results)
     
 

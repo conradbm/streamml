@@ -69,8 +69,11 @@ class AbstractRegressorPredictiveModel(AbstractPredictiveModel):
             elif m == 'median_absolute_error':
                 ypred = self._model.predict(Xtest)
                 self._validation_results["median_absolute_error"]=median_absolute_error(ytest,ypred)
+            elif m == 'mean_squared_log_error':
+                ypred = self._model.predict(Xtest)
+                self._validation_results["median_absolute_error"]=mean_squared_log_error(ytest,ypred)
             else:
-                print("Metric not valid, how did you make it through the assertions?")
+                print(str(m)+" not a valid regressor metric, skipping.")
         
         return self._validation_results
     

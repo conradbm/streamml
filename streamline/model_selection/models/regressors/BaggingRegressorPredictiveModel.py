@@ -16,7 +16,7 @@ class BaggingRegressorPredictiveModel(AbstractRegressorPredictiveModel):
         if verbose:
             print ("Constructed AdaptiveBoostingRegressorPredictiveModel: " +self._code)
         
-        AbstractRegressorPredictiveModel.__init__(self, "regressor", X, y, ardr_params, nfolds, n_jobs, scoring, verbose)
+        AbstractRegressorPredictiveModel.__init__(self, "regressor", X, y, br_params, nfolds, n_jobs, scoring, verbose)
         self._model = self.constructRegressor(BaggingRegressor())
         
     

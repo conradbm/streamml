@@ -45,40 +45,41 @@ class AbstractClassifierPredictiveModel(AbstractPredictiveModel):
         assert all([i in self._options for i in metrics]) , "Your clasifier error metric must be in valid: " + ' '.join([i for i in self._options])
 
         
-        
         self._validation_results={}
         for m in metrics:
-            if m == 'auc':
+            if m == "auc":
                 ypred = self._model.predict(Xtest)
                 self._validation_results["auc"]=roc_auc_score(ytest, ypred, average="macro")
-            elif m == 'precision':
+            elif m == "precision":
                 ypred = self._model.predict(Xtest)
                 self._validation_results["precision"]=precision_score(ytest, ypred, average="macro")
-            elif m == 'recall':
+            elif m == "recall":
                 ypred = self._model.predict(Xtest)
                 self._validation_results["recall"]=recall_score(ytest, ypred, average="macro")
-            elif m == 'f1':
+            elif m == "f1":
                 ypred = self._model.predict(Xtest)
                 self._validation_results["f1"]=f1_score(ytest, ypred, average="macro")
-            elif m == 'accuracy':
+            elif m == "accuracy":
                 ypred = self._model.predict(Xtest)
                 self._validation_results["accuracy"]=accuracy_score(ytest, ypred)
-            elif m == 'kappa':
+            elif m == "kappa":
                 ypred = self._model.predict(Xtest)
                 self._validation_results["kappa"]=cohen_kappa_score(ytest,ypred)
             # Not working for multi-label classifiers.
-            #elif m == 'log_loss':
-            #    ypred = self._model.predict(Xtest)
-            #    self._validation_results["log_loss"]=log_loss(ytest,ypred, labels=pd.unique(self._y).tolist())
+            elif m == 'log_loss':
+                print("Currently not supported: log_loss")
+                raise(Exception)
+            #     ypred = self._model.predict(Xtest)
+            #     
+            #     self._validation_results["log_loss"]=log_loss(ytest,ypred, labels=list(set(ypred).union(set(ytest['target']))))
             else:
-                print("Metric not valid, how did you make it through the assertions?")
+                print(str(m)+" not a valid classifier metric, skipping.")
         
         return self._validation_results
     
     def constructClassifier(self, model):
         self._pipe          = Pipeline([(self._code, model)])
 
-        
         self._grid          = GridSearchCV(self._pipe,
                                             param_grid=self._params, 
                                             n_jobs=self._n_jobs,

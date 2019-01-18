@@ -1,3 +1,15 @@
+#
+#
+#
+#
+# Feature Selection Example
+# test_feature_selection_flow.py
+#
+#
+#
+#
+#
+#
 
 import pandas as pd
 import numpy as np
@@ -9,8 +21,8 @@ sys.path.append(os.path.join(os.getcwd(),"streamml"))
 from streamml.streamline.feature_selection.flow.FeatureSelectionStream import FeatureSelectionStream
 from sklearn.datasets import load_iris
 iris=load_iris()
-X=pd.DataFrame(iris['data'])
-y=pd.DataFrame(iris['target'])
+X=pd.DataFrame(iris['data'], columns=iris['feature_names'])
+y=pd.DataFrame(iris['target'], columns=['target'])
 
 """
 One stop shop for streamml:
