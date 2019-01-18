@@ -44,7 +44,7 @@ class PCATransformer(AbstractTransformer):
             pca = PCA(n_components = self._n_components)
 
             pca_output = pca.fit_transform(X)
-            pca_df = pd.DataFrame(pca_output, columns=["PCA_"+str(i) for i in range(pca_output.shape[1])])
+            pca_df = pd.DataFrame(pca_output, columns=["PC_"+str(i) for i in range(pca_output.shape[1])])
 
         return pca_df
 

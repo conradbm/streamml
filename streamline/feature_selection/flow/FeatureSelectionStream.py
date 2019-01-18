@@ -450,11 +450,13 @@ class FeatureSelectionStream:
             print
         
         self._ensemble_results = None
+        self._kept_features = None
         if self._ensemble:
-            # Run TOPSIS on the key features
+
             from skcriteria import Data, MAX
             from skcriteria.madm import closeness, simple
-
+            import math
+            
             alternative_names = self._X.columns.tolist()
             criterion_names = list(self._key_features.keys())
             criteria = [MAX for i in criterion_names]
@@ -469,7 +471,6 @@ class FeatureSelectionStream:
                         anames=df.index.tolist(),
                         cnames=df.columns
                         )
-            print(data)
             #if self._verbose:
               #data.plot("radar");
 
@@ -480,22 +481,27 @@ class FeatureSelectionStream:
             dec2 = dm2.decide(data)
             dec3 = dm3.decide(data)
             
-
             self._ensemble_results = pd.DataFrame({"TOPSIS":dec3.rank_,
                                                   "WeightedSum":dec1.rank_,
                                                   "WeightedProduct":dec2.rank_},
                                                   index=df.index.tolist())
-
-            if self._verbose:
-              print("Selected ",self._featurePercentage, " \% of features:")
-              # Print feature set
-              original_features=alternative_names
-              num_features_requested=math.floor(len(alternative_names)*self._featurePercentage)
-              print("LEFT OFF HERE ...")
-              print(dec3.rank_)
-
-              print("Subset of data with ",self._featurePercentage, " \% of features:")
-              # Print data with only those features
+            
+            # Only keep features that our decision makers deemed in the top % specified
+            num_features_requested=math.ceil(len(alternative_names)*self._featurePercentage)
+            ranks=dec1.rank_ + dec2.rank_ + dec3.rank_
+            argmin_sorted=np.argpartition(ranks, num_features_requested)
+            self._kept_features=[]
+            
+            count=0
+            for i in argmin_sorted:
+                self._kept_features.append(alternative_names[i])
+                count+=1
+                if count >= num_features_requested:
+                    break
+              
+            print("",self._featurePercentage, " % of features --> ("+str(num_features_requested)+"):")
+            print(self._kept_features)
+          # Print data with only those features
 
         print("Returning three decision maker\'s opinions.")
-        return (self._key_features,self._ensemble_results)
+        return (self._key_features,self._ensemble_results,self._kept_features)

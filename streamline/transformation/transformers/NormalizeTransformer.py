@@ -9,4 +9,6 @@ class NormalizeTransformer(AbstractTransformer):
     # More parameters can be found here: 
     # http://scikit-learn.org/stable/modules/preprocessing.html
     def transform(self, X):
-        return pd.DataFrame(normalize(X, norm='l2'))
+        assert(isinstance(X, pd.DataFrame), "please ensure X is of type pd.DataFrame")
+        columns=list(X.columns)
+        return pd.DataFrame(normalize(X, norm='l2'), columns=columns)

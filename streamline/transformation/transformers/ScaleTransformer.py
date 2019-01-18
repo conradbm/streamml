@@ -9,6 +9,8 @@ class ScaleTransformer(AbstractTransformer):
     # More parameters can be found here: 
     # http://scikit-learn.org/stable/modules/preprocessing.html
     def transform(self, X):
-        return pd.DataFrame(scale(X))
+        assert(isinstance(X, pd.DataFrame), "please ensure X is of type pd.DataFrame")
+        columns=list(X.columns)
+        return pd.DataFrame(scale(X), columns=columns)
         
         

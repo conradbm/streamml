@@ -161,12 +161,9 @@ class ModelSelectionStream:
             example_df = pd.DataFrame(self._regressors_results[k])
             mean = example_df.mean()
             self._regressors_results[k]=mean
-        
-
 
         # create a pandas dataframe of each metric on each model
-        
-        if self._verbose:
+
             print("*************************")
             print("=> (Regressor) => Performance Sheet")
             print("*************************")
@@ -219,19 +216,18 @@ class ModelSelectionStream:
             self._classifier_results[k]=mean
         
         # create a pandas dataframe of each metric on each model
+
+        print("*************************")
+        print("=> (Classifier) => Performance Sheet")
+        print("*************************")
         
-        if self._verbose:
-            print("*************************")
-            print("=> (Classifier) => Performance Sheet")
-            print("*************************")
-            
-            df_results = pd.DataFrame(self._classifier_results)
-            print(df_results)
-            df_results.plot(title='Errors by Model')
-            plt.xticks(range(len(df_results.index.tolist())), df_results.index.tolist())
-            locs, labels = plt.xticks()
-            plt.setp(labels, rotation=45)
-            plt.show()
+        df_results = pd.DataFrame(self._classifier_results)
+        print(df_results)
+        df_results.plot(title='Errors by Model')
+        plt.xticks(range(len(df_results.index.tolist())), df_results.index.tolist())
+        locs, labels = plt.xticks()
+        plt.setp(labels, rotation=45)
+        plt.show()
             # plot models against one another in charts
 
         return self._classifier_results
@@ -846,8 +842,6 @@ class ModelSelectionStream:
                  self._wrapper_models.append(classification_options[key]())
         else:
             print("Invalid model type. Please set regressors=True or regressors=False.")
-            print
-        if self._verbose:
             print
 		
         # Hyper-tune models

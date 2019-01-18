@@ -132,7 +132,7 @@ y = pd.DataFrame(np.array([math.floor(np.random.exponential()) for i in range(20
 X2 = TransformationStream(X).flow(["pca","normalize","kmeans"],
                                   params={"pca__percent_variance":0.70,
                                           "kmeans__n_clusters":len(set(y[0]))}, 
-                                  verbose=False)
+                                  verbose=True)
 
 from sklearn.svm import SVC
 from sklearn.naive_bayes import GaussianNB
@@ -147,7 +147,8 @@ best_models = ModelSelectionStream(X2,y).flow(["abc","logr","dtc", "gbc", "mlpc"
                                     					 metrics=["precision", "accuracy", "recall", "f1", "kappa"],
                                                verbose=True, 
                                                regressors=False,
-                                               modelSelection=True)
+                                               modelSelection=True,
+                                               n_jobs=3)
 print("Best Models")
 print(best_models)
 feature_dict, ensemble_results = FeatureSelectionStream(X2,y).flow(["plsr", "mixed_selection", "rfr", "abr", "svr"],

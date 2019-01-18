@@ -53,7 +53,7 @@ class AbstractClassifierPredictiveModel(AbstractPredictiveModel):
                 self._validation_results["auc"]=roc_auc_score(ytest, ypred, average="macro")
             elif m == 'precision':
                 ypred = self._model.predict(Xtest)
-                self._validation_results["prec"]=precision_score(ytest, ypred, average="macro")
+                self._validation_results["precision"]=precision_score(ytest, ypred, average="macro")
             elif m == 'recall':
                 ypred = self._model.predict(Xtest)
                 self._validation_results["recall"]=recall_score(ytest, ypred, average="macro")
