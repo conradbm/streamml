@@ -1,3 +1,5 @@
+import os
+#python setup.py sdist
 from distutils.core import setup
 setup(
   name = 'streamml',         # How you named your package folder (MyLib)
@@ -29,5 +31,6 @@ setup(
     'Programming Language :: Python :: 3.4',
     'Programming Language :: Python :: 3.5',
     'Programming Language :: Python :: 3.6',
+    'Programming Language :: Python :: 3.7',
   ],
 )
