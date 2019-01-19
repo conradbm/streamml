@@ -1,5 +1,7 @@
 import os
 #python setup.py sdist
+# vvv in ipython notebook vvv
+#!twine upload streamml-0.1.tar.gz -u bmconrad -p Jesusislife1! --verbose
 from distutils.core import setup
 setup(
   name = 'streamml',         # How you named your package folder (MyLib)
