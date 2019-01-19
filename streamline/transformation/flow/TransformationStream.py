@@ -15,6 +15,9 @@ from streamml.streamline.transformation.transformers.NormalizeTransformer import
 from streamml.streamline.transformation.transformers.PCATransformer import PCATransformer
 from streamml.streamline.transformation.transformers.BoxcoxTransformer import BoxcoxTransformer
 
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.feature_extraction.text import HashingVectorizer
 """
 Example Usage:
 
@@ -39,15 +42,43 @@ print formed
 
 class TransformationStream:
     
+    _vectorizer=None
     """
     Constructor:
     1. Default
         Paramters: df : pd.DataFrame, dataframe must be accepted to use this class
     """
-    def __init__(self, df=None):
-        assert isinstance(df, pd.DataFrame), "data must be a pandas DataFrame"
-        self._X = df
+    def __init__(self, df=None, corpus=False, method='tfidf',min_df=0.01, max_df=0.99, n_features=10000):
         
+        self._corpus_options=['tfidf','count','hash']
+        if corpus == False:
+            assert isinstance(df, pd.DataFrame), "data must be a pandas DataFrame"
+            self._X = df
+        else:
+            assert isinstance(df, list), "data must be a list of strings when corpus is true"
+            assert method in self._corpus_options, "method must be in corpus_options: " + " ".join(self._corpus_options)
+            
+            if method == 'tfidf':
+                self._vectorizer=TfidfVectorizer(min_df=min_df, max_df=max_df).fit(df)
+                self._vocabulary=self._vectorizer.vocabulary_
+                tmp=self._vectorizer.fit_transform(df)
+                self._X=pd.DataFrame(tmp.todense(), columns=self._vocabulary)
+            elif method == 'count':
+                self._vectorizer=CountVectorizer(min_df=min_df, max_df=max_df).fit(df)
+                self._vocabulary=self._vectorizer.vocabulary_
+                tmp=self._vectorizer.fit_transform(df)
+                self._X=pd.DataFrame(tmp.todense(), columns=self._vocabulary)
+            elif method == 'hash':
+
+                tmp=HashingVectorizer(n_features=n_features).fit_transform(df)
+                self._X=pd.DataFrame(tmp.todense())
+            else:
+                print("Error: method specified not in list of vectorizers\n")
+                sys.exit()
+            
+            
+            
+
     """
     Methods:
     1. flow
@@ -140,11 +171,10 @@ class TransformationStream:
         for thing in preproc_args:
             stringbuilder += thing
             stringbuilder += "--> "
-        
-        if verbose:
-            print("**************************************************")
-            print("Transformation Streamline: " + stringbuilder[:-4])
-            print("**************************************************")
+
+        print("**************************************************")
+        print("Transformation Streamline: " + stringbuilder[:-4])
+        print("**************************************************")
         
         
         # Define helper functions to execute our transformation streamline
