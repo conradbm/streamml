@@ -35,13 +35,14 @@ from streamml.streamline.model_selection.models.regressors.ElasticNetRegressorPr
 from streamml.streamline.model_selection.models.regressors.RandomForestRegressorPredictiveModel import RandomForestRegressorPredictiveModel
 from streamml.streamline.model_selection.models.regressors.AdaptiveBoostingRegressorPredictiveModel import AdaptiveBoostingRegressorPredictiveModel
 
-
 # Classifiers
 from streamml.streamline.model_selection.models.classifiers.AdaptiveBoostingClassifierPredictiveModel import AdaptiveBoostingClassifierPredictiveModel
 from streamml.streamline.model_selection.models.classifiers.RandomForestClassifierPredictiveModel import RandomForestClassifierPredictiveModel
 from streamml.streamline.model_selection.models.classifiers.SupportVectorClassifierPredictiveModel import SupportVectorClassifierPredictiveModel
 
-
+from skcriteria import Data, MAX
+from skcriteria.madm import closeness, simple
+            
 class FeatureSelectionStream:
     
     #Properties
@@ -442,10 +443,6 @@ class FeatureSelectionStream:
         self._kept_features = None
         if self._ensemble:
 
-            from skcriteria import Data, MAX
-            from skcriteria.madm import closeness, simple
-
-            
             alternative_names = self._X.columns.tolist()
             criterion_names = list(self._key_features.keys())
             criteria = [MAX for i in criterion_names]
