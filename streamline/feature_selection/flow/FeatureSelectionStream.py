@@ -2,6 +2,7 @@
 # Data manipulation
 import pandas as pd
 import numpy as np
+import math
 
 # Statistics
 from statsmodels.regression import linear_model
@@ -86,12 +87,10 @@ class FeatureSelectionStream:
              test_size=0.2, 
              nfolds=3, 
              nrepeats=3,
-             pos_split=1,
              n_jobs=1, 
              metrics=[], 
              verbose=False, 
              regressors=True,
-             cut=None,
              ensemble=False,
              featurePercentage=0.25):
       
@@ -100,7 +99,6 @@ class FeatureSelectionStream:
         assert isinstance(nrepeats, int), "nrepeats must be integer"
         assert isinstance(n_jobs, int), "n_jobs must be integer"
         assert isinstance(verbose, bool), "verbosem ust be bool"
-        assert isinstance(pos_split, int), "pos_split must be integer"
         assert isinstance(params, dict), "params must be a dict"
         assert isinstance(test_size, float), "test_size must be a float"
         assert isinstance(metrics, list), "model scoring must be a list"
@@ -117,12 +115,10 @@ class FeatureSelectionStream:
         self._nrepeats=nrepeats
         self._n_jobs=n_jobs
         self._verbose=verbose
-        self._pos_split=pos_split
         self._allParams=params
         self._metrics=metrics
         self._test_size=test_size
         self._regressors=regressors
-        self._cut = cut
         self._ensemble=ensemble
         self._featurePercentage=featurePercentage
 
@@ -147,7 +143,6 @@ class FeatureSelectionStream:
                 print
                 
 
-        # TODO - Test
         def supportVectorRegression():
             self._svr_params={}
             for k,v in self._allParams.items():
@@ -162,9 +157,8 @@ class FeatureSelectionStream:
                                                           self._nfolds, 
                                                           self._n_jobs,
                                                           self._verbose)
-            return model.getBestEstimator().coef_.flatten()
+            return abs(model.getBestEstimator().coef_.flatten())
         
-        # TODO - Test
         def randomForestRegression():
             self._rfr_params={}
             for k,v in self._allParams.items():
@@ -178,11 +172,10 @@ class FeatureSelectionStream:
                                                           self._nfolds, 
                                                           self._n_jobs,
                                                           self._verbose)
-            return model.getBestEstimator().feature_importances_.flatten()
+            return abs(model.getBestEstimator().feature_importances_.flatten())
             
         
 
-        # TODO - Test
         def adaptiveBoostingRegression():
             self._abr_params={}
             for k,v in self._allParams.items():
@@ -196,9 +189,8 @@ class FeatureSelectionStream:
                                                               self._nfolds, 
                                                               self._n_jobs,
                                                               self._verbose)
-            return model.getBestEstimator().feature_importances_.flatten()
+            return abs(model.getBestEstimator().feature_importances_.flatten())
         
-        # TODO - Test
         def lassoRegression():
             self._lasso_params={}
             for k,v in self._allParams.items():
@@ -212,9 +204,8 @@ class FeatureSelectionStream:
                                                           self._nfolds, 
                                                           self._n_jobs,
                                                           self._verbose)
-            return model.getBestEstimator().coef_.flatten()
+            return abs(model.getBestEstimator().coef_.flatten())
             
-        # TODO - Test
         def elasticNetRegression():
             self._enet_params={}
             for k,v in self._allParams.items():
@@ -227,9 +218,8 @@ class FeatureSelectionStream:
                                                           self._nfolds, 
                                                           self._n_jobs,
                                                           self._verbose)
-            return model.getBestEstimator().coef_.flatten()
+            return abs(model.getBestEstimator().coef_.flatten())
     
-        # TODO - Test
         def mixed_selection():
             
             if self._verbose:
@@ -334,9 +324,6 @@ class FeatureSelectionStream:
 
             return new_included
 
-        
-        
-        # TODO - Test
         def partialLeastSquaresRegression():
 
             if self._verbose:
@@ -350,13 +337,12 @@ class FeatureSelectionStream:
             pls_out = pls_model.fit(self._X, self._y)
 
             # The coefficients are used to show direction of the relationship
-            return pls_out.coef_.flatten()
+            return abs(pls_out.coef_.flatten())
     
         ############################################
         ########## Classifiers Start Here ##########
         ############################################
         
-        # Good
         def adaptiveBoostingClassifier():
             self._abc_params={}
             for k,v in self._allParams.items():
@@ -372,7 +358,6 @@ class FeatureSelectionStream:
                                                               self._verbose)
             return model.getBestEstimator().feature_importances_.flatten()
         
-        # Good
         def randomForestClassifier():
             self._rfc_params={}
             for k,v in self._allParams.items():
@@ -389,7 +374,6 @@ class FeatureSelectionStream:
             return model.getBestEstimator().feature_importances_.flatten()
         
         
-        # Good
         def supportVectorClassifier():
             self._svc_params={}
             for k,v in self._allParams.items():
@@ -409,7 +393,7 @@ class FeatureSelectionStream:
             prods=coefs[0,:]
             for i in range(1, len(coefs)):
               prods = np.multiply(prods, coefs[i,:])
-            return prods
+            return abs(prods)
         
         # Valid regressors
         regression_options = {"mixed_selection" : mixed_selection,
@@ -427,6 +411,9 @@ class FeatureSelectionStream:
                                     'rfc':randomForestClassifier,
                                     'svc':supportVectorClassifier
                                  }
+        
+        # Define return dictionary
+        return_dict={}
         
 		# Train test split
         self._X_train, self._X_test, self._y_train, self._y_test = train_test_split(self._X,
@@ -449,13 +436,15 @@ class FeatureSelectionStream:
         if self._verbose:
             print
         
+        return_dict['feature_importances']=self._key_features
+        
         self._ensemble_results = None
         self._kept_features = None
         if self._ensemble:
 
             from skcriteria import Data, MAX
             from skcriteria.madm import closeness, simple
-            import math
+
             
             alternative_names = self._X.columns.tolist()
             criterion_names = list(self._key_features.keys())
@@ -499,9 +488,10 @@ class FeatureSelectionStream:
                 if count >= num_features_requested:
                     break
               
-            print("",self._featurePercentage, " % of features --> ("+str(num_features_requested)+"):")
+            print("",self._featurePercentage*100, " % -> ("+str(num_features_requested)+") features kept.")
             print(self._kept_features)
           # Print data with only those features
+            return_dict['ensemble_results']=self._ensemble_results
+            return_dict['kept_features']=self._kept_features
 
-        print("Returning three decision maker\'s opinions.")
-        return (self._key_features,self._ensemble_results,self._kept_features)
+        return return_dict

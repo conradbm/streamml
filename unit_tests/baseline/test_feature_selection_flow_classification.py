@@ -18,12 +18,6 @@ import sys
 sys.path.append(os.getcwd()) #I.e., make it a path variable
 sys.path.append(os.path.join(os.getcwd(),"streamml"))
 
-from streamml.streamline.feature_selection.flow.FeatureSelectionStream import FeatureSelectionStream
-from sklearn.datasets import load_iris
-iris=load_iris()
-X=pd.DataFrame(iris['data'], columns=iris['feature_names'])
-y=pd.DataFrame(iris['target'], columns=['target'])
-
 """
 One stop shop for streamml:
 
@@ -58,27 +52,27 @@ Feature Selection Models:
                                     'svc':supportVectorClassifier
                                  }
 """
-feature_dict, ensemble_results, kept_features = FeatureSelectionStream(X,y).flow([#"plsr", "mixed_selection", "rfr", "abr", "svr"],
-                                                                    "rfc", "abc", "svc"],
-                                                                    #params={"mixed_selection__threshold_in":0.01,
-                                                                    #        "mixed_selection__threshold_out":0.05,
-                                                                    #        "mixed_selection__verbose":True
-                                                                    #        },
-                                                                    params={},
-                                                                    verbose=True,
-                                                                    regressors=False,
-                                                                    ensemble=True,
-                                                                    featurePercentage=0.5,
-                                                                    n_jobs=3)
+
+from streamml.streamline.feature_selection.flow.FeatureSelectionStream import FeatureSelectionStream
+from sklearn.datasets import load_iris
+iris=load_iris()
+X=pd.DataFrame(iris['data'], columns=iris['feature_names'])
+y=pd.DataFrame(iris['target'], columns=['target'])
+
+return_dict = FeatureSelectionStream(X,y).flow(["rfc", "abc", "svc"],
+                                                params={},
+                                                verbose=True,
+                                                regressors=False,
+                                                ensemble=True,
+                                                featurePercentage=0.5,
+                                                n_jobs=3)
 
 print("Feature data ...")
-print(pd.DataFrame(feature_dict))
-if not ensemble_results is None:
-    print("Features rankings decision maker...")
-    print(ensemble_results)
-if not kept_features is None:
-    print("Reduced data ...")
-    print(X[kept_features].head())
+print(pd.DataFrame(return_dict['feature_importances']))
+print("Features rankings decision maker...")
+print(return_dict['ensemble_results'])
+print("Reduced data ...")
+print(X[return_dict['kept_features']].head())
 
 #print(X.shape)
 #print (y.shape)

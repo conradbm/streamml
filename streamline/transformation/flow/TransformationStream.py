@@ -75,9 +75,6 @@ class TransformationStream:
             else:
                 print("Error: method specified not in list of vectorizers\n")
                 sys.exit()
-            
-            
-            
 
     """
     Methods:
