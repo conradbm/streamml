@@ -1,7 +1,7 @@
 import sys
 import os
 #sys.path.append(os.path.abspath(sys.path[0]+"/src/streamline/model_selection/models/"))
-from streamline.model_selection.models.AbstractRegressorPredictiveModel import AbstractRegressorPredictiveModel
+from ..AbstractRegressorPredictiveModel import AbstractRegressorPredictiveModel
 
 from sklearn.linear_model import BayesianRidge
 

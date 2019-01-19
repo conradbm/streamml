@@ -1,5 +1,4 @@
-    
-from streamline.transformation.AbstractTransformer import *
+from ..AbstractTransformer import *
 from scipy import stats
 
 class BoxcoxTransformer(AbstractTransformer):

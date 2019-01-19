@@ -1,6 +1,6 @@
 import sys
 import os
-from streamline.model_selection.models.AbstractClassifierPredictiveModel import AbstractClassifierPredictiveModel
+from ..AbstractClassifierPredictiveModel import AbstractClassifierPredictiveModel
 
 from sklearn.linear_model import SGDClassifier
 

@@ -1,4 +1,4 @@
-from streamline.transformation.AbstractTransformer import *
+from ..AbstractTransformer import *
 from sklearn.preprocessing import normalize
 
 class NormalizeTransformer(AbstractTransformer):

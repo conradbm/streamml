@@ -72,7 +72,7 @@ import sys
 sys.path.append(os.getcwd()) #I.e., make it a path variable
 sys.path.append(os.path.join(os.getcwd(),"streamml"))
 
-from streamml.streamline.model_selection.flow.ModelSelectionStream import ModelSelectionStream
+from streamml.streamml.streamline.model_selection.flow.ModelSelectionStream import ModelSelectionStream
 from sklearn.svm import SVC
 from sklearn.naive_bayes import GaussianNB
 from sklearn.ensemble import RandomForestClassifier

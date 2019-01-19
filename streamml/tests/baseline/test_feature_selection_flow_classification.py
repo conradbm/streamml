@@ -53,18 +53,16 @@ Feature Selection Models:
                                  }
 """
 
-from streamml.streamline.feature_selection.flow.FeatureSelectionStream import FeatureSelectionStream
-from sklearn.datasets import load_boston
-boston=load_boston()
-X=pd.DataFrame(boston['data'], columns=boston['feature_names'])
-y=pd.DataFrame(boston['target'],columns=["target"])
+from streamml.streamml.streamline.feature_selection.flow.FeatureSelectionStream import FeatureSelectionStream
+from sklearn.datasets import load_iris
+iris=load_iris()
+X=pd.DataFrame(iris['data'], columns=iris['feature_names'])
+y=pd.DataFrame(iris['target'], columns=['target'])
 
-return_dict = FeatureSelectionStream(X,y).flow(["plsr", "mixed_selection", "rfr", "abr", "svr"],
-                                                params={"mixed_selection__threshold_in":0.01,
-                                                        "mixed_selection__threshold_out":0.05,
-                                                        "mixed_selection__verbose":True},
+return_dict = FeatureSelectionStream(X,y).flow(["rfc", "abc", "svc"],
+                                                params={},
                                                 verbose=True,
-                                                regressors=True,
+                                                regressors=False,
                                                 ensemble=True,
                                                 featurePercentage=0.5,
                                                 n_jobs=3)

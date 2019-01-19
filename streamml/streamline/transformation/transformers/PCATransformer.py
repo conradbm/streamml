@@ -1,4 +1,4 @@
-from streamline.transformation.AbstractTransformer import *
+from ..AbstractTransformer import *
 from sklearn.decomposition import PCA
 import matplotlib.pyplot as plt
 

@@ -11,7 +11,7 @@ from sklearn.metrics import mean_squared_log_error
 from sklearn.metrics import median_absolute_error
 import numpy as np
 #sys.path.append(os.path.abspath(sys.path[0]+"/src/streamline/model_selection/"))
-from streamline.model_selection.AbstractPredictiveModel import AbstractPredictiveModel
+from ..AbstractPredictiveModel import AbstractPredictiveModel
 
 
 class AbstractRegressorPredictiveModel(AbstractPredictiveModel):

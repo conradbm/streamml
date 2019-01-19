@@ -6,14 +6,14 @@ import warnings
 warnings.filterwarnings("ignore")
 
 
-from streamml.streamline.transformation.transformers.ScaleTransformer import ScaleTransformer
-from streamml.streamline.transformation.transformers.BernoulliRBMTransformer import BernoulliRBMTransformer
-from streamml.streamline.transformation.transformers.BinarizeTransformer import BinarizeTransformer
-from streamml.streamline.transformation.transformers.KMeansTransformer import KMeansTransformer
-from streamml.streamline.transformation.transformers.TSNETransformer import TSNETransformer
-from streamml.streamline.transformation.transformers.NormalizeTransformer import NormalizeTransformer
-from streamml.streamline.transformation.transformers.PCATransformer import PCATransformer
-from streamml.streamline.transformation.transformers.BoxcoxTransformer import BoxcoxTransformer
+from ..transformers.ScaleTransformer import ScaleTransformer
+from ..transformers.BernoulliRBMTransformer import BernoulliRBMTransformer
+from ..transformers.BinarizeTransformer import BinarizeTransformer
+from ..transformers.KMeansTransformer import KMeansTransformer
+from ..transformers.TSNETransformer import TSNETransformer
+from ..transformers.NormalizeTransformer import NormalizeTransformer
+from ..transformers.PCATransformer import PCATransformer
+from ..transformers.BoxcoxTransformer import BoxcoxTransformer
 
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.feature_extraction.text import CountVectorizer
