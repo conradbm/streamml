@@ -56,7 +56,8 @@ from streamml.streamline.model_selection.models.classifiers.RandomForestClassifi
 from streamml.streamline.model_selection.models.classifiers.StochasticGradientDescentClassifierPredictiveModel import StochasticGradientDescentClassifierPredictiveModel
 from streamml.streamline.model_selection.models.classifiers.SupportVectorClassifierPredictiveModel  import SupportVectorClassifierPredictiveModel 
 
-
+#Utils
+from streamml.utils.helpers import listofdict2dictoflist
 
 # Print Settings
 import warnings
@@ -243,14 +244,6 @@ class ModelSelectionStream:
 
         
         if self._stats:
-            
-            def listofdict2dictoflist(somelistofdicts):
-                nd=defaultdict(list)
-                for d in somelistofdicts:
-                   for key,val in d.items():
-                      nd[key].append(val)
-                return nd
-            
             print("*****************************************************************************************")
             print("=> (Regressor) => (Two Tailed T-test) =>(Calculating Statistical Differences In Means)")
             print("*****************************************************************************************")
@@ -349,13 +342,6 @@ class ModelSelectionStream:
         # plot models against one another in charts
         
         if self._stats:
-        
-            def listofdict2dictoflist(somelistofdicts):
-                nd=defaultdict(list)
-                for d in somelistofdicts:
-                   for key,val in d.items():
-                      nd[key].append(val)
-                return nd
             
             print("*****************************************************************************************")
             print("=> (Classifier) => (Two Tailed T-test) =>(Calculating Statistical Differences In Means)")
